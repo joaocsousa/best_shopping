@@ -33,3 +33,8 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+python_scripts/fetch_products/log-General-Continente.csv
+python_scripts/fetch_products/log-Produtos-Continente.csv
+
+proxylist
