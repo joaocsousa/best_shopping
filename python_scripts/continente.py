@@ -213,9 +213,6 @@ class CatSpider(Process):
                 self._threads.append(prodSpider)
                 prodSpider.start()
 
-                if (len(self._threads) >= 10 ):
-                    self._waitForThreads()
-
             elif "menu" in subCat["class"]:
                 subSubCats = subCat.findAll("div", {"class": "menuNode"}, recursive=False)
                 for subSubCat in subSubCats:
@@ -242,9 +239,6 @@ class CatSpider(Process):
                     prodSpider = ProdSpider(self._hiperName, subSubCatUrl, subSubCatDB, self._session, self._lock)
                     self._threads.append(prodSpider)
                     prodSpider.start()
-
-                    if (len(self._threads) >= 10 ):
-                        self._waitForThreads()
 
                     try:
                         subSubSubCats = subCat.find("div", {"id" : subSubCat["id"]+"Menu", "class": "menu"}, recursive=False).findAll("div", {"class": "menuNode"}, recursive=False)
@@ -279,13 +273,6 @@ class CatSpider(Process):
                     except KeyError:
                         pass
         Utils.printMsg(self._hiperName, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
-
-    def _waitForThreads(self):
-        #threads created
-        for thread in self._threads:
-            if thread.isAlive():
-                thread.join()
-        self._threads[:] = []
 
 class Continente(hiper.Hiper):
 
@@ -323,9 +310,9 @@ class Continente(hiper.Hiper):
             catSpider.start()
             break
         #threads created
-        #for thread in self._threads:
-        #    if thread.isAlive():
-        #        thread.join()
+        for thread in self._threads:
+            if thread.isAlive():
+                thread.join()
 
         Utils.printMsg(self._name, "/" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
 

@@ -5,6 +5,22 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'hiper_precos.settings'
 
 from django.db import connection    
 
+import continente, jumbo
+import threading
+
+class Fetcher(threading.Thread):
+    def __init__(self, hiper):
+        threading.Thread.__init__(self)
+        self.hiper = hiper
+    def run(self):
+        if self.hiper == 'jumbo':
+            jumb = jumbo.Jumbo()
+            jumb.startFetchingProducts()
+        elif self.hiper == 'continente':
+            ctn = continente.Continente()
+            ctn.startFetchingProducts()
+        print 'Finished fetching products of: ', self.hiper
+
 if __name__ == "__main__":
 
     # delete everything
@@ -17,11 +33,11 @@ if __name__ == "__main__":
 
     print "Tables cleaned"
 
-    # os.system("nohup /home/tinycool/python_scripts/fetch_products/fetchContinente.py > continente.out 2>&1&")
-    os.system("/home/tinycool/python_scripts/fetch_products/fetchContinente.py &")
+    fetchContinente = Fetcher('continente')
+    fetchContinente.start()
 
     #fetchJumbo = Fetcher('jumbo')
     #fetchJumbo.start()
 
     #fetchJumbo.join()    # Wait for the background task to finish
-    #fetchContinente.join()
+    fetchContinente.join()
