@@ -1,5 +1,17 @@
 # Django settings for hiper_precos project.
 
+import os
+
+import socket
+
+HOSTNAME = socket.gethostname()
+
+HOST = ''
+PORT = ''
+if HOSTNAME == 'raspberrypi':
+    HOST = "tinycoolthings.com"
+    PORT = '3306'
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -9,6 +21,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -16,8 +30,8 @@ DATABASES = {
         # The following settings are not used with sqlite3:
         'USER': 'tinycool_admin',
         'PASSWORD': 'UCaHmEco1',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'HOST': HOST,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': PORT,                      # Set to empty string for default.
     }
 }
 
@@ -111,6 +125,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    PROJECT_PATH + '/../templates/'
 )
 
 INSTALLED_APPS = (
@@ -126,6 +141,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'hipers',
     'rest_framework',
+    'haystack',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -160,4 +176,11 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGINATE_BY': 10
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
 }

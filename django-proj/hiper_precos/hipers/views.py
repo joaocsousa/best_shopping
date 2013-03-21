@@ -4,6 +4,7 @@ from rest_framework import generics, permissions, renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from django.http.response import HttpResponse
 
 class HiperList(generics.ListCreateAPIView):
     model = Hiper
@@ -42,3 +43,15 @@ def api_root(request, format=None):
             'categorias': reverse('categoria-list', request=request, format=format),
             'produtos': reverse('produto-list', request=request, format=format)
         })
+
+def database_to_write(request, format=None):
+    response_data = {'':''}
+    response_data['result'] = 'database_to_write'
+    response_data['message'] = 'TESTE'
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+def database_ready(request, format=None):
+    response_data = {'':''}
+    response_data['result'] = 'database_ready'
+    response_data['message'] = 'TESTE'
+    return HttpResponse(json.dumps(response_data), content_type="application/json")

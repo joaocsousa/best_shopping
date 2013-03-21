@@ -24,3 +24,8 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 urlpatterns += patterns('',
     url(r'^'+apiPath+'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 )
+
+urlpatterns += patterns('hipers.views',
+    url(r'^database_to_write/$', views.database_to_write),
+    url(r'^database_ready/$', views.database_ready),
+)

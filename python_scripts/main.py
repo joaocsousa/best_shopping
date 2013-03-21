@@ -1,43 +1,24 @@
-#!/home/tinycool/.env/bin/python2.7
+#!/usr/bin/python
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'hiper_precos.settings'
 
-from django.db import connection    
-
-import continente, jumbo
-import threading
-
-class Fetcher(threading.Thread):
-    def __init__(self, hiper):
-        threading.Thread.__init__(self)
-        self.hiper = hiper
-    def run(self):
-        if self.hiper == 'jumbo':
-            jumb = jumbo.Jumbo()
-            jumb.startFetchingProducts()
-        elif self.hiper == 'continente':
-            ctn = continente.Continente()
-            ctn.startFetchingProducts()
-        print 'Finished fetching products of: ', self.hiper
+from django.db import connection
+import continente, jumbo, time
+from utils import Utils
 
 if __name__ == "__main__":
 
+    start_time = time.time()
+
     # delete everything
-    cursor = connection.cursor()
-    cursor.execute("set foreign_key_checks = 0")
-    cursor.execute("truncate table hipers_categoria")
-    cursor.execute("truncate table hipers_hiper")
-    cursor.execute("truncate table hipers_produto")
-    cursor.execute("set foreign_key_checks = 1")
+    #cursor = connection.cursor()
+    #Utils.clearTables(cursor)
 
-    print "Tables cleaned"
+    ctn = continente.Continente()
+    ctn.startFetchingProducts()
 
-    fetchContinente = Fetcher('continente')
-    fetchContinente.start()
+    jumb = jumbo.Jumbo()
+    jumb.startFetchingProducts()
 
-    #fetchJumbo = Fetcher('jumbo')
-    #fetchJumbo.start()
-
-    #fetchJumbo.join()    # Wait for the background task to finish
-    fetchContinente.join()
+    print "Finished - Elapsed: " + str(time.time()-start_time) + " seconds"

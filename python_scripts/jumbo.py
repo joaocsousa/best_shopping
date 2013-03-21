@@ -5,121 +5,89 @@ from hipers import models
 from django.utils import timezone
 
 class Jumbo(hiper.Hiper):        
-    _session = None
-    _viewStateKey = None
-    _hiperRef = None
+    
     #constructor
     def __init__(self):
-        name = "Jumbo"
-        domain = "http://www.jumbo.pt"
-        mainPath = "Frontoffice/ContentPages/JumboNetWelcome.aspx"
-        hiper.Hiper.__init__(self, name=name, domain=domain, mainPath=mainPath)
+        self._name = "Jumbo"
+        self._domain = "http://www.jumbo.pt"
+        self._mainPath = "Frontoffice/ContentPages/JumboNetWelcome.aspx"
+        self._url = Utils.toStr(self._domain + "/" + self._mainPath)
+        
+        hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
         
         # Save to DB
-        hiperDB = models.Hiper(nome=name, domain=domain, mainPath=mainPath)
-        hiperDB.save()
+        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
+        Utils.saveObjToDB(hiperDB)
+
         self._hiperRef = hiperDB
 
-        self._viewStateKey = ""
         self._session = requests.Session()
+        self._viewStateKey = ""
+
     def _updateViewStateKey(self, soupObj):
         viewStateKeyObj = soupObj.find("input", { "id" : "__VIEWSTATE_KEY" })
         try:
             if viewStateKeyObj["value"] != self._viewStateKey:
                 self._viewStateKey = viewStateKeyObj["value"]
-                self.printMsg("ViewStateKey updated: " + self._viewStateKey, Utils.getLineNo())
+                Utils.printMsg(self._name, "ViewStateKey updated: " + self._viewStateKey, Utils.getLineNo())
         except:
             pass
+
     def startFetchingProducts(self):
         start_time = time.time()
-        self.printMsg("Started", Utils.getLineNo())
+        Utils.printMsg(self._name, "Started", Utils.getLineNo())
         jumboMainPage = self._session.get(self._url)
-        soupJumbo = BeautifulSoup(jumboMainPage.text)
+        soupJumbo = BeautifulSoup(jumboMainPage.text.replace('&nbsp;', ''))
         self._updateViewStateKey(soupJumbo)
         try:
             categorias = soupJumbo.findAll("a", { "class" : "btCategoria" })
         except Exception, e:
-            self.printMsg("Nao consegui encontrar categorias!", Utils.getLineNo())
-            self.printMsg(str(e), Utils.getLineNo())
+            Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
+            Utils.printMsg(self._name, str(e), Utils.getLineNo())
             raise SystemExit
         currentCat = 1
         for categoria in categorias:
             
-            cat = hiper.Categoria()
-            self.addCategoria(cat)
-            
-            # Categoria - Nome
-            try:
-                catName = categoria.find("div", { "class" : "titCat" }).string
-            except Exception, e:
-                self.printMsg(str(e), Utils.getLineNo())
-                catName = None
-            cat.setName(catName)
-
-            self.printMsg("Categoria [" + catName + "]", Utils.getLineNo())
-
             # Categoria - URL
             try:
-                catUrl = categoria['href']
+                catUrl = Utils.strip(categoria['href'])
             except:
                 catUrl = None
-            cat.setUrl(catUrl)
 
-            # Categoria - ID
+            # Categoria - Nome
             try:
-                catID = int(catUrl[catUrl.rfind('?C=')+len('?C='):])
-            except:
-                catID = self.getNewId()
-            cat.setId(catID)
-            self.addExistingId(int(catID))
+                catName = Utils.strip(categoria.find("div", { "class" : "titCat" }).string)
+            except Exception, e:
+                catName = None
+
+            Utils.printMsg(self._name, "Categoria [" + catName + "]", Utils.getLineNo())
 
             # Save to DB
             catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef)
-            catDB.save()
+            Utils.saveObjToDB(catDB)
 
             # Categoria - SubCategorias
             subCategorias = soupJumbo.findAll("a", id = re.compile("subItem_"+str(currentCat)+"_"))
             currentSubCat = 1
             for subCategoria in subCategorias:
-                
-                currSubCat = hiper.Categoria()
-                cat.addSubCategoria(currSubCat)
-
-                # SubCategoria - Categoria Pai
-                currSubCat.setCategoriaPai(cat.getId())
-
+            
                 # SubCategoria - Nome
                 try:
-                    subCatName = subCategoria.string
-                    if subCatName is None:
-                        for child in subCategoria.children:
-                            if type(child) is Tag:
-                                subCatName = child.contents[2].strip()
-                                break
+                    subCatName = Utils.strip(subCategoria.text)
                 except:
                     subCatName = None
-                currSubCat.setName(subCatName)
 
-                self.printMsg("SubCategoria [" + subCatName + "]", Utils.getLineNo())
+                Utils.printMsg(self._name, "SubCategoria [" + subCatName + "]", Utils.getLineNo())
 
                 # SubCategoria - URL
                 try:
-                    subCatUrl = subCategoria['href']
+                    subCatUrl = Utils.strip(subCategoria['href'])
                 except:
                     subCatUrl = None
-                currSubCat.setUrl(subCatUrl)
-
-                # SubCategoria - ID
-                try:
-                    subCatID = int(subCatUrl[subCatUrl.rfind('?C=')+len('?C='):])
-                except:
-                    subCatID = self.getNewId()
-                currSubCat.setId(subCatID)
-                self.addExistingId(int(subCatID))
 
                 # Save to DB
                 subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
-                subCatDB.save()
+                Utils.saveObjToDB(subCatDB)
 
                 # SubCategoria - SubSubCategorias
                 subSubCategorias = soupJumbo.findAll("div", id = re.compile("subsubCategorias_"+str(currentCat)+"_"+str(currentSubCat))) 
@@ -127,58 +95,47 @@ class Jumbo(hiper.Hiper):
                 for subSubCategoriaGroup in subSubCategorias:
                     for subSubCategoria in subSubCategoriaGroup:
                         
-                        if len(subSubCategoria.string.strip())>0:
-
-                            currSubSubCat = hiper.Categoria()
-                            currSubCat.addSubCategoria(currSubSubCat)
-
-                            # SubSubCategoria - Categoria Pai
-                            currSubSubCat.setCategoriaPai(currSubCat.getId())
+                        if len(Utils.strip(subSubCategoria.string))>0:
 
                             # SubSubCategoria - Nome
                             try:
-                                subSubCatName = subSubCategoria.string.strip()
+                                subSubCatName = Utils.strip(subSubCategoria.string)
                             except:
                                 subSubCatName = None
-                            currSubSubCat.setName(subSubCatName)
                         
-                            self.printMsg("SubSubCategoria [" + subSubCatName + "]", Utils.getLineNo())
+                            Utils.printMsg(self._name, "SubSubCategoria [" + subSubCatName + "]", Utils.getLineNo())
 
                             # SubSubCategoria - URL
                             try:
-                                subSubCatUrl = subSubCategoria["href"]
+                                subSubCatUrl = Utils.strip(subSubCategoria["href"])
                             except:
                                 subSubCatUrl = None
-                            currSubSubCat.setUrl(subSubCatUrl)
-                
-                            # SubSubCategoria - ID
-                            try:
-                                subSubCatID = int(subSubCatUrl[subSubCatUrl.rfind('?C=')+len('?C='):])
-                            except:
-                                subSubCatID = self.getNewId()
-                            currSubSubCat.setId(subSubCatID)
-                            self.addExistingId(int(subSubCatID))
 
                             # Save to DB
                             subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef)
-                            subSubCatDB.save()
+                            Utils.saveObjToDB(subSubCatDB)
 
                             # SubSubCategoria - Produtos
-                            if Utils.validUrl(subCatUrl):
-                                self._fetchProducts(currSubSubCat, subSubCatDB)
+                            self._getProdutosFromCat(subSubCatDB)
                             
                     currentSubSubCat+=1
                 currentSubCat+=1
             currentCat+=1
-        self.printMsg("Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
 
-    def _fetchProducts(self, categoria, catDB):
-        currUrl = categoria.getUrl()
+            Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
+        
+        Utils.printMsg(self._name, "-" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
+
+    def _getProdutosFromCat(self, catDB):
+        
+        if not Utils.validUrl(catDB.url):
+            return False
+
         currentPage = ""
         nextPage = "1"
         singlePage = False
         while nextPage != "" and nextPage != currentPage and singlePage == False:
-            productsPage = self._getProdutsPage(nextPage, currUrl)
+            productsPage = self._getProdutsPage(nextPage, catDB.url)
             productsPageSoup = BeautifulSoup(productsPage)
             self._updateViewStateKey(productsPageSoup)
             #update current page and next page
@@ -189,6 +146,7 @@ class Jumbo(hiper.Hiper):
             paginas = paginasSoup.find("div", {"class": "num"}).findChildren()
             if len(paginas) == 0:
                 singlePage = True
+                currentPage = "1"
             for pagina in paginas:
                 try:
                     if pagina['class'][0] == 'pagSelec':
@@ -197,6 +155,7 @@ class Jumbo(hiper.Hiper):
                 except:
                     nextPage = pagina.string
                     pass
+                    
             #we have currentPage and NextPage
 
             #parse products for this page
@@ -206,7 +165,7 @@ class Jumbo(hiper.Hiper):
                 
                 # Produto - Nome
                 try:
-                    nome = product.find("a", {"class" : "titProd"}).text.strip()
+                    nome = Utils.strip(product.find("a", {"class" : "titProd"}).text)
                     if nome == "":
                         raise Exception("")
                 except:
@@ -216,59 +175,52 @@ class Jumbo(hiper.Hiper):
 
                 # Produto - URL
                 try:
-                    urlProduto = product.find("a", {"class" : "titProd"})["href"]
-                except Exception, e:
-                    self.printMsg(str(e), Utils.getLineNo())
+                    urlProduto = Utils.strip(product.find("a", {"class" : "titProd"})["href"])
+                except:
                     urlProduto = None
 
                 # Produto - Preco
                 try:
-                    precoSoup = product.find("div", {"class" : "preco"})
-                    precos = re.findall(r'\d+', precoSoup.text)
+                    precoTxt = Utils.strip(product.find("div", {"class" : "preco"}).text)
+                    precos = re.findall(r'\d+', precoTxt)
                     precoProduto = (float(precos[0])*100+float(precos[1]))/100
                 except:
                     precoProduto = None
 
                 # Produto - Preco/Kg
                 try:
-                    precoKgSoup = product.find("div", {"class" : "prodkg"})
-                    regex = ur"\d{1,4}[,.]\d{1,4}"
-                    precoKg = float(re.findall(regex, precoKgSoup.text.strip())[0].replace(",","."))
+                    precoKgTxt = Utils.strip(product.find("div", {"class" : "prodkg"}).text)
+                    precoKg = float(re.findall(ur"\d{1,4}[,.]\d{1,4}", precoKgTxt)[0].replace(",","."))
                 except:
                     precoKg = None
 
                 # Produto - Peso
                 try:
-                    peso = product.find("div", {"class" : "gr"}).text.strip()
+                    peso = Utils.strip(product.find("div", {"class" : "gr"}).text)
                 except:
                     peso = None
 
                 # Produto - ID
                 try:
-                    regex = ur"\d+$"
-                    idProduto = re.findall(regex, url)[0]
-                    if self.idExists(idProduto):
-                        raise Exception("")
-                    self.addExistingId(str(idProduto))
+                    idProduto = Utils.strip(re.findall(ur"\d+$", url)[0])
                 except:
-                    idProduto = self.getNewId()
-                    self.addExistingId(str(idProduto))
+                    idProduto = -1
 
                 # Produto - Imagem
                 try:
-                    imagem = self._domain + product.find("a", {"id" : "lProdDetail"}).find("img")["src"]
+                    imagem = self._domain + Utils.strip(product.find("a", {"id" : "lProdDetail"}).find("img")["src"])
                 except:
                     imagem = None
 
                 # Produto - Marca
                 try:
-                    marcaSoup = product.find("div", {"class" : "titMarca"})
-                    marca = marcaSoup.text.strip().lower()
+                    marca = Utils.strip(product.find("div", {"class" : "titMarca"}).text).lower()
                 except:
                     marca = None
 
                 # Save to DB
-                produtoDB = models.Produto( nome=nome,
+                try:
+                    produtoDB = models.Produto( nome=nome,
                                             marca=marca,
                                             preco=precoProduto,
                                             preco_kg=precoKg,
@@ -278,13 +230,15 @@ class Jumbo(hiper.Hiper):
                                             desconto=None,
                                             categoria_pai=catDB,
                                             last_updated=timezone.now())
-                produtoDB.save()
+                    Utils.saveObjToDB(produtoDB)
+                except Exception, e:
+                    print "ERROR %s" % str(e)
 
-                Utils.logProdutos(self.getName(), Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr("") + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
-                
+                Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr("") + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
+
                 nrProdutosParsed += 1
                 
-            self.printMsg("Pagina [" + str(currentPage) + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())
+            Utils.printMsg(self._name, catDB.nome+"-"+"Pagina [" + currentPage + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())
 
         #new page, reset session
         self._session = requests.Session()
@@ -306,4 +260,4 @@ class Jumbo(hiper.Hiper):
             self._session.post(url, data=payload) #request to update cookies
             self._session.post(url, data=payload) #request to update cookies
         request = self._session.post(url, data=payload) #real request
-        return request.text
+        return request.text.replace('&nbsp;', '')

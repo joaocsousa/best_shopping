@@ -1,43 +1,194 @@
-import re, requests, hiper, time
+import re, requests, hiper, time, codecs, traceback
 from bs4 import BeautifulSoup
 from utils import Utils
 from hipers import models
-from threading import Thread, Lock
 from django.utils import timezone
-from multiprocessing import Process
 
-class ProdSpider(Thread):
+class Continente(hiper.Hiper):
 
-    def __init__(self, hiperName, catUrl, catDB, session, lock):
-        Thread.__init__(self)
-        self._catUrl = catUrl
-        self._catDB = catDB
-        self._lock = lock
-        self._session = session
-        self._hiperName = hiperName
-    def run(self):
-        self._getProdutosFromCat()
+    #constructor
+    def __init__(self):
+        self._name = "Continente"
+        self._domain = "http://www.continente.pt"
+        self._mainPath = "HomePage.aspx"
+        self._url = Utils.toStr(self._domain + "/" + self._mainPath)
 
-    def _getProdutosFromCat(self, pagina=1, nrPages=None):
+        hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
+        
+        # Save to DB
+        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
+        Utils.saveObjToDB(hiperDB)
 
-        if not Utils.validUrl(self._catUrl):
-            return False
+        self._hiperRef = hiperDB
+
+        self._session = requests.Session()
+
+        self._statusFile = codecs.open("continente.status", "a+", "utf-8")
+
+    def startFetchingProducts(self):
+        start_time = time.time()
+
+        # check the current status file
+        fileLines = self._statusFile.readlines()
+        for line in fileLines:
+            print line
+        self._statusFile.truncate() # clear status file
+
+        Utils.printMsg(self._name, "Started", Utils.getLineNo())
+
+        continentMainPage = self._session.get(self._url)
+        soupContinente = BeautifulSoup(continentMainPage.text.replace('&nbsp;', ''))
+        try:
+            categorias = soupContinente.find("table", { "id" : "Table4" }).findAll("a")
+        except Exception, e:
+            Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
+            Utils.printMsg(self._name, str(e), Utils.getLineNo())
+            raise SystemExit
+        for cat in categorias:
+            
+            # Categoria - URL
+            try:
+                catUrl = self._domain+"/"+Utils.strip(cat['href'])
+            except:
+                print traceback.format_exc()
+                catUrl = None
+
+            # Categoria - Abre Categoria
+            catRequest = self._session.get(catUrl)
+            soupCat = BeautifulSoup(catRequest.text.replace('&nbsp;', ''))
+
+            # Categoria - Nome
+            try:
+                catName = Utils.strip(soupCat.find("a", {"class": "navmainOpcoesMenu"}).text)
+            except Exception, e:
+                print traceback.format_exc()
+                catName = None
+
+            # Save to DB
+            catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef)
+            Utils.saveObjToDB(catDB)
+
+            Utils.printMsg(self._name, "Categoria [" + catName + "]", Utils.getLineNo())
+
+            # Categoria - SubCategorias
+            subCats = soupCat.find("div", {"id": "subcatNav"}).findAll("div", recursive=False)
+            for subCat in subCats:
+                
+                if "button" in subCat["class"]:
+
+                    # SubCategoria - Nome
+                    try:
+                        subCatName = Utils.strip(subCat.text)
+                    except:
+                        subCatName = None
+
+                    Utils.printMsg(self._name, "SubCategoria [" + subCatName + "]", Utils.getLineNo())
+
+                    # SubCategoria - URL
+                    try:
+                        subCatUrl = self._domain+"/"+Utils.strip(subCat.find("a")["href"])
+                    except:
+                        subCatUrl = None
+                    
+                    # Save to DB
+                    subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
+                    Utils.saveObjToDB(subCatDB)
+
+                    # SubCategoria - Produtos
+                    while(self._getProdutosFromCat(subCatDB) == False):
+                        pass
+
+                elif "menu" in subCat["class"]:
+                    subSubCats = subCat.findAll("div", {"class": "menuNode"}, recursive=False)
+                    for subSubCat in subSubCats:
+                    
+                        # SubSubCategoria - Nome
+                        try:
+                            subSubCatName = Utils.strip(subSubCat.text)
+                        except:
+                            subSubCatName = None
+
+                        Utils.printMsg(self._name, "SubSubCategoria [" + subSubCatName + "]", Utils.getLineNo())
+
+                        # SubSubCategoria - URL
+                        try:
+                            subSubCatUrl = self._domain+"/"+Utils.strip(subSubCat.find("a")["href"])
+                        except:
+                            subSubCatUrl = None
+
+                        # Save to DB
+                        subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef)
+                        Utils.saveObjToDB(subSubCatDB)
+
+                        # SubSubCategoria - Produtos
+                        while(self._getProdutosFromCat(subSubCatDB) == False):
+                            pass
+                        try:
+                            subSubSubCats = subCat.find("div", {"id" : subSubCat["id"]+"Menu", "class": "menu"}, recursive=False).findAll("div", {"class": "menuNode"}, recursive=False)
+                            for subSubSubCat in subSubSubCats:
+                                
+                                # SubSubSubCategoria - Nome
+                                try:
+                                    subSubSubCatName = Utils.strip(subSubSubCat.text)
+                                except:
+                                    subSubSubCatName = None
+
+                                Utils.printMsg(self._name, "SubSubSubCategoria [" + subSubSubCatName + "]", Utils.getLineNo())
+
+                                # SubSubSubCategoria - URL
+                                try:
+                                    subSubSubCatUrl = self._domain+"/"+Utils.strip(subSubSubCat.find("a")["href"])
+                                except:
+                                    subSubSubCatUrl = None
+
+                                # Save to DB
+                                subSubSubCatDB = models.Categoria(url=subSubSubCatUrl, nome=subSubSubCatName, categoria_pai=subSubCatDB, hiper=self._hiperRef)
+                                saved = False
+                                retries = 0
+                                while saved == False:
+                                    try:
+                                        subSubSubCatDB.save()
+                                        saved = True
+                                        retries = 0
+                                    except Exception, e:
+                                        retries += 1
+                                        print "ERROR %s\n\tWaiting and retrying..." % str(e)
+                                        time.sleep(retries*5)
+
+                                # SubSubSubCategoria - Produtos
+                                while(self._getProdutosFromCat(subSubSubCatDB) == False):
+                                    pass
+
+                        except KeyError:
+                            pass
+            
+            # reset session
+            self._session = requests.Session() 
+            self._session.get(self._url)
+
+            Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
+
+        self._statusFile.write(Utils.STATUS_COMPLETE)
+        self._statusFile.close()
+        Utils.printMsg(self._name, "-" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
+
+    def _getProdutosFromCat(self, catDB, pagina=1, nrPages=None):
+
+        if not Utils.validUrl(catDB.url):
+            return True
 
         if pagina != 1 and nrPages+1 == pagina:
-            return
+            return True
 
         payload = {
                     '__EVENTTARGET': 'ProductsMain1:DataListPages:_ctl'+str((pagina - 1) * 2)+':linkButton',
                     'ProductsMain1:cmbPaginacao':'48'
                     }
-        #self._lock.acquire()
-        request = self._session.post(self._catUrl, data=payload) #real request
-        #self._lock.release()
-        soupPagina = BeautifulSoup(request.text)
+        request = self._session.post(catDB.url, data=payload) #real request
+        soupPagina = BeautifulSoup(request.text.replace('&nbsp;', ''))
         error = soupPagina.find("span",{"id":"Error1_lblErrorDescription"})
         if error:
-            Utils.printMsg(self._hiperName, "ERROR IN REQUEST", Utils.getLineNo())
-            print error.text
+            Utils.printMsg(self._name, "ERROR IN REQUEST", Utils.getLineNo())
             return False
 
         #parse Produtos
@@ -49,7 +200,7 @@ class ProdSpider(Thread):
             
             # Produto - Nome
             try:
-                nome = produto.find("a", {"class":"product-view-text-item"}).find(text=True).strip()
+                nome = Utils.strip(produto.find("a", {"class":"product-view-text-item"}).find(text=True))
                 if nome == "":
                     raise Exception("")
             except:
@@ -59,9 +210,8 @@ class ProdSpider(Thread):
             
             # Produto - URL
             try:
-                urlProduto = produto.find("a")["href"].strip()
-                urlProduto = " ".join(urlProduto.split())
-                urlProduto = self._hiperDomain + "/" + urlProduto
+                urlProduto = Utils.strip(produto.find("a")["href"])
+                urlProduto = self._domain + "/" + urlProduto
                 if urlProduto == "":
                     raise Exception("")
             except:
@@ -69,19 +219,19 @@ class ProdSpider(Thread):
             
             # Produto - Preco
             try:
-                precoProduto = float(re.findall(r'\d*[.,]\d*', produto.find("div",{"class":"product-view-price"}).text.replace(",","."))[0])
+                precoProduto = float(re.findall(r'\d*[.,]\d*', Utils.strip(produto.find("div",{"class":"product-view-price"}).text).replace(",","."))[0])
             except:
                 precoProduto = None
             
             # Produto - Preco/Kg
             try:
-                precoKg = float(re.findall(r'\d*[.,]\d*', produto.find("span",{"class":"produtoListaPrecoUnit"}).text.replace(",","."))[0])
+                precoKg = float(re.findall(r'\d*[.,]\d*', Utils.strip(produto.find("span",{"class":"produtoListaPrecoUnit"}).text).replace(",","."))[0])
             except:
                 precoKg = None
 
             # Produto - Peso
             try:
-                peso = produto.find("span",{"class":"product-package"}).text
+                peso = Utils.strip(produto.find("span",{"class":"product-package"}).text)
             except:
                 peso = None
 
@@ -93,7 +243,7 @@ class ProdSpider(Thread):
 
             # Produto - Imagem
             try:
-                imagem = self._hiperDomain + "/" + produto.find("img")["src"].replace("\\","/").replace("Med","Lar").replace("med","lar")
+                imagem = self._domain + Utils.strip(produto.find("img")["src"].replace("\\","/").replace("/Med/","/Lar/").replace("_med","_lar"))
                 if imagem == "":
                     raise Exception("")
             except:
@@ -101,8 +251,7 @@ class ProdSpider(Thread):
 
             # Produto - Marca
             try:
-                marca = produto.find("span",{"class":"product-logo"}).text.strip()
-                marca = " ".join(marca.split())
+                marca = Utils.strip(produto.find("span",{"class":"product-logo"}).text)
                 if marca == "":
                     raise Exception("")
             except:
@@ -110,7 +259,7 @@ class ProdSpider(Thread):
 
             # Produto - Desconto
             try:
-                fraseDesconto = re.findall(r'desconto\s*.*\d*[.,]\d*', produto.text.strip(), re.IGNORECASE)[0]
+                fraseDesconto = re.findall(r'desconto\s*.*\d*[.,]\d*', Utils.strip(produto.text), re.IGNORECASE)[0]
                 desconto = float(re.findall(r'\d*[.,]\d*', fraseDesconto)[0].replace(",","."))
             except:
                 desconto = None
@@ -124,195 +273,19 @@ class ProdSpider(Thread):
                                         url_pagina=urlProduto,
                                         url_imagem=imagem,
                                         desconto=desconto,
-                                        categoria_pai=self._catDB,
+                                        categoria_pai=catDB,
                                         last_updated=timezone.now())
-            produtoDB.save()
+            Utils.saveObjToDB(produtoDB)
 
-            Utils.logProdutos(self._hiperName, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr(desconto) + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))        
-            
+            Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr(desconto) + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
+
             nrProdutosParsed += 1
 
-        Utils.printMsg(self._hiperName, self._catDB.nome+"-"+"Pagina [" + str(pagina) + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())
-
-        if nrProdutosParsed == 0:
-            raise SystemExit
+        Utils.printMsg(self._name, catDB.nome+"-"+"Pagina [" + str(pagina) + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())    
 
         try:
             paginas = soupPagina.find("span",{"id":"ProductsMain1_DataListPages"}).findAll(id=re.compile('.*_DataListPages__.*'))
         except:
-            return False
+            return True
 
-        self._getProdutosFromCat(pagina+1, len(paginas))
-
-class CatSpider(Process):
-    
-    def __init__(self, categoria, hiperName, hiperDomain, hiperMainPath, hiperRef):
-        Process.__init__(self)
-        self._categoria = categoria
-        self._hiperName = hiperName
-        self._hiperDomain = hiperDomain
-        self._hiperMainPath = hiperMainPath
-        self._hiperRef = hiperRef
-        self._threads = []
-        self._session = requests.Session()
-        self._lock = Lock()
-    
-    def run(self):
-
-        # Categoria - URL
-        try:
-            catUrl = self._hiperDomain+"/"+self._categoria['href'].strip()
-        except:
-            catUrl = None
-
-        # inicia a sessao
-        self._session.get(self._hiperDomain+"/"+self._hiperMainPath)
-
-        # Categoria - Abre Categoria
-        catRequest = self._session.get(catUrl)
-        soupCat = BeautifulSoup(catRequest.text)
-
-        # Categoria - Nome
-        try:
-            catName = soupCat.find("a", {"class": "navmainOpcoesMenu"}).text
-        except:
-            catName = None
-
-        # Save to DB
-        catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef)
-        catDB.save()
-
-        Utils.printMsg(self._hiperName, "Categoria [" + catName + "]", Utils.getLineNo())
-
-        # Categoria - SubCategorias
-        subCats = soupCat.find("div", {"id": "subcatNav"}).findAll("div", recursive=False)
-        for subCat in subCats:
-            
-            if "button" in subCat["class"]:
-
-                # SubCategoria - Nome
-                try:
-                    subCatName = subCat.text
-                except:
-                    subCatName = None
-
-                Utils.printMsg(self._hiperName, "SubCategoria [" + subCatName + "]", Utils.getLineNo())
-
-                # SubCategoria - URL
-                try:
-                    subCatUrl = self._hiperDomain+"/"+subCat.find("a")["href"]
-                except:
-                    subCatUrl = None
-                
-                # Save to DB
-                subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
-                subCatDB.save()
-
-                # SubCategoria - Produtos
-                prodSpider = ProdSpider(self._hiperName, subCatUrl, subCatDB, self._session, self._lock)
-                self._threads.append(prodSpider)
-                prodSpider.start()
-
-            elif "menu" in subCat["class"]:
-                subSubCats = subCat.findAll("div", {"class": "menuNode"}, recursive=False)
-                for subSubCat in subSubCats:
-                
-                    # SubSubCategoria - Nome
-                    try:
-                        subSubCatName = subSubCat.text
-                    except:
-                        subSubCatName = None
-
-                    Utils.printMsg(self._hiperName, "SubSubCategoria [" + subSubCatName + "]", Utils.getLineNo())
-
-                    # SubSubCategoria - URL
-                    try:
-                        subSubCatUrl = self._hiperDomain+"/"+subSubCat.find("a")["href"]
-                    except:
-                        subSubCatUrl = None
-
-                    # Save to DB
-                    subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef)
-                    subSubCatDB.save()
-
-                    # SubSubCategoria - Produtos
-                    prodSpider = ProdSpider(self._hiperName, subSubCatUrl, subSubCatDB, self._session, self._lock)
-                    self._threads.append(prodSpider)
-                    prodSpider.start()
-
-                    try:
-                        subSubSubCats = subCat.find("div", {"id" : subSubCat["id"]+"Menu", "class": "menu"}, recursive=False).findAll("div", {"class": "menuNode"}, recursive=False)
-                        for subSubSubCat in subSubSubCats:
-                            
-                            # SubSubSubCategoria - Nome
-                            try:
-                                subSubSubCatName = subSubSubCat.text
-                            except:
-                                subSubSubCatName = None
-
-                            Utils.printMsg(self._hiperName, "SubSubSubCategoria [" + subSubSubCatName + "]", Utils.getLineNo())
-
-                            # SubSubSubCategoria - URL
-                            try:
-                                subSubSubCatUrl = self._hiperDomain+"/"+subSubSubCat.find("a")["href"]
-                            except:
-                                subSubSubCatUrl = None
-
-                            # Save to DB
-                            subSubSubCatDB = models.Categoria(url=subSubSubCatUrl, nome=subSubSubCatName, categoria_pai=subSubCatDB, hiper=self._hiperRef)
-                            subSubSubCatDB.save()
-
-                            # SubSubSubCategoria - Produtos
-                            prodSpider = ProdSpider(self._hiperName, subSubSubCatUrl, subSubSubCatDB, self._session, self._lock)
-                            self._threads.append(prodSpider)
-                            prodSpider.start()
-
-                            if (len(self._threads) >= 10 ):
-                                self._waitForThreads()
-
-                    except KeyError:
-                        pass
-        Utils.printMsg(self._hiperName, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
-
-class Continente(hiper.Hiper):
-
-    #constructor
-    def __init__(self):
-        self._name = "Continente"
-        self._domain = "http://www.continente.pt"
-        self._mainPath = "HomePage.aspx"
-        self._url = Utils.toStr(self._domain + "/" + self._mainPath)
-        self._threads = []
-
-        hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
-        
-        # Save to DB
-        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
-        hiperDB.save()
-        self._hiperRef = hiperDB
-
-        self._session = requests.Session()
-
-    def startFetchingProducts(self):
-        start_time = time.time()
-        Utils.printMsg(self._name, "Started", Utils.getLineNo())
-        continentMainPage = self._session.get(self._url)
-        soupContinente = BeautifulSoup(continentMainPage.text)
-        try:
-            categorias = soupContinente.find("table", { "id" : "Table4" }).findAll("a")
-        except Exception, e:
-            Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
-            Utils.printMsg(self._name, str(e), Utils.getLineNo())
-            raise SystemExit
-        for cat in categorias:
-            catSpider = CatSpider(cat, self._name, self._domain, self._mainPath, self._hiperRef)
-            self._threads.append(catSpider)
-            catSpider.start()
-            break
-        #threads created
-        for thread in self._threads:
-            if thread.isAlive():
-                thread.join()
-
-        Utils.printMsg(self._name, "/" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
-
+        self._getProdutosFromCat(catDB, pagina+1, len(paginas))

@@ -1,11 +1,15 @@
-import inspect, urlparse, string, datetime, csv
+# -*- coding: utf-8 -*- 
+import inspect, urlparse, string, datetime, csv, traceback, time
 from django.utils.encoding import smart_text
 
 class Utils:
     debug              = True
     showRealTime       = True
     printToFile        = True
-    logSeparator       = ";"
+    logSeparator       = "_"
+    STATUS_COMPLETE    = "FINISHED"
+    STATUS_INCOMPLETE  = "INCOMPLETE"
+    STATUS_LATEST_DATA = "LATEST_DATA"
     @staticmethod
     def logMessage(hiper, msg, lineNo):
         if Utils.debug:
@@ -56,3 +60,40 @@ class Utils:
     @staticmethod
     def printMsg(hiperName, msg, lineNo):
         Utils.logMessage(hiperName, msg, lineNo);
+    @staticmethod
+    def strip(str):
+        str = str.replace("\r\n", " ")
+        return" ".join(str.split())
+    @staticmethod
+    def saveObjToDB(obj):
+        saved = False
+        retries = 0
+        while saved == False:
+            try:
+                obj.save()
+                saved = True
+                retries = 0
+            except Exception, e:
+                retries += 1
+                print traceback.format_exc()
+                print "ERROR %s\n\tWaiting and retrying..." % str(e)
+                time.sleep(retries*5)
+    @staticmethod
+    def clearTables(cursor):
+        cleaned = False
+        retries = 0
+        while cleaned == False:
+            try:
+                cursor.execute("set foreign_key_checks = 0")
+                cursor.execute("truncate table hipers_categoria")
+                cursor.execute("truncate table hipers_hiper")
+                cursor.execute("truncate table hipers_produto")
+                cursor.execute("set foreign_key_checks = 1")
+                cleaned = True
+                retries = 0
+            except Exception, e:
+                retries += 1
+                print traceback.format_exc()
+                print "ERROR %s\n\tWaiting and retrying..." % str(e)
+                time.sleep(retries*5)
+        print "Tables cleaned"
