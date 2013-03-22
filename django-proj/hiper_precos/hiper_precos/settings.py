@@ -141,7 +141,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'hipers',
     'rest_framework',
-    'haystack',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -176,11 +175,4 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGINATE_BY': 10
-}
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
-    },
 }

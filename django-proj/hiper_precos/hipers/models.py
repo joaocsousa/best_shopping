@@ -11,7 +11,13 @@ class Hiper(models.Model):
 
     def __unicode__(self):
         return self.nome
-        
+  
+    def save(self, *args, **kwargs):
+        #if not self.id:
+            # Newly created object, so set slug
+            #self.slug = slugify(self.nome)
+        super(Hiper, self).save()
+
 class Categoria(models.Model):
     url = models.CharField(max_length=300, null=True)
     nome = models.CharField(max_length=100)
@@ -20,34 +26,38 @@ class Categoria(models.Model):
     hiper = models.ForeignKey(Hiper, related_name='categorias')
 
     def __unicode__(self):
-        p_list = self._recurse_for_parents(self)
+        #p_list = self._recurse_for_parents(self)
 
-        p_list.append(self.nome)
-        return self.get_separator().join(p_list)
+        #p_list.append(self.nome)
+        #return self.get_separator().join(p_list)
+        return self.slug
+
+    # def get_absolute_url(self):
+    #     if self.categoria_pai_id:
+    #         return "/categorias/%s/%s/" % (self.categoria_pai.slug, self.slug)
+    #     else:
+    #         return "/categorias/%s/" % (self.slug)
 
     def get_absolute_url(self):
-        if self.categoria_pai_id:
-            return "/categorias/%s/%s/" % (self.categoria_pai.slug, self.slug)
-        else:
-            return "/categorias/%s/" % (self.id)
+        return reverse('hipers.views.CategoriaDetail', args=[str(self.id)])
 
-    def _recurse_for_parents(self, cat_obj):
-        p_list = []
-        if cat_obj.categoria_pai_id:
-            p = cat_obj.categoria_pai
-            p_list.append(p.nome)
-            more = self._recurse_for_parents(p)
-            p_list.extend(more)
-        if cat_obj == self and p_list:
-            p_list.reverse()
-        return p_list
+    # def _recurse_for_parents(self, cat_obj):
+    #     p_list = []
+    #     if cat_obj.categoria_pai_id:
+    #         p = cat_obj.categoria_pai
+    #         p_list.append(p.nome)
+    #         more = self._recurse_for_parents(p)
+    #         p_list.extend(more)
+    #     if cat_obj == self and p_list:
+    #         p_list.reverse()
+    #     return p_list
 
-    def get_separator(self):
-        return ' :: '
+    # def get_separator(self):
+    #     return ' :: '
 
-    def _parents_repr(self):
-        p_list = self._recurse_for_parents(self)
-        return self.get_separator().join(p_list)
+    # def _parents_repr(self):
+    #     p_list = self._recurse_for_parents(self)
+    #     return self.get_separator().join(p_list)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -69,3 +79,9 @@ class Produto(models.Model):
 
     def __unicode__(self):
         return u'%s - %s - %s' % (unicode(self.categoria_pai), self.nome, self.marca)
+
+    def save(self, *args, **kwargs):
+        #if not self.id:
+            # Newly created object, so set slug
+            #self.slug = slugify(self.nome)
+        super(Produto, self).save()

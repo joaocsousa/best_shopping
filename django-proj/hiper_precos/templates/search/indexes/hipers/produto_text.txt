@@ -1,4 +1,0 @@
-{{ object.id }}
-{{ object.nome }}
-{{ object.marca }}
-{{ object.preco }}

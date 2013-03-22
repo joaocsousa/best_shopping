@@ -1,3 +1,0 @@
-{{ object.id }}
-{{ object.nome }}
-{{ object.hiper }}

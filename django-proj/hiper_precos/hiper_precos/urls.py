@@ -6,7 +6,7 @@ from hipers import views
 # from django.contrib import admin
 # admin.autodiscover()
 
-apiVersion = '0.6'
+apiVersion = '0.7'
 apiPath = 'api/'+apiVersion+'/'
 
 urlpatterns = patterns('hipers.views',
