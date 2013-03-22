@@ -15,6 +15,7 @@ urlpatterns = patterns('hipers.views',
     url(r'^'+apiPath+'hipers/(?P<pk>[0-9]+)/$', views.HiperDetail.as_view(), name='hiper-detail'),
     url(r'^'+apiPath+'categorias/$', views.CategoriaList.as_view(), name='categoria-list'),
     url(r'^'+apiPath+'categorias/(?P<pk>[0-9]+)/$', views.CategoriaDetail.as_view(), name='categoria-detail'),
+    url(r'^'+apiPath+'categorias/(?P<slug>[-\w]+)/$', views.CategoriaDetail.as_view(), name='categoria-detail'),
     url(r'^'+apiPath+'produtos/$', views.ProdutoList.as_view(), name='produto-list'),
     url(r'^'+apiPath+'produtos/(?P<pk>[0-9]+)/$', views.ProdutoDetail.as_view(), name='produto-detail'),
 )

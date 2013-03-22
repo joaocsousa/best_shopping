@@ -27,37 +27,32 @@ class Categoria(models.Model):
 
     def __unicode__(self):
         #p_list = self._recurse_for_parents(self)
-
         #p_list.append(self.nome)
         #return self.get_separator().join(p_list)
-        return self.slug
+        return {"nome" : self.nome, "id" : self.id, "slug" : self.slug }
 
     # def get_absolute_url(self):
     #     if self.categoria_pai_id:
-    #         return "/categorias/%s/%s/" % (self.categoria_pai.slug, self.slug)
+    #         return "/categorias/%s/%s/" % (self.categoria_pai.id, self.id)
     #     else:
-    #         return "/categorias/%s/" % (self.slug)
+    #         return "/categorias/%s/" % (self.id)
 
-    def get_absolute_url(self):
-        return reverse('hipers.views.CategoriaDetail', args=[str(self.id)])
+    #def get_absolute_url(self):
+    #    return reverse('hipers.views.CategoriaDetail', args=[str(self.id)])
 
-    # def _recurse_for_parents(self, cat_obj):
-    #     p_list = []
-    #     if cat_obj.categoria_pai_id:
-    #         p = cat_obj.categoria_pai
-    #         p_list.append(p.nome)
-    #         more = self._recurse_for_parents(p)
-    #         p_list.extend(more)
-    #     if cat_obj == self and p_list:
-    #         p_list.reverse()
-    #     return p_list
+    def _recurse_for_parents(self, cat_obj):
+        p_list = []
+        if cat_obj.categoria_pai_id:
+            p = cat_obj.categoria_pai
+            p_list.append(p.nome)
+            more = self._recurse_for_parents(p)
+            p_list.extend(more)
+        if cat_obj == self and p_list:
+            p_list.reverse()
+        return p_list
 
-    # def get_separator(self):
-    #     return ' :: '
-
-    # def _parents_repr(self):
-    #     p_list = self._recurse_for_parents(self)
-    #     return self.get_separator().join(p_list)
+    def get_separator(self):
+        return ' :: '
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -78,7 +73,15 @@ class Produto(models.Model):
     last_updated = models.DateTimeField()
 
     def __unicode__(self):
-        return u'%s - %s - %s' % (unicode(self.categoria_pai), self.nome, self.marca)
+        return {
+                    "id" : self.id,
+                    "nome" : self.nome,
+                    "marca" : self.marca,
+                    "preco": self.preco,
+                    "peso": self.peso,
+                    "url_imagem": self.url_imagem,
+                    "desconto": self.desconto
+                }
 
     def save(self, *args, **kwargs):
         #if not self.id:

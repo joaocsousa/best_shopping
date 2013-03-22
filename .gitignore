@@ -38,3 +38,7 @@ python_scripts/fetch_products/log-General-Continente.csv
 python_scripts/fetch_products/log-Produtos-Continente.csv
 
 proxylist
+
+.DS_Store
+
+*.sql

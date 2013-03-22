@@ -1,19 +1,26 @@
 # Django settings for hiper_precos project.
 
-import os
+import os, uuid
 
-import socket
+PRODUCTION_SERVERS = [161337859780,]
+if uuid.getnode() in PRODUCTION_SERVERS:
+    PRODUCTION = True
+else:
+    PRODUCTION = False
 
-HOSTNAME = socket.gethostname()
+DEBUG = not PRODUCTION
 
-HOST = ''
-PORT = ''
-if HOSTNAME == 'raspberrypi':
-    HOST = "tinycoolthings.com"
-    PORT = '3306'
-
-DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+#if PRODUCTION:
+DATABASE_HOST = ""
+DATABASE_PORT = ""
+DATABASE_USERNAME = "tinycool_admin"
+DATABASE_PASSWORD = "UCaHmEco1"
+#else:
+#    # IF RASPBERRY PI
+#    DATABASE_HOST = "tinycoolthings.com"
+#    DATABASE_PORT = "3306"
 
 ADMINS = (
     ('Joao Sousa', 'joao1227@gmail.com'),
@@ -28,10 +35,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'tinycool_default',               # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'tinycool_admin',
-        'PASSWORD': 'UCaHmEco1',
-        'HOST': HOST,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': PORT,                      # Set to empty string for default.
+        'USER': DATABASE_USERNAME,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': DATABASE_PORT,                      # Set to empty string for default.
     }
 }
 
@@ -173,6 +180,8 @@ LOGGING = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    ),
     'PAGINATE_BY': 10
 }

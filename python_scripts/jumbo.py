@@ -67,7 +67,7 @@ class Jumbo(hiper.Hiper):
             Utils.saveObjToDB(catDB)
 
             # Categoria - SubCategorias
-            subCategorias = soupJumbo.findAll("a", id = re.compile("subItem_"+str(currentCat)+"_"))
+            subCategorias = soupJumbo.findAll("a", id = re.compile(r"subItem_"+str(currentCat)+"_"))
             currentSubCat = 1
             for subCategoria in subCategorias:
             
@@ -90,7 +90,7 @@ class Jumbo(hiper.Hiper):
                 Utils.saveObjToDB(subCatDB)
 
                 # SubCategoria - SubSubCategorias
-                subSubCategorias = soupJumbo.findAll("div", id = re.compile("subsubCategorias_"+str(currentCat)+"_"+str(currentSubCat))) 
+                subSubCategorias = soupJumbo.findAll("div", id = re.compile(r"subsubCategorias_"+str(currentCat)+"_"+str(currentSubCat)+"$")) 
                 currentSubSubCat = 1
                 for subSubCategoriaGroup in subSubCategorias:
                     for subSubCategoria in subSubCategoriaGroup:
@@ -260,4 +260,4 @@ class Jumbo(hiper.Hiper):
             self._session.post(url, data=payload) #request to update cookies
             self._session.post(url, data=payload) #request to update cookies
         request = self._session.post(url, data=payload) #real request
-        return request.text.replace('&nbsp;', '')
+        return request.text.replace('&nbsp;', ' ')
