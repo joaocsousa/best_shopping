@@ -1,6 +1,6 @@
 # Django settings for hiper_precos project.
 
-import os, uuid
+import os, uuid, sys
 
 PRODUCTION_SERVERS = [161337859780,]
 if uuid.getnode() in PRODUCTION_SERVERS:
@@ -12,15 +12,16 @@ DEBUG = not PRODUCTION
 
 TEMPLATE_DEBUG = DEBUG
 
-#if PRODUCTION:
-DATABASE_HOST = ""
-DATABASE_PORT = ""
 DATABASE_USERNAME = "tinycool_admin"
 DATABASE_PASSWORD = "UCaHmEco1"
-#else:
-#    # IF RASPBERRY PI
-#    DATABASE_HOST = "tinycoolthings.com"
-#    DATABASE_PORT = "3306"
+
+if uuid.getnode() == 202481596860717L:
+    # IF RASPBERRY PI
+    DATABASE_HOST = "tinycoolthings.com"
+    DATABASE_PORT = "3306"
+else:
+    DATABASE_HOST = ""
+    DATABASE_PORT = ""
 
 ADMINS = (
     ('Joao Sousa', 'joao1227@gmail.com'),
@@ -31,16 +32,26 @@ MANAGERS = ADMINS
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'tinycool_default',               # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
+    'default': {},
+    'first': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tinycool_first',
         'USER': DATABASE_USERNAME,
         'PASSWORD': DATABASE_PASSWORD,
-        'HOST': DATABASE_HOST,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': DATABASE_PORT,                      # Set to empty string for default.
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT
+    },
+    'second': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tinycool_second',
+        'USER': DATABASE_USERNAME,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT
     }
 }
+
+DATABASE_ROUTERS = ['hipers.db_router.DBRouter',]
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

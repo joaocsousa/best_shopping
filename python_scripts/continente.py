@@ -143,17 +143,7 @@ class Continente(hiper.Hiper):
 
                                 # Save to DB
                                 subSubSubCatDB = models.Categoria(url=subSubSubCatUrl, nome=subSubSubCatName, categoria_pai=subSubCatDB, hiper=self._hiperRef)
-                                saved = False
-                                retries = 0
-                                while saved == False:
-                                    try:
-                                        subSubSubCatDB.save()
-                                        saved = True
-                                        retries = 0
-                                    except Exception, e:
-                                        retries += 1
-                                        print "ERROR %s\n\tWaiting and retrying..." % str(e)
-                                        time.sleep(retries*5)
+                                Utils.saveObjToDB(subSubSubCatDB)
 
                                 # SubSubSubCategoria - Produtos
                                 while(self._getProdutosFromCat(subSubSubCatDB) == False):
@@ -274,6 +264,7 @@ class Continente(hiper.Hiper):
                                         url_imagem=imagem,
                                         desconto=desconto,
                                         categoria_pai=catDB,
+                                        hiper=self._hiperRef,
                                         last_updated=timezone.now())
             Utils.saveObjToDB(produtoDB)
 

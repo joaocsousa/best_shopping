@@ -6,7 +6,7 @@ class HiperSerializer(serializers.ModelSerializer):
     categorias = serializers.RelatedField(many=True)
     class Meta:
         model = Hiper
-        fields = ('id', 'nome', 'domain', 'mainPath', 'categorias')
+        fields = ('id', 'nome', 'slug', 'domain', 'mainPath', 'categorias')
 
 class CategoriaSerializer(serializers.ModelSerializer):
     produtos = serializers.RelatedField(many=True)
@@ -18,4 +18,4 @@ class CategoriaSerializer(serializers.ModelSerializer):
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Produto
-        fields = ('id', 'nome', 'marca', 'preco', 'preco_kg', 'peso', 'url_pagina', 'url_imagem', 'desconto', 'categoria_pai', 'last_updated')
+        fields = ('id', 'nome', 'slug', 'marca', 'hiper', 'preco', 'preco_kg', 'peso', 'url_pagina', 'url_imagem', 'desconto', 'categoria_pai', 'last_updated')

@@ -27,6 +27,5 @@ urlpatterns += patterns('',
 )
 
 urlpatterns += patterns('hipers.views',
-    url(r'^database_to_write/$', views.database_to_write),
-    url(r'^database_ready/$', views.database_ready),
+    url(r'^hipers_updated/$', views.hipers_updated),
 )

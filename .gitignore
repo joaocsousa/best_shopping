@@ -34,8 +34,11 @@ nosetests.xml
 .project
 .pydevproject
 
-python_scripts/fetch_products/log-General-Continente.csv
-python_scripts/fetch_products/log-Produtos-Continente.csv
+continente.status
+log-General-Continente.csv
+log-General-Jumbo.csv
+log-Produtos-Continente.csv
+log-Produtos-Jumbo.csv
 
 proxylist
 

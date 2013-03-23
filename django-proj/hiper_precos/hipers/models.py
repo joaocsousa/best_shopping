@@ -7,38 +7,27 @@ from django.template.defaultfilters import slugify
 class Hiper(models.Model):
     nome = models.CharField(max_length=100)
     domain = models.CharField(max_length=300)
+    slug = models.SlugField(max_length=100)
     mainPath = models.CharField(max_length=300)
 
     def __unicode__(self):
         return self.nome
   
     def save(self, *args, **kwargs):
-        #if not self.id:
+        if not self.id:
             # Newly created object, so set slug
-            #self.slug = slugify(self.nome)
+            self.slug = slugify(self.nome)
         super(Hiper, self).save()
 
 class Categoria(models.Model):
     url = models.CharField(max_length=300, null=True)
     nome = models.CharField(max_length=100)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=200)
     categoria_pai = models.ForeignKey('self', null=True, related_name='sub_categorias')
     hiper = models.ForeignKey(Hiper, related_name='categorias')
 
     def __unicode__(self):
-        #p_list = self._recurse_for_parents(self)
-        #p_list.append(self.nome)
-        #return self.get_separator().join(p_list)
         return {"nome" : self.nome, "id" : self.id, "slug" : self.slug }
-
-    # def get_absolute_url(self):
-    #     if self.categoria_pai_id:
-    #         return "/categorias/%s/%s/" % (self.categoria_pai.id, self.id)
-    #     else:
-    #         return "/categorias/%s/" % (self.id)
-
-    #def get_absolute_url(self):
-    #    return reverse('hipers.views.CategoriaDetail', args=[str(self.id)])
 
     def _recurse_for_parents(self, cat_obj):
         p_list = []
@@ -61,7 +50,8 @@ class Categoria(models.Model):
         super(Categoria, self).save()
 
 class Produto(models.Model):
-    nome = models.CharField(max_length=200, null=True)
+    nome = models.CharField(max_length=300, null=True)
+    slug = models.SlugField(max_length=200)
     marca = models.CharField(max_length=100, null=True)
     preco = models.FloatField(default=None, null=True)
     preco_kg = models.FloatField(default=None, null=True)
@@ -70,6 +60,7 @@ class Produto(models.Model):
     url_imagem = models.CharField(max_length=300, null=True)
     desconto = models.FloatField(default=None, null=True)
     categoria_pai = models.ForeignKey(Categoria, related_name='produtos')
+    hiper = models.ForeignKey(Hiper, related_name='produtos')
     last_updated = models.DateTimeField()
 
     def __unicode__(self):
@@ -80,11 +71,12 @@ class Produto(models.Model):
                     "preco": self.preco,
                     "peso": self.peso,
                     "url_imagem": self.url_imagem,
-                    "desconto": self.desconto
+                    "desconto": self.desconto,
+                    "hiper": self.hiper.id
                 }
 
     def save(self, *args, **kwargs):
-        #if not self.id:
+        if not self.id:
             # Newly created object, so set slug
-            #self.slug = slugify(self.nome)
+            self.slug = slugify(self.nome)
         super(Produto, self).save()

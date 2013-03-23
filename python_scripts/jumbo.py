@@ -219,8 +219,7 @@ class Jumbo(hiper.Hiper):
                     marca = None
 
                 # Save to DB
-                try:
-                    produtoDB = models.Produto( nome=nome,
+                produtoDB = models.Produto( nome=nome,
                                             marca=marca,
                                             preco=precoProduto,
                                             preco_kg=precoKg,
@@ -229,10 +228,9 @@ class Jumbo(hiper.Hiper):
                                             url_imagem=imagem,
                                             desconto=None,
                                             categoria_pai=catDB,
+                                            hiper=self._hiperRef,
                                             last_updated=timezone.now())
-                    Utils.saveObjToDB(produtoDB)
-                except Exception, e:
-                    print "ERROR %s" % str(e)
+                Utils.saveObjToDB(produtoDB)
 
                 Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr("") + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
 

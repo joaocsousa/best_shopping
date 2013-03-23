@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.http.response import HttpResponse
 
+from hiper_precos.utils import Utils
+
 class HiperList(generics.ListCreateAPIView):
     model = Hiper
     serializer_class = HiperSerializer
@@ -73,14 +75,12 @@ def api_root(request, format=None):
             'produtos': reverse('produto-list', request=request, format=format)
         })
 
-def database_to_write(request, format=None):
-    response_data = {'':''}
-    response_data['result'] = 'database_to_write'
-    response_data['message'] = 'TESTE'
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
-
-def database_ready(request, format=None):
-    response_data = {'':''}
-    response_data['result'] = 'database_ready'
-    response_data['message'] = 'TESTE'
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+# this method has the purpose of informing the server
+# that the database was updated to update the log file
+def hipers_updated(request, format=None):
+    try:
+        Utils.dbPopulated()
+        return HttpResponse("OK");
+    except:
+        pass
+    return HttpResponse("FAILED");
