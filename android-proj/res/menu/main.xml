@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/add_item"
+        android:icon="@drawable/ic_launcher"
+        android:showAsAction="ifRoom"
+        android:title="add"
+        android:titleCondensed="add">
+    </item>
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/ic_launcher"
+        android:showAsAction="never"
+        android:title="about"
+        android:titleCondensed="about">
+    </item>
+
+</menu>

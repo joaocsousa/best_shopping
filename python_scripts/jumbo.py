@@ -3,11 +3,15 @@ from bs4 import BeautifulSoup, Tag
 from utils import Utils
 from hipers import models
 from django.utils import timezone
+import random
 
 class Jumbo(hiper.Hiper):        
     
     #constructor
     def __init__(self):
+        # self.proxies = {
+        #     "http": proxy,
+        # }
         self._name = "Jumbo"
         self._domain = "http://www.jumbo.pt"
         self._mainPath = "Frontoffice/ContentPages/JumboNetWelcome.aspx"
@@ -36,15 +40,17 @@ class Jumbo(hiper.Hiper):
     def startFetchingProducts(self):
         start_time = time.time()
         Utils.printMsg(self._name, "Started", Utils.getLineNo())
-        jumboMainPage = self._session.get(self._url)
-        soupJumbo = BeautifulSoup(jumboMainPage.text.replace('&nbsp;', ''))
-        self._updateViewStateKey(soupJumbo)
-        try:
-            categorias = soupJumbo.findAll("a", { "class" : "btCategoria" })
-        except Exception, e:
-            Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
-            Utils.printMsg(self._name, str(e), Utils.getLineNo())
-            raise SystemExit
+        success = False
+        while (success == False):
+            try:
+                jumboMainPage = Utils.makeGetRequest(self._session, self._url)
+                soupJumbo = BeautifulSoup(jumboMainPage)
+                categorias = soupJumbo.findAll("a", { "class" : "btCategoria" })
+                self._updateViewStateKey(soupJumbo)
+                success = True
+            except Exception, e:
+                Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
+                Utils.printMsg(self._name, str(e), Utils.getLineNo())
         currentCat = 1
         for categoria in categorias:
             
@@ -255,7 +261,7 @@ class Jumbo(hiper.Hiper):
                     }
         if page == "1":
             payload['hdnPrdListData'] = "4$$48"
-            self._session.post(url, data=payload) #request to update cookies
-            self._session.post(url, data=payload) #request to update cookies
-        request = self._session.post(url, data=payload) #real request
-        return request.text.replace('&nbsp;', ' ')
+            Utils.makePostRequest(self._session, url, payload) #request to update cookies
+            Utils.makePostRequest(self._session, url, payload) #request to update cookies
+        request = Utils.makePostRequest(self._session, url, payload) #real request
+        return request

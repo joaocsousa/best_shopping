@@ -1,8 +1,11 @@
 from hiper_precos import settings
 import os
+import unicodedata
+from django.utils.encoding import smart_text
 
 class Utils:
     lastDbFile = "lastWrittenDb.dat"
+    userHome = "/home/tinycool/"
     @staticmethod
     def getNextInArray(current, array):
         currPos = array.index(current)
@@ -25,7 +28,7 @@ class Utils:
         return False
     @staticmethod
     def getDbLogFile():
-        return os.getenv("HOME")+"/"+Utils.lastDbFile
+        return Utils.userHome+Utils.lastDbFile
     @staticmethod
     def getDefaultDbToReadFrom():
         return Utils.getAllDbs()[0]
@@ -68,3 +71,11 @@ class Utils:
         file = open(Utils.getDbLogFile(), "w")
         file.write(currDbToWrite);
         file.close()
+    @staticmethod
+    def strip_accents(s):
+        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    @staticmethod
+    def toStr(s):
+        if s is None:
+            return ''
+        return smart_text(s, encoding='utf-8', strings_only=False, errors='strict')

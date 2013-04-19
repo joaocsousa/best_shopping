@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from utils import Utils
 from hipers import models
 from django.utils import timezone
+import random
 
 class Continente(hiper.Hiper):
 
@@ -23,27 +24,21 @@ class Continente(hiper.Hiper):
 
         self._session = requests.Session()
 
-        self._statusFile = codecs.open("continente.status", "a+", "utf-8")
-
     def startFetchingProducts(self):
         start_time = time.time()
 
-        # check the current status file
-        fileLines = self._statusFile.readlines()
-        for line in fileLines:
-            print line
-        self._statusFile.truncate() # clear status file
-
         Utils.printMsg(self._name, "Started", Utils.getLineNo())
 
-        continentMainPage = self._session.get(self._url)
-        soupContinente = BeautifulSoup(continentMainPage.text.replace('&nbsp;', ''))
-        try:
-            categorias = soupContinente.find("table", { "id" : "Table4" }).findAll("a")
-        except Exception, e:
-            Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
-            Utils.printMsg(self._name, str(e), Utils.getLineNo())
-            raise SystemExit
+        success = False
+        while (success == False):
+            try:
+                continentMainPage = Utils.makeGetRequest(self._session, self._url)
+                soupContinente = BeautifulSoup(continentMainPage)
+                categorias = soupContinente.find("table", { "id" : "Table4" }).findAll("a")
+                success = True
+            except Exception, e:
+                Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
+                Utils.printMsg(self._name, str(e), Utils.getLineNo())
         for cat in categorias:
             
             # Categoria - URL
@@ -54,8 +49,8 @@ class Continente(hiper.Hiper):
                 catUrl = None
 
             # Categoria - Abre Categoria
-            catRequest = self._session.get(catUrl)
-            soupCat = BeautifulSoup(catRequest.text.replace('&nbsp;', ''))
+            catRequest = Utils.makeGetRequest(self._session, catUrl)
+            soupCat = BeautifulSoup(catRequest)
 
             # Categoria - Nome
             try:
@@ -154,12 +149,10 @@ class Continente(hiper.Hiper):
             
             # reset session
             self._session = requests.Session() 
-            self._session.get(self._url)
+            Utils.makeGetRequest(self._session, self._url)
 
             Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
 
-        self._statusFile.write(Utils.STATUS_COMPLETE)
-        self._statusFile.close()
         Utils.printMsg(self._name, "-" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
 
     def _getProdutosFromCat(self, catDB, pagina=1, nrPages=None):
@@ -174,8 +167,8 @@ class Continente(hiper.Hiper):
                     '__EVENTTARGET': 'ProductsMain1:DataListPages:_ctl'+str((pagina - 1) * 2)+':linkButton',
                     'ProductsMain1:cmbPaginacao':'48'
                     }
-        request = self._session.post(catDB.url, data=payload) #real request
-        soupPagina = BeautifulSoup(request.text.replace('&nbsp;', ''))
+        request = Utils.makePostRequest(self._session, catDB.url, payload)
+        soupPagina = BeautifulSoup(request)
         error = soupPagina.find("span",{"id":"Error1_lblErrorDescription"})
         if error:
             Utils.printMsg(self._name, "ERROR IN REQUEST", Utils.getLineNo())

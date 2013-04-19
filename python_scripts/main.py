@@ -6,16 +6,16 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'hiper_precos.settings'
 from django.db import connections
 import continente, jumbo, time
 from utils import Utils
-import hiper_precos
 
-import requests
 
 if __name__ == "__main__":
 
-    #start_time = time.time()
+    start_time = time.time()
+
+    currDBToWrite = Utils.makeRequest('http://tinycoolthings.com/get_db_to_write_to')
 
     # delete everything
-    cursor = connections[hiper_precos.utils.Utils.getDbToWriteTo()].cursor()
+    cursor = connections[currDBToWrite].cursor()
     Utils.clearTables(cursor)
 
     ctn = continente.Continente()
@@ -24,8 +24,12 @@ if __name__ == "__main__":
     jumb = jumbo.Jumbo()
     jumb.startFetchingProducts()
 
-    # requests.get('http://localhost/hipers_updated', auth=('user', 'pass'))
-    textResp = requests.get('http://localhost:8000/hipers_updated')
-    print textResp.text
+    Utils.makeRequest('http://tinycoolthings.com/hipers_updated')
+
+    currDBToWrite = Utils.makeRequest('http://tinycoolthings.com/get_db_to_write_to')
+
+    file = open("/home/pi/lastWrittenDb.dat", "w")
+    file.write(currDbToWrite);
+    file.close()
 
     print "Finished - Elapsed: " + str(time.time()-start_time) + " seconds"

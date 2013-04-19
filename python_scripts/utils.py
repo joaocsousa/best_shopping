@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*- 
-import inspect, urlparse, string, datetime, csv, traceback, time
+import inspect, urlparse, string, datetime, csv, traceback, time, requests
 from django.utils.encoding import smart_text
+from getproxies import GetProxies
 
 class Utils:
     debug              = True
     showRealTime       = True
     printToFile        = True
     logSeparator       = "_"
-    STATUS_COMPLETE    = "FINISHED"
-    STATUS_INCOMPLETE  = "INCOMPLETE"
-    STATUS_LATEST_DATA = "LATEST_DATA"
     @staticmethod
     def logMessage(hiper, msg, lineNo):
         if Utils.debug:
@@ -94,6 +92,55 @@ class Utils:
             except Exception, e:
                 retries += 1
                 print traceback.format_exc()
-                print "ERROR %s\n\tWaiting and retrying..." % str(e)
+                print "ERROR %s\n\tWaiting and retrying...\n" % str(e)
                 time.sleep(retries*5)
         print "Tables cleaned"
+    @staticmethod
+    def makeRequest(url):
+        reqOK = False
+        retries = 0
+        while reqOK == False:
+            try:
+                textResp = requests.get(url).text
+                if textResp == "FAILED":
+                    raise Exception("Received:" + textResp)
+                else:
+                    reqOK = True
+                    retries = 0
+                    print "Received:" + textResp
+            except Exception, e:
+                retries += 1
+                print traceback.format_exc()
+                print "ERROR %s\n\tWaiting and retrying...\n" % str(e)
+                time.sleep(retries*5)
+        return textResp
+    @staticmethod
+    def makeGetRequest(session, url):
+        success = False
+        while (success == False):
+            #proxies = GetProxies()
+            #proxy = proxies.getProxy()
+            #proxies = {
+            #    "http": proxy,
+            #}
+            try:
+                respTxt = session.get(url).text
+                success = True
+            except:
+                pass
+        return respTxt.replace('&nbsp;', '')
+    @staticmethod
+    def makePostRequest(session, url, payload):
+        success = False
+        while (success == False):
+            #proxies = GetProxies()
+            #proxy = proxies.getProxy()
+            #proxies = {
+            #    "http": proxy,
+            #}
+            try:
+                respTxt = session.post(url, data=payload).text
+                success = True
+            except:
+                pass
+        return respTxt.replace('&nbsp;', '')

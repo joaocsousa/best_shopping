@@ -3,6 +3,8 @@ from django.db import models
 from django.core import validators
 from django.template.defaultfilters import slugify
 
+import difflib
+
 # Create your models here.
 class Hiper(models.Model):
     nome = models.CharField(max_length=100)
@@ -23,11 +25,16 @@ class Categoria(models.Model):
     url = models.CharField(max_length=300, null=True)
     nome = models.CharField(max_length=100)
     slug = models.SlugField(max_length=200)
-    categoria_pai = models.ForeignKey('self', null=True, related_name='sub_categorias')
     hiper = models.ForeignKey(Hiper, related_name='categorias')
+    categoria_pai = models.ForeignKey('self', null=True, related_name='sub_categorias')
 
     def __unicode__(self):
-        return {"nome" : self.nome, "id" : self.id, "slug" : self.slug }
+        return {
+                    "id"            : self.id,
+                    "nome"          : self.nome,
+                    "hiper"         : self.hiper.id,
+                    "categoria_pai" : self.categoria_pai.id
+                }
 
     def _recurse_for_parents(self, cat_obj):
         p_list = []
@@ -71,8 +78,7 @@ class Produto(models.Model):
                     "preco": self.preco,
                     "peso": self.peso,
                     "url_imagem": self.url_imagem,
-                    "desconto": self.desconto,
-                    "hiper": self.hiper.id
+                    "desconto": self.desconto
                 }
 
     def save(self, *args, **kwargs):

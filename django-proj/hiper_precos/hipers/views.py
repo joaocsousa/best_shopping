@@ -1,16 +1,20 @@
 from hipers.models import Hiper, Categoria, Produto
-from hipers.serializers import HiperSerializer, CategoriaSerializer, ProdutoSerializer
+from hipers.serializers import HiperSerializer, HiperResultSerializer, CategoriaSerializer, CategoriaListSerializer, ProdutoSerializer
 from rest_framework import generics, permissions, renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 from django.http.response import HttpResponse
-
 from hiper_precos.utils import Utils
+from django.shortcuts import render_to_response
+from django.views.decorators.csrf import csrf_exempt
+import difflib
 
 class HiperList(generics.ListCreateAPIView):
     model = Hiper
-    serializer_class = HiperSerializer
+    serializer_class = HiperResultSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class HiperDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -20,7 +24,7 @@ class HiperDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class CategoriaList(generics.ListCreateAPIView):
     model = Categoria
-    serializer_class = CategoriaSerializer
+    serializer_class = CategoriaListSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
@@ -46,14 +50,16 @@ class ProdutoList(generics.ListCreateAPIView):
     serializer_class = ProdutoSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+    paginate_by = 10
+    
     def get_queryset(self):
         queryset = Produto.objects.all()
         hiper = self.request.QUERY_PARAMS.get('hiper', None)
         if hiper is not None:
             queryset = queryset.filter(hiper=hiper)
-        categoria = self.request.QUERY_PARAMS.get('categoria', None)
+        categoria_pai = self.request.QUERY_PARAMS.get('categoria_pai', None)
         if categoria is not None:
-            queryset = queryset.filter(categoria_pai=categoria)
+            queryset = queryset.filter(categoria_pai=categoria_pai)
         desconto = self.request.QUERY_PARAMS.get('desconto', None)
         if desconto is not None:
             if desconto == "1":
@@ -67,6 +73,40 @@ class ProdutoDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProdutoSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+class JSONResponse(HttpResponse):
+    """
+    An HttpResponse that renders it's content into JSON.
+    """
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
+def search(request):
+    errors = []
+    if 'q' in request.GET:
+        q = request.GET['q']
+        if not q:
+            errors.append('Enter a search term.')
+        elif len(q) > 50:
+            errors.append('Please enter at most 20 characters.')
+        else:
+            produtos = Produto.objects.all()
+            categorias = Categoria.objects.all()
+            prodPorNome = produtos.filter(nome__icontains=q)
+            prodPorMarca = produtos.filter(marca__icontains=q)
+            categorias = categorias.filter(nome__icontains=q)
+
+            dict = {
+                'prodPorNome': ProdutoSerializer(prodPorNome, many=True).data,
+                'prodPorMarca': ProdutoSerializer(prodPorMarca, many=True).data,
+                'categorias' : CategoriaSerializer(categorias).data,
+            }
+
+            return JSONResponse(dict)
+
+    return render_to_response('search_form.html', {'errors': errors})
+
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
@@ -75,12 +115,16 @@ def api_root(request, format=None):
             'produtos': reverse('produto-list', request=request, format=format)
         })
 
+# this method has the returning the current database to write to
+def get_db_to_write_to(request, format=None):
+    return HttpResponse(Utils.getDbToWriteTo());
+
 # this method has the purpose of informing the server
 # that the database was updated to update the log file
 def hipers_updated(request, format=None):
-    try:
-        Utils.dbPopulated()
-        return HttpResponse("OK");
-    except:
-        pass
-    return HttpResponse("FAILED");
+    # try:
+    Utils.dbPopulated()
+    return HttpResponse("OK");
+    # except:
+    #     pass
+    # return HttpResponse("FAILED");
