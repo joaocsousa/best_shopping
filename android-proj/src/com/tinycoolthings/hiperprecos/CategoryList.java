@@ -31,7 +31,7 @@ public class CategoryList extends SherlockFragmentActivity {
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		
 		mActionBar.setTitle(cat.getHiper().getNome());
-		
+	
         if (getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
         	CategoryListFragment categoryListFrag = new CategoryListFragment();
             categoryListFrag.setArguments(bundle);
