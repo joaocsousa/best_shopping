@@ -12,16 +12,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.LayoutParams;
-import android.util.SparseArray;
-import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -39,7 +35,6 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ActionBar mActionBar;
 	private ViewPager mPager;
 	private ActionBar.TabListener tabListener;
-	private CategoryListPagerAdapater fragmentPagerAdapter;
 
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
@@ -87,70 +82,97 @@ public class MainActivity extends SherlockFragmentActivity {
         
 	}
 
-	protected void enterSubCategoria(Categoria categoria) {
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
-		mActionBar.setDisplayShowHomeEnabled(true);
-		mActionBar.setDisplayShowTitleEnabled(false);
-		mActionBar.setDisplayHomeAsUpEnabled(true);
+		IntentFilter filterServerResp = new IntentFilter();
+		filterServerResp.addAction(Constants.Actions.GET_CATEGORIAS);
+		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
+		registerReceiver(broadcastReceiver, filterServerResp);
 		
-		/** Hide view pager */
-		if (mPager.getVisibility() != ViewPager.GONE) {
-			mPager.setVisibility(ViewPager.GONE);
-		}
+		mActionBar.removeAllTabs();
 		
-		/** Hide Tabs and Set Navigation List */
-		if (mActionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_LIST) {
-			mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		}
+		HiperPrecos.getInstance().clearHipers();
 		
-		ArrayList<String> categorias = new ArrayList<String>();
-		final SparseArray<Categoria> catPos = new SparseArray<Categoria>();
-		int preSelectedPosition = -1;
-		// vai buscar os siblings da categoria pai
-		ArrayList<Categoria> irmaos = categoria.getSiblings();
-		for (int j=0;j<irmaos.size();j++) {
-			if (categoria.getId().equals(irmaos.get(j).getId())) {
-				preSelectedPosition = j;
-			}
-			catPos.put(j, irmaos.get(j));
-			categorias.add(irmaos.get(j).getNome());
-		}
-		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, categorias);
-		/** Defining Navigation listener */
-        OnNavigationListener navigationListener = new OnNavigationListener() {
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            	Categoria selectedCat = catPos.get(itemPosition);
-            	Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + selectedCat.getNome() + " | Pai: " + selectedCat.getCategoriaPai().getNome());
-            	if (selectedCat.hasProdutos()) {
-            		Debug.PrintWarning(MainActivity.this, selectedCat.getNome() + " has produtos.");
-            		ProductListFragment productListFrag = new ProductListFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList(Constants.Extras.PRODUTOS, selectedCat.getProdutos());
-                    productListFrag.setArguments(bundle);
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(R.id.MainLayout, productListFrag);
-                    transaction.addToBackStack(null);
-                	transaction.commit();
-            	} else if (selectedCat.hasSubCategorias()) {
-            		Debug.PrintWarning(MainActivity.this, selectedCat.getNome() + " has subcategorias.");
-                    Bundle bundle = new Bundle();
-                    Intent intent = new Intent(MainActivity.this, CategoryList.class);
-                    bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
-                    intent.putExtras(bundle);
-                    startActivity(intent);
-            	} else {
-            		Debug.PrintWarning(MainActivity.this, selectedCat.getNome() + " has no information.");
-            		CallWebServiceTask getCategorias = new CallWebServiceTask(MainActivity.this, Constants.Actions.GET_CATEGORIA);
-            		getCategorias.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
-            		getCategorias.execute();
-            	}
-            	return true;
-            }
-        };
-        mActionBar.setListNavigationCallbacks(adapter, navigationListener);
-        mActionBar.setSelectedNavigationItem(preSelectedPosition);
+		// ADD HIPERS:
+		HiperPrecos.getInstance().addHiper(new Hiper(1, "Continente"));
+		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
+		////////////////////
+		
+		CallWebServiceTask getCategorias = new CallWebServiceTask(MainActivity.this, Constants.Actions.GET_CATEGORIAS);
+		getCategorias.addParameter(Name.CATEGORIA_PAI, -1);
+		getCategorias.execute();
 	}
 	
+	protected void enterSubCategoria(Categoria categoria) {
+		
+		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + categoria.getNome());
+		
+		Debug.PrintWarning(MainActivity.this, categoria.getNome() + " has subcategorias.");
+        Bundle bundle = new Bundle();
+        Intent intent = new Intent(MainActivity.this, CategoryList.class);
+        bundle.putInt(Constants.Extras.CATEGORIA, categoria.getId());
+        intent.putExtras(bundle);
+        startActivity(intent);
+		
+//		mActionBar.setDisplayShowHomeEnabled(true);
+//		mActionBar.setDisplayShowTitleEnabled(false);
+//		mActionBar.setDisplayHomeAsUpEnabled(true);
+//		
+//		/** Hide view pager */
+//		if (mPager.getVisibility() != ViewPager.GONE) {
+//			mPager.setVisibility(ViewPager.GONE);
+//		}
+//		
+//		/** Hide Tabs and Set Navigation List */
+//		if (mActionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_LIST) {
+//			
+//		}
+//		
+//		ArrayList<String> categorias = new ArrayList<String>();
+//		final SparseArray<Categoria> catPos = new SparseArray<Categoria>();
+//		int preSelectedPosition = -1;
+//		// vai buscar os siblings da categoria pai
+//		ArrayList<Categoria> irmaos = categoria.getSiblings();
+//		for (int j=0;j<irmaos.size();j++) {
+//			if (categoria.getId().equals(irmaos.get(j).getId())) {
+//				preSelectedPosition = j;
+//			}
+//			catPos.put(j, irmaos.get(j));
+//			categorias.add(irmaos.get(j).getNome());
+//		}
+//		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, categorias);
+//		/** Defining Navigation listener */
+//        OnNavigationListener navigationListener = new OnNavigationListener() {
+//            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+//            	Categoria selectedCat = catPos.get(itemPosition);
+            	
+//            	if (selectedCat.hasProdutos()) {
+//            		Debug.PrintWarning(MainActivity.this, selectedCat.getNome() + " has produtos.");
+//            		ProductListFragment productListFrag = new ProductListFragment();
+//                    Bundle bundle = new Bundle();
+//                    bundle.putParcelableArrayList(Constants.Extras.PRODUTOS, selectedCat.getProdutos());
+//                    productListFrag.setArguments(bundle);
+//                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                    transaction.replace(R.id.MainLayout, productListFrag);
+//                    transaction.addToBackStack(null);
+//                	transaction.commit();
+//            	} else if (selectedCat.hasSubCategorias()) {
+            		
+//            	} else {
+//            		Debug.PrintWarning(MainActivity.this, selectedCat.getNome() + " has no information.");
+//            		CallWebServiceTask getCategorias = new CallWebServiceTask(MainActivity.this, Constants.Actions.GET_CATEGORIA);
+//            		getCategorias.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
+//            		getCategorias.execute();
+//            	}
+//            	return true;
+//            }
+//        };
+//        mActionBar.setListNavigationCallbacks(adapter, navigationListener);
+//        mActionBar.setSelectedNavigationItem(preSelectedPosition);
+	}
+
 	private void populateHipers() throws JSONException {
 		
 		/** Getting a reference to ViewPager from the layout */
@@ -179,7 +201,7 @@ public class MainActivity extends SherlockFragmentActivity {
         mPager.setOnPageChangeListener(pageChangeListener);
  
         /** Creating an instance of FragmentPagerAdapter */
-        fragmentPagerAdapter = new CategoryListPagerAdapater(fm);
+        CategoryListPagerAdapater fragmentPagerAdapter = new CategoryListPagerAdapater(fm);
 		
 		/** Setting the FragmentPagerAdapter object to the viewPager object */
         mPager.setAdapter(fragmentPagerAdapter);
@@ -209,43 +231,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	        mActionBar.addTab(tab);
 		}
 	}
-
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		Debug.PrintError(this, "onRestart");
-	}
 	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		Debug.PrintError(this, "onResume");
-		
-		mActionBar.removeAllTabs();
-		
-		HiperPrecos.getInstance().clearHipers();
-		
-		IntentFilter filterServerResp = new IntentFilter();
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORIAS);
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
-		registerReceiver(broadcastReceiver, filterServerResp);
-		
-		// ADD HIPERS:
-		HiperPrecos.getInstance().addHiper(new Hiper(1, "Continente"));
-		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
-		////////////////////
-		
-		CallWebServiceTask getCategorias = new CallWebServiceTask(MainActivity.this, Constants.Actions.GET_CATEGORIAS);
-		getCategorias.addParameter(Name.CATEGORIA_PAI, -1);
-		getCategorias.execute();
-	
-	}
-
 	@Override
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
-		Debug.PrintError(this, "onPause");
 		super.onPause();
 	}
 
