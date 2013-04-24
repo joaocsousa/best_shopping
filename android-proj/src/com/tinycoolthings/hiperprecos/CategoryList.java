@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.util.SparseArray;
 import android.widget.ArrayAdapter;
@@ -31,6 +32,8 @@ public class CategoryList extends SherlockFragmentActivity {
 
 	private ActionBar mActionBar;
 
+	private int backStackCount = 0;
+	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -66,6 +69,23 @@ public class CategoryList extends SherlockFragmentActivity {
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		mActionBar.setDisplayShowTitleEnabled(false);
 	
+		getSupportFragmentManager().addOnBackStackChangedListener(new OnBackStackChangedListener() {
+			
+			@Override
+			public void onBackStackChanged() {
+				int stackCount = getSupportFragmentManager().getBackStackEntryCount();
+				Debug.PrintError(CategoryList.this, "Stack changed: " + stackCount);
+				if (stackCount < backStackCount) {
+					Debug.PrintError(CategoryList.this, "Returned 1 to behind");
+					if (stackCount == 1) {
+						finish();
+						return;
+					}
+				}
+				backStackCount = stackCount;
+			}
+		});
+		
 		HiperPrecos.setAppContext(this);
 		
 		enterSubCategoria(categoria);
