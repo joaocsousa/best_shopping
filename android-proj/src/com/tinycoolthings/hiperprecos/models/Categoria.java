@@ -2,6 +2,8 @@ package com.tinycoolthings.hiperprecos.models;
 
 import java.util.ArrayList;
 
+import com.tinycoolthings.hiperprecos.utils.Debug;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -171,7 +173,7 @@ public class Categoria implements Parcelable {
 		dest.writeTypedList(this.produtos);
 		dest.writeTypedList(this.subCategorias);
 	}
-	
+
 	public static final Parcelable.Creator<Categoria> CREATOR = new Parcelable.Creator<Categoria>() {
 		public Categoria createFromParcel(Parcel in) {
 		    return new Categoria(in);
@@ -183,7 +185,7 @@ public class Categoria implements Parcelable {
 	};
 
 	public ArrayList<Categoria> getSiblings() {
-		if (this.categoriaPai==null) {
+		if (this.categoriaPai.getId()==null) {
 			return this.hiper.getCategorias();
 		} else {
 			return this.categoriaPai.getSubCategorias();

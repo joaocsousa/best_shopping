@@ -86,6 +86,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		
+		Debug.PrintDebug(this, "onResume");
+		
 		IntentFilter filterServerResp = new IntentFilter();
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORIAS);
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
@@ -110,8 +112,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + categoria.getNome());
 		
 		Debug.PrintWarning(MainActivity.this, categoria.getNome() + " has subcategorias.");
-        Bundle bundle = new Bundle();
         Intent intent = new Intent(MainActivity.this, CategoryList.class);
+        Bundle bundle = new Bundle();
         bundle.putInt(Constants.Extras.CATEGORIA, categoria.getId());
         intent.putExtras(bundle);
         startActivity(intent);
@@ -235,6 +237,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
+		Debug.PrintDebug(this, "onPause");
 		super.onPause();
 	}
 

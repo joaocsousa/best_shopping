@@ -49,16 +49,10 @@ public class CategoryListFragment extends SherlockListFragment {
     }
 	
 	@Override
-	public void onResume() {
-		Debug.PrintError(this, "onResume");
-		super.onResume();
-	}
-	
-	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		int selectedCatID = categorias.get(position).getId();
-		Debug.PrintWarning(this, "Selected cat with id " + selectedCatID);
+		Debug.PrintInfo(this, "Selected categoria with id " + selectedCatID);
 		CallWebServiceTask getCategorias = new CallWebServiceTask(getActivity(), Constants.Actions.GET_CATEGORIA);
 		getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
 		getCategorias.execute();
