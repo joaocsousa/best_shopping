@@ -27,12 +27,10 @@ import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	private ProgressDialog dialog;
-	private Context context;
 	private String action;
 	private Map<Name, Integer> params;
 	
-	public CallWebServiceTask(Context applicationContext, String action) {
-		this.context = applicationContext;
+	public CallWebServiceTask(String action) {
 		this.action = action;
 		this.params = new HashMap<Name, Integer>();
 	}
@@ -43,7 +41,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPreExecute() {
-		this.dialog = ProgressDialog.show(this.context, "Calling", "Time Service...", true);
+		this.dialog = ProgressDialog.show(HiperPrecos.getInstance(), "Calling", "Time Service...", true);
 	}
 
 	@Override
@@ -152,7 +150,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		} else if (this.action == Constants.Actions.GET_CATEGORIA) {
 			intent.putExtra(Constants.Extras.CATEGORIA, result);
 		}
-		this.context.getApplicationContext().sendBroadcast(intent);
+		HiperPrecos.getInstance().sendBroadcast(intent);
 	}
 	
 	public class FetchImage implements Runnable {

@@ -115,7 +115,7 @@ public class CategoryList extends SherlockFragmentActivity {
 		Debug.PrintInfo(this, "Displaying categoria " + categoria.getNome());
 		
 		//Check if selected categoria is in options array
-		mActionBar.getSelectedNavigationIndex()
+//		mActionBar.getSelectedNavigationIndex()
 		
 		
 		ArrayList<String> categorias = new ArrayList<String>();
@@ -158,7 +158,7 @@ public class CategoryList extends SherlockFragmentActivity {
 //                    }
             	} else {
             		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has no information.");
-            		CallWebServiceTask getCategoria = new CallWebServiceTask(CategoryList.this, Constants.Actions.GET_CATEGORIA);
+            		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
             		getCategoria.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
             		getCategoria.execute();
             	}

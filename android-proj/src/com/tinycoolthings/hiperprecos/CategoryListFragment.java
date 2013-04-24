@@ -53,7 +53,7 @@ public class CategoryListFragment extends SherlockListFragment {
 		super.onListItemClick(l, v, position, id);
 		int selectedCatID = categorias.get(position).getId();
 		Debug.PrintInfo(this, "Selected categoria with id " + selectedCatID);
-		CallWebServiceTask getCategorias = new CallWebServiceTask(getActivity(), Constants.Actions.GET_CATEGORIA);
+		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
 		getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
 		getCategorias.execute();
 	}

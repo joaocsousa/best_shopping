@@ -47,7 +47,7 @@ public class ProductListFragment extends SherlockListFragment {
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		int selectedProdID = produtos.get(position).getId();
-		CallWebServiceTask getProduto = new CallWebServiceTask(getActivity(), Constants.Actions.GET_PRODUTO);
+		CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
 		getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
 		getProduto.execute();
 	}
