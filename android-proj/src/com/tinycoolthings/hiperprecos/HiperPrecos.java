@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Hiper;
@@ -16,6 +17,8 @@ import com.tinycoolthings.hiperprecos.utils.Debug;
 public class HiperPrecos extends Application {
 
 	private static HiperPrecos instance = null;
+
+	private static Context appContext;
 	
 	private ArrayList<Hiper> hipers = null;
 	
@@ -195,4 +198,11 @@ public class HiperPrecos extends Application {
 		return categoria;
 	}
 
+	public static void setAppContext(Context ctx) {
+		HiperPrecos.appContext = ctx;
+	}
+
+	public static Context getAppContext() {
+		return HiperPrecos.appContext;
+	}
 }

@@ -185,7 +185,7 @@ public class Categoria implements Parcelable {
 	};
 
 	public ArrayList<Categoria> getSiblings() {
-		if (this.categoriaPai.getId()==null) {
+		if (this.getCategoriaPai().getId()==null) {
 			return this.hiper.getCategorias();
 		} else {
 			return this.categoriaPai.getSubCategorias();

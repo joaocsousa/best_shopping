@@ -41,7 +41,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPreExecute() {
-		this.dialog = ProgressDialog.show(HiperPrecos.getInstance(), "Calling", "Time Service...", true);
+		this.dialog = ProgressDialog.show(HiperPrecos.getInstance().getAppContext(), "Calling", "Time Service...", true);
 	}
 
 	@Override

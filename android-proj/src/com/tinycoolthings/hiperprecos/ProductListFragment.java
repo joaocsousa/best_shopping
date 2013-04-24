@@ -30,7 +30,7 @@ public class ProductListFragment extends SherlockListFragment {
 		
 		Bundle args = getArguments();
 
-		produtos = args.getParcelableArrayList(Constants.Extras.PRODUTOS);
+		produtos = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORIA)).getProdutos();
 		
 		/** Creating array adapter to set data in listview */
         ProductListAdapter adapter = new ProductListAdapter(getActivity().getBaseContext());

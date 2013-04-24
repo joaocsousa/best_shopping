@@ -80,6 +80,8 @@ public class MainActivity extends SherlockFragmentActivity {
 
         mActionBar.setDisplayShowTitleEnabled(true);
         
+        HiperPrecos.setAppContext(this);
+        
 	}
 
 	@Override

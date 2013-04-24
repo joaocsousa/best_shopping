@@ -66,6 +66,8 @@ public class CategoryList extends SherlockFragmentActivity {
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		mActionBar.setDisplayShowTitleEnabled(false);
 	
+		HiperPrecos.setAppContext(this);
+		
 		enterSubCategoria(categoria);
 	}
 	
@@ -112,11 +114,7 @@ public class CategoryList extends SherlockFragmentActivity {
 	
 	protected void enterSubCategoria(Categoria categoria) {
 		
-		Debug.PrintInfo(this, "Displaying categoria " + categoria.getNome());
-		
-		//Check if selected categoria is in options array
-//		mActionBar.getSelectedNavigationIndex()
-		
+		Debug.PrintInfo(this, "Displaying categoria " + categoria.getNome());		
 		
 		ArrayList<String> categorias = new ArrayList<String>();
 		final SparseArray<Categoria> catPos = new SparseArray<Categoria>();
@@ -141,21 +139,22 @@ public class CategoryList extends SherlockFragmentActivity {
             	if (selectedCat.hasProdutos()) {
             		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has produtos.");
             		ProductListFragment productListFrag = new ProductListFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList(Constants.Extras.PRODUTOS, selectedCat.getProdutos());
+            		Bundle bundle = new Bundle();
+                    bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
                     productListFrag.setArguments(bundle);
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(R.id.MainLayout, productListFrag);
+                    transaction.replace(android.R.id.content, productListFrag);
                     transaction.addToBackStack(null);
                 	transaction.commit();
             	} else if (selectedCat.hasSubCategorias()) {
-//            		if (getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
                 	CategoryListFragment categoryListFrag = new CategoryListFragment();
                 	Bundle bundle = new Bundle();
                     bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
                 	categoryListFrag.setArguments(bundle);
-                	getSupportFragmentManager().beginTransaction().replace(android.R.id.content, categoryListFrag).commit();
-//                    }
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.replace(android.R.id.content, categoryListFrag);
+                    transaction.addToBackStack(null);
+                	transaction.commit();
             	} else {
             		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has no information.");
             		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
