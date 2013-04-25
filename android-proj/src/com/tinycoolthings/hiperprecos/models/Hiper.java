@@ -2,6 +2,8 @@ package com.tinycoolthings.hiperprecos.models;
 
 import java.util.ArrayList;
 
+import com.tinycoolthings.hiperprecos.utils.Debug;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -45,19 +47,35 @@ public class Hiper implements Parcelable {
 
 	public void addCategoria(Categoria categoria) {
 		if (this.hasCategoria(categoria)) {
+			Debug.PrintDebug(this, "Categoria -> Merged: " + categoria.getNome() + " | ID: " + categoria.getId() + " | Hiper: " + this.getNome());
 			this.getCategoriaById(categoria.getId()).merge(categoria);
 		} else {
+			Debug.PrintDebug(this, "Categoria -> Added: " + categoria.getNome() + " | ID: " + categoria.getId() + " | Hiper: " + this.getNome());
 			this.categorias.add(categoria);
 		}
 	}
 	
+	private Categoria loopCategoriaToFind(Categoria categoria, Integer id) {
+		Categoria res = null;
+		if (id.equals(categoria.getId())) {
+			return categoria;
+		}
+		for (int j = 0; res == null && j < categoria.getSubCategorias().size(); j++) {         
+	        res = this.loopCategoriaToFind(categoria.getSubCategorias().get(j), id);
+		}
+		return res;
+	}
+	
 	public Categoria getCategoriaById(Integer id) {
-		for (int i=0;i<this.categorias.size();i++) {
+		Categoria res = null;
+		for (int i=0;res == null && i<this.categorias.size();i++) {
 			if (id.equals(this.categorias.get(i).getId())) {
 				return this.categorias.get(i);
+			} else {
+				res = this.loopCategoriaToFind(this.categorias.get(i), id);
 			}
 		}
-		return null;
+		return res;
 	}
 
 	// Parcelable

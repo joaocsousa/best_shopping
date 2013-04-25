@@ -41,6 +41,13 @@ public class Categoria implements Parcelable {
 		return categoriaPai;
 	}
 
+	public boolean hasCategoriaPai() {
+		if (this.categoriaPai.id == null) {
+			return false;
+		}
+		return true;
+	}
+	
 	public void setCategoriaPai(Categoria categoriaPai) {
 		this.categoriaPai = categoriaPai;
 	}
@@ -48,7 +55,7 @@ public class Categoria implements Parcelable {
 	public Hiper getHiper() {
 		return hiper;
 	}
-
+	
 	public void setHiper(Hiper hiper) {
 		this.hiper = hiper;
 	}
@@ -76,7 +83,7 @@ public class Categoria implements Parcelable {
 		}
 		return false;
 	}
-
+	
 	public void addSubCategoria(Categoria subCategoria) {
 		if (this.hasSubCategoria(subCategoria)) {
 			this.getSubCategoriaById(subCategoria.getId()).merge(subCategoria);
@@ -121,6 +128,10 @@ public class Categoria implements Parcelable {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean hasLoaded() {
+		return this.hasProdutos() || this.hasSubCategorias();
 	}
 	
 	public void merge(Categoria categoria) {

@@ -87,7 +87,7 @@ public class HiperPrecos extends Application {
 	public Integer getNumberOfHipers() {
 		return this.hipers.size();
 	}
-
+	
 	public Categoria addCategoria(JSONObject currCatJson) {
 		int catID = 0;
 		String catNome = "";
@@ -191,10 +191,11 @@ public class HiperPrecos extends Application {
 		}
 		
 		if (categoriaPai!=null) {
-			Debug.PrintDebug(this, "Categoria: Added " + categoria.getNome() + " | ID " + categoria.getId() + " | Pai " + categoria.getCategoriaPai().getNome());
+			Debug.PrintDebug(this, "Categoria: Added: " + categoria.getNome() + " | ID: " + categoria.getId() + " | Pai: " + categoria.getCategoriaPai().getNome());
 			categoriaPai.addSubCategoria(categoria);
+		} else {
+			hiper.addCategoria(categoria);
 		}
-		hiper.addCategoria(categoria);
 		return categoria;
 	}
 

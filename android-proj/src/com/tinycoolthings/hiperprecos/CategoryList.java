@@ -2,7 +2,6 @@ package com.tinycoolthings.hiperprecos;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,9 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
-import android.support.v4.app.FragmentTransaction;
-import android.util.SparseArray;
 import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -28,12 +24,12 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
-public class CategoryList extends SherlockFragmentActivity {
+public class CategoryList extends SherlockFragmentActivity implements OnNavigationListener {
 
 	private ActionBar mActionBar;
 
-	private int backStackCount = 0;
-	
+	private ArrayList<Categoria> categoriasListMenu = new ArrayList<Categoria>();
+
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -49,6 +45,8 @@ public class CategoryList extends SherlockFragmentActivity {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORIA)) {
+				enterSubCategoria(HiperPrecos.getInstance().getCategoriaById(intent.getIntExtra(Constants.Extras.CATEGORIA, -1)));
 			}
 		}
 	};
@@ -68,23 +66,6 @@ public class CategoryList extends SherlockFragmentActivity {
 		
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		mActionBar.setDisplayShowTitleEnabled(false);
-	
-		getSupportFragmentManager().addOnBackStackChangedListener(new OnBackStackChangedListener() {
-			
-			@Override
-			public void onBackStackChanged() {
-				int stackCount = getSupportFragmentManager().getBackStackEntryCount();
-				Debug.PrintError(CategoryList.this, "Stack changed: " + stackCount);
-				if (stackCount < backStackCount) {
-					Debug.PrintError(CategoryList.this, "Returned 1 to behind");
-					if (stackCount == 1) {
-						finish();
-						return;
-					}
-				}
-				backStackCount = stackCount;
-			}
-		});
 		
 		HiperPrecos.setAppContext(this);
 		
@@ -102,26 +83,30 @@ public class CategoryList extends SherlockFragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
-	            // This is called when the Home (Up) button is pressed
-	            // in the Action Bar.
-	            Intent parentActivityIntent = new Intent(this, MainActivity.class);
-	            parentActivityIntent.addFlags(
-	                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
-	                    Intent.FLAG_ACTIVITY_NEW_TASK);
-	            startActivity(parentActivityIntent);
-	            finish();
+	        	exitToMainMenu();
 	            return true;
 	    }
 	    return super.onOptionsItemSelected(item);
 	}
 	
+	private void exitToMainMenu() {
+		// This is called when the Home (Up) button is pressed
+        // in the Action Bar.
+        Intent parentActivityIntent = new Intent(this, MainActivity.class);
+        parentActivityIntent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(parentActivityIntent);
+        finish();
+	}
+	
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		Debug.PrintDebug(this, "onResume");
 		IntentFilter filterServerResp = new IntentFilter();
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORIA);
 		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	
@@ -134,58 +119,63 @@ public class CategoryList extends SherlockFragmentActivity {
 	
 	protected void enterSubCategoria(Categoria categoria) {
 		
-		Debug.PrintInfo(this, "Displaying categoria " + categoria.getNome());		
+		Debug.PrintInfo(this, "Displaying categoria " + categoria.getNome());
 		
 		ArrayList<String> categorias = new ArrayList<String>();
-		final SparseArray<Categoria> catPos = new SparseArray<Categoria>();
 		int preSelectedPosition = -1;
 		// vai buscar os siblings da categoria pai
-		ArrayList<Categoria> irmaos = categoria.getSiblings();
-		for (int j=0;j<irmaos.size();j++) {
-			if (categoria.getId().equals(irmaos.get(j).getId())) {
+		categoriasListMenu = categoria.getSiblings();
+		Debug.PrintError(this, "Siblings: " + categoriasListMenu.size());
+		for (int j=0;j<categoriasListMenu.size();j++) {
+			if (categoria.getId().equals(categoriasListMenu.get(j).getId())) {
 				preSelectedPosition = j;
 			}
-			catPos.put(j, irmaos.get(j));
-			categorias.add(irmaos.get(j).getNome());
+			categorias.add(categoriasListMenu.get(j).getNome());
 		}
 		
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, categorias);
 		
 		/** Defining Navigation listener */
-        mActionBar.setListNavigationCallbacks(adapter, new OnNavigationListener() {
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            	Categoria selectedCat = catPos.get(itemPosition);
-            	Debug.PrintInfo(CategoryList.this, "Selected categoria -> " + selectedCat.getNome());
-            	if (selectedCat.hasProdutos()) {
-            		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has produtos.");
-            		ProductListFragment productListFrag = new ProductListFragment();
-            		Bundle bundle = new Bundle();
-                    bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
-                    productListFrag.setArguments(bundle);
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(android.R.id.content, productListFrag);
-                    transaction.addToBackStack(null);
-                	transaction.commit();
-            	} else if (selectedCat.hasSubCategorias()) {
-                	CategoryListFragment categoryListFrag = new CategoryListFragment();
-                	Bundle bundle = new Bundle();
-                    bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
-                	categoryListFrag.setArguments(bundle);
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(android.R.id.content, categoryListFrag);
-                    transaction.addToBackStack(null);
-                	transaction.commit();
-            	} else {
-            		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has no information.");
-            		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
-            		getCategoria.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
-            		getCategoria.execute();
-            	}
-            	return true;
-            }
-        });
+        mActionBar.setListNavigationCallbacks(adapter, this);
         
         mActionBar.setSelectedNavigationItem(preSelectedPosition);
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		Categoria selectedCat = categoriasListMenu.get(itemPosition);
+    	Debug.PrintInfo(CategoryList.this, "Selected categoria -> " + selectedCat.getNome());
+    	if (selectedCat.hasProdutos()) {
+    		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has produtos.");
+    		ProductListFragment productListFrag = new ProductListFragment();
+    		Bundle bundle = new Bundle();
+            bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
+            productListFrag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
+    	} else if (selectedCat.hasSubCategorias()) {
+        	CategoryListFragment categoryListFrag = new CategoryListFragment();
+        	Bundle bundle = new Bundle();
+            bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
+        	categoryListFrag.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().replace(android.R.id.content, categoryListFrag).commit();
+    	} else {
+    		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has no information.");
+    		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
+    		getCategoria.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
+    		getCategoria.execute();
+    	}
+    	return true;
+	}
+	
+	@Override
+	public void onBackPressed() {
+		Categoria selectedCat = categoriasListMenu.get(getSupportActionBar().getSelectedNavigationIndex());
+		if (selectedCat.hasCategoriaPai()) {
+			enterSubCategoria(selectedCat.getCategoriaPai());
+		} else {
+			exitToMainMenu();
+			return;
+		}
 	}
 	
 }

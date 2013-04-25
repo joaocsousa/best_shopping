@@ -2,6 +2,7 @@ package com.tinycoolthings.hiperprecos;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
+import com.tinycoolthings.hiperprecos.utils.Constants.Actions;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
@@ -53,9 +55,17 @@ public class CategoryListFragment extends SherlockListFragment {
 		super.onListItemClick(l, v, position, id);
 		int selectedCatID = categorias.get(position).getId();
 		Debug.PrintInfo(this, "Selected categoria with id " + selectedCatID);
-		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
-		getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
-		getCategorias.execute();
+		Categoria selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
+		if (selectedCat!=null && selectedCat.hasLoaded()) {
+			Intent intent = new Intent(Actions.DISPLAY_CATEGORIA);
+			intent.putExtra(Constants.Extras.CATEGORIA, selectedCatID);
+			HiperPrecos.getInstance().sendBroadcast(intent);
+		} else {
+			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
+			getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
+			getCategorias.execute();
+		}
+		
 	}
 	
 }

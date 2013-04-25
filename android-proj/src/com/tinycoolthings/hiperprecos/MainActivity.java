@@ -80,8 +80,6 @@ public class MainActivity extends SherlockFragmentActivity {
 
         mActionBar.setDisplayShowTitleEnabled(true);
         
-        HiperPrecos.setAppContext(this);
-        
 	}
 
 	@Override
@@ -103,7 +101,9 @@ public class MainActivity extends SherlockFragmentActivity {
 		HiperPrecos.getInstance().addHiper(new Hiper(1, "Continente"));
 		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
 		////////////////////
-		
+
+        HiperPrecos.setAppContext(this);
+        
 		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIAS);
 		getCategorias.addParameter(Name.CATEGORIA_PAI, -1);
 		getCategorias.execute();
