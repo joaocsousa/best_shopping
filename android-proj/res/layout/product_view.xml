@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <ImageView
+        android:id="@+id/img_prod_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/app_name"
+        android:layout_weight="1"
+        android:layout_margin="20dp" />
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" >
+        
+        <TextView
+            android:id="@+id/tv_prod_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:layout_alignParentTop="true"
+	        android:textIsSelectable="true" />
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical" >
+            
+            <TextView
+	            android:id="@+id/tv_prod_last_update"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:textSize="14sp"
+	            android:text="@string/prod_img_last_update"
+	            android:gravity="center"
+		        android:textIsSelectable="true" />
+            
+			<TextView
+	            android:id="@+id/tv_prod_last_update"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:textSize="14sp"
+	            android:text="@string/prod_img_last_update"
+	            android:gravity="center"
+		        android:textIsSelectable="true" />
+            
+        </LinearLayout>
+        
+        <TextView
+            android:id="@+id/tv_prod_last_update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="@string/prod_img_last_update"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+	        android:textIsSelectable="true" />
+        
+    </RelativeLayout>
+    
+
+</LinearLayout>

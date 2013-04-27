@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
@@ -87,7 +88,10 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 				int selectedProdID = getItem(position).getId();
 				Debug.PrintInfo(ProductListAdapter.this, "Selected produto with id " + selectedProdID);
 				if (getItem(position).hasLoaded()) {
-					
+					Intent intent = new Intent();
+					intent.setAction(Constants.Actions.DISPLAY_PRODUTO);
+					intent.putExtra(Constants.Extras.PRODUTO, selectedProdID);
+					HiperPrecos.getInstance().sendBroadcast(intent);
 				} else {
 					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
 					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
@@ -95,7 +99,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 				}	
 			}
 		});
-		
+	
 		return view;
 	}
 

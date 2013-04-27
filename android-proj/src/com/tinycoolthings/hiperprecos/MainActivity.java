@@ -114,7 +114,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + categoria.getNome());
 		
 		Debug.PrintWarning(MainActivity.this, categoria.getNome() + " has subcategorias.");
-        Intent intent = new Intent(MainActivity.this, CategoryList.class);
+        Intent intent = new Intent(MainActivity.this, NavigationList.class);
         Bundle bundle = new Bundle();
         bundle.putInt(Constants.Extras.CATEGORIA, categoria.getId());
         intent.putExtras(bundle);

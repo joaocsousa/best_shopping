@@ -8,8 +8,9 @@ public class Constants {
 		public static final String GET_PRODUTOS = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_PRODUTOS";
 		public static final String GET_PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_PRODUTO";
 		public static final String DISPLAY_CATEGORIA = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_CATEGORIA";
+		public static final String DISPLAY_PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_PRODUTO";
 	}
-	
+
 	public static final class Extras {
 		public static final String HIPERS = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPERS";
 		public static final String HIPER = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPER";

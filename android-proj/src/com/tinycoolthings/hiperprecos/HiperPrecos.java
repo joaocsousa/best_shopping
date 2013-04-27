@@ -88,13 +88,10 @@ public class HiperPrecos extends Application {
 		return this.hipers.size();
 	}
 	
-	public Produto getProdutoById(Integer id) {
+	public Produto getProdutoById(Integer prodID) {
 		Produto produto = null;
-    	for (int i=0;i<hipers.size();i++) {
-    		produto = hipers.get(i).getProdutoById(id);
-    		if (produto != null) {
-    			break;
-    		}
+    	for (int i=0;produto==null && i<hipers.size();i++) {
+    		produto = hipers.get(i).getProdutoById(prodID);
     	}
     	return produto;
 	}

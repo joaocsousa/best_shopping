@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CategoryList"></activity>
+        <activity android:name=".NavigationList"></activity>
     </application>
 
 </manifest>

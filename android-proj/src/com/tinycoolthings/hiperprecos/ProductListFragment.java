@@ -18,7 +18,7 @@ public class ProductListFragment extends SherlockListFragment {
 	
 	@Override
 	public void onResume() {
-		Debug.PrintError(this, "onResume");
+		Debug.PrintDebug(this, "onResume");
 		super.onResume();
 	}
 	

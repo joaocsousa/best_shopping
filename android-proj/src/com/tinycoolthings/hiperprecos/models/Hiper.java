@@ -80,7 +80,7 @@ public class Hiper implements Parcelable {
 
 	private Produto loopCategoriasToFindProd(Categoria categoria, Integer prodID) {
 		Produto res = null;
-		if (categoria.hasProdutoByID(prodID)) {
+		if (categoria.hasProdutoWithID(prodID)) {
 			return categoria.getProdutoById(prodID);
 		}
 		for (int j = 0; res == null && j < categoria.getSubCategorias().size(); j++) {         
@@ -92,11 +92,7 @@ public class Hiper implements Parcelable {
 	public Produto getProdutoById(Integer prodID) {
 		Produto res = null;
 		for (int i=0;res == null && i<this.categorias.size();i++) {
-			if (this.categorias.get(i).hasProdutoByID(prodID)) {
-				return this.categorias.get(i).getProdutoById(prodID);
-			} else {
-				res = this.loopCategoriasToFindProd(this.categorias.get(i), id);
-			}
+			res = this.loopCategoriasToFindProd(this.categorias.get(i), prodID);
 		}
 		return res;
 	}

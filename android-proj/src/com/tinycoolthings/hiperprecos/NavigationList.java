@@ -25,7 +25,7 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
-public class CategoryList extends SherlockFragmentActivity implements OnNavigationListener {
+public class NavigationList extends SherlockFragmentActivity implements OnNavigationListener {
 
 	private ActionBar mActionBar;
 
@@ -39,7 +39,7 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 				try {
 					JSONObject catJson = new JSONObject(result);
 					Categoria categoria = HiperPrecos.getInstance().addCategoria(catJson);
-					Debug.PrintWarning(CategoryList.this, "Received data for categoria " + categoria.getNome());
+					Debug.PrintWarning(NavigationList.this, "Received data for categoria " + categoria.getNome());
 					enterSubCategoria(categoria);
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -53,12 +53,19 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 				try {
 					JSONObject prodJson = new JSONObject(result);
 					Produto produto = new Produto(prodJson);
-					Debug.PrintWarning(CategoryList.this, "Received data for produto " + produto.getNome());
+					Debug.PrintWarning(NavigationList.this, "Received data for produto " + produto.getId() + " - " + produto.getNome());
+					Produto existingProd = HiperPrecos.getInstance().getProdutoById(produto.getId());
+					existingProd.merge(produto);
+					showProduct(existingProd);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUTO)) {
+				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUTO, -1);
+				Produto selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
+				showProduct(selectedProd);
 			}
 		}
 	};
@@ -90,7 +97,7 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 	   inflater.inflate(R.menu.main, menu);
 	   return true;
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
@@ -119,6 +126,8 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 		IntentFilter filterServerResp = new IntentFilter();
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
 		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORIA);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUTO);
+		filterServerResp.addAction(Constants.Actions.GET_PRODUTO);
 		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	
@@ -152,13 +161,21 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
         
         mActionBar.setSelectedNavigationItem(preSelectedPosition);
 	}
+	
+	protected void showProduct(Produto produto) {
+		ProductViewFragment productViewFrag = new ProductViewFragment();
+    	Bundle bundle = new Bundle();
+        bundle.putInt(Constants.Extras.PRODUTO, produto.getId());
+        productViewFrag.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productViewFrag).commit();
+	}
 
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
 		Categoria selectedCat = categoriasListMenu.get(itemPosition);
-    	Debug.PrintInfo(CategoryList.this, "Selected categoria -> " + selectedCat.getNome());
+    	Debug.PrintInfo(NavigationList.this, "Selected categoria -> " + selectedCat.getNome());
     	if (selectedCat.hasProdutos()) {
-    		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has produtos.");
+    		Debug.PrintWarning(NavigationList.this, selectedCat.getNome() + " has produtos.");
     		ProductListFragment productListFrag = new ProductListFragment();
     		Bundle bundle = new Bundle();
             bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
@@ -171,7 +188,7 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
         	categoryListFrag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content, categoryListFrag).commit();
     	} else {
-    		Debug.PrintWarning(CategoryList.this, selectedCat.getNome() + " has no information.");
+    		Debug.PrintWarning(NavigationList.this, selectedCat.getNome() + " has no information.");
     		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
     		getCategoria.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
     		getCategoria.execute();

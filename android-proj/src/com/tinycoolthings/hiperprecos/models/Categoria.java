@@ -106,7 +106,7 @@ public class Categoria implements Parcelable {
 		return false;
 	}
 
-	public boolean hasProdutoByID(Integer prodID) {
+	public boolean hasProdutoWithID(Integer prodID) {
 		if (this.getProdutoById(prodID)!=null) {
 			return true;
 		}
