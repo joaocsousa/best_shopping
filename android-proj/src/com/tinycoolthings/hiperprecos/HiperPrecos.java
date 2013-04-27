@@ -88,6 +88,17 @@ public class HiperPrecos extends Application {
 		return this.hipers.size();
 	}
 	
+	public Produto getProdutoById(Integer id) {
+		Produto produto = null;
+    	for (int i=0;i<hipers.size();i++) {
+    		produto = hipers.get(i).getProdutoById(id);
+    		if (produto != null) {
+    			break;
+    		}
+    	}
+    	return produto;
+	}
+
 	public Categoria addCategoria(JSONObject currCatJson) {
 		int catID = 0;
 		String catNome = "";

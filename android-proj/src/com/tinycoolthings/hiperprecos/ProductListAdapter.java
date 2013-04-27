@@ -8,13 +8,18 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
+import com.tinycoolthings.hiperprecos.utils.Constants;
+import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Storage;
+import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 
 @SuppressLint("NewApi")
 public class ProductListAdapter extends ArrayAdapter<Produto> {
@@ -25,6 +30,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		public TextView txtNome;
 		public TextView txtMarca;
 		public TextView txtPreco;
+		public TextView txtPeso;
 		public ImageView img;
 		public Integer position;
 	}
@@ -44,7 +50,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		
 		View view;
 		
@@ -54,6 +60,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_prod_nome);
 			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_prod_marca);
 			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_prod_preco);
+			viewHolder.txtPeso = (TextView) view.findViewById(R.id.tv_prod_peso);
 			viewHolder.img = (ImageView) view.findViewById(R.id.im_prod_img);
 			view.setTag(viewHolder);
 		} else {
@@ -64,7 +71,8 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		ViewHolder holder = (ViewHolder) view.getTag();
 		holder.txtNome.setText(item.getNome());
 		holder.txtMarca.setText(item.getMarca());
-		holder.txtPreco.setText(String.valueOf(item.getPreco()));
+		holder.txtPreco.setText(String.valueOf(item.getPreco()) + " €");
+		holder.txtPeso.setText(item.getPeso());
 		holder.position = position;
 		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
@@ -72,6 +80,21 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		} else {
 			new ThumbnailTask(position, holder, fileName).execute();
 		}
+	
+		view.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int selectedProdID = getItem(position).getId();
+				Debug.PrintInfo(ProductListAdapter.this, "Selected produto with id " + selectedProdID);
+				if (getItem(position).hasLoaded()) {
+					
+				} else {
+					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
+					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
+					getProduto.execute();
+				}	
+			}
+		});
 		
 		return view;
 	}
@@ -99,4 +122,5 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	        }
 	    }
 	}
+	
 } 

@@ -13,17 +13,15 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.serverComm.RestClient.RequestMethod;
 import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Slugify;
-import com.tinycoolthings.hiperprecos.utils.Storage;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
+import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Storage;
 
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	private ProgressDialog dialog;
@@ -41,7 +39,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPreExecute() {
-		this.dialog = ProgressDialog.show(HiperPrecos.getInstance().getAppContext(), "Calling", "Time Service...", true);
+		this.dialog = ProgressDialog.show(HiperPrecos.getAppContext(), "Calling", "Time Service...", true);
 	}
 
 	@Override
@@ -52,6 +50,14 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 				URL = Constants.Server.Definitions.HIPERS_URL;
 			} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
+			} else if (this.action == Constants.Actions.GET_PRODUTO) {
+				URL = Constants.Server.Definitions.PRODUTOS_URL;
+				if (!this.params.containsKey(Constants.Server.Parameter.Name.PRODUTO_ID)) {
+					Debug.PrintError(this, "No produto ID! Did you specify it?");
+				} else {
+					int prodID = this.params.get(Constants.Server.Parameter.Name.PRODUTO_ID);
+					URL += prodID;
+				}
 			} else if (this.action == Constants.Actions.GET_CATEGORIAS) {
 				URL = Constants.Server.Definitions.CATEGORIAS_URL;
 			} else if (this.action == Constants.Actions.GET_CATEGORIA) {
@@ -85,6 +91,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			        case DESCONTO:
 			        	logParams+="desconto="+String.valueOf(pair.getValue())+"&";
 			        	client.AddParam("desconto", String.valueOf(pair.getValue()));
+						break;
 					default:
 						break;
 		        }
@@ -145,6 +152,8 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			intent.putExtra(Constants.Extras.HIPERS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 			intent.putExtra(Constants.Extras.PRODUTOS, result);
+		} else if (this.action == Constants.Actions.GET_PRODUTO) {
+			intent.putExtra(Constants.Extras.PRODUTO, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORIAS) {
 			intent.putExtra(Constants.Extras.CATEGORIAS, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORIA) {

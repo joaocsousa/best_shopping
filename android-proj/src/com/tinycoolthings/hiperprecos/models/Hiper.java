@@ -55,24 +55,47 @@ public class Hiper implements Parcelable {
 		}
 	}
 	
-	private Categoria loopCategoriaToFind(Categoria categoria, Integer id) {
+	private Categoria loopCategoriasToFindCat(Categoria categoria, Integer catID) {
 		Categoria res = null;
-		if (id.equals(categoria.getId())) {
+		if (catID.equals(categoria.getId())) {
 			return categoria;
 		}
 		for (int j = 0; res == null && j < categoria.getSubCategorias().size(); j++) {         
-	        res = this.loopCategoriaToFind(categoria.getSubCategorias().get(j), id);
+	        res = this.loopCategoriasToFindCat(categoria.getSubCategorias().get(j), catID);
 		}
 		return res;
 	}
 	
-	public Categoria getCategoriaById(Integer id) {
+	public Categoria getCategoriaById(Integer catID) {
 		Categoria res = null;
 		for (int i=0;res == null && i<this.categorias.size();i++) {
-			if (id.equals(this.categorias.get(i).getId())) {
+			if (catID.equals(this.categorias.get(i).getId())) {
 				return this.categorias.get(i);
 			} else {
-				res = this.loopCategoriaToFind(this.categorias.get(i), id);
+				res = this.loopCategoriasToFindCat(this.categorias.get(i), catID);
+			}
+		}
+		return res;
+	}
+
+	private Produto loopCategoriasToFindProd(Categoria categoria, Integer prodID) {
+		Produto res = null;
+		if (categoria.hasProdutoByID(prodID)) {
+			return categoria.getProdutoById(prodID);
+		}
+		for (int j = 0; res == null && j < categoria.getSubCategorias().size(); j++) {         
+	        res = this.loopCategoriasToFindProd(categoria.getSubCategorias().get(j), prodID);
+		}
+		return res;
+	}
+	
+	public Produto getProdutoById(Integer prodID) {
+		Produto res = null;
+		for (int i=0;res == null && i<this.categorias.size();i++) {
+			if (this.categorias.get(i).hasProdutoByID(prodID)) {
+				return this.categorias.get(i).getProdutoById(prodID);
+			} else {
+				res = this.loopCategoriasToFindProd(this.categorias.get(i), id);
 			}
 		}
 		return res;

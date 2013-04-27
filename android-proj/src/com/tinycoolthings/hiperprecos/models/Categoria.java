@@ -2,8 +2,6 @@ package com.tinycoolthings.hiperprecos.models;
 
 import java.util.ArrayList;
 
-import com.tinycoolthings.hiperprecos.utils.Debug;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -103,6 +101,13 @@ public class Categoria implements Parcelable {
 	
 	public boolean hasProduto(Produto produto) {
 		if (this.getProdutoById(produto.getId())!=null) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean hasProdutoByID(Integer prodID) {
+		if (this.getProdutoById(prodID)!=null) {
 			return true;
 		}
 		return false;

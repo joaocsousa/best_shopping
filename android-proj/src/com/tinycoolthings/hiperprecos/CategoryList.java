@@ -19,6 +19,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.tinycoolthings.hiperprecos.models.Categoria;
+import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -47,6 +48,17 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 				}
 			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORIA)) {
 				enterSubCategoria(HiperPrecos.getInstance().getCategoriaById(intent.getIntExtra(Constants.Extras.CATEGORIA, -1)));
+			} else if (intent.getAction().equals(Constants.Actions.GET_PRODUTO)) {
+				String result = intent.getStringExtra(Constants.Extras.PRODUTO);
+				try {
+					JSONObject prodJson = new JSONObject(result);
+					Produto produto = new Produto(prodJson);
+					Debug.PrintWarning(CategoryList.this, "Received data for produto " + produto.getNome());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	};
@@ -71,14 +83,14 @@ public class CategoryList extends SherlockFragmentActivity implements OnNavigati
 		
 		enterSubCategoria(categoria);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	   MenuInflater inflater = getSupportMenuInflater();
 	   inflater.inflate(R.menu.main, menu);
 	   return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {

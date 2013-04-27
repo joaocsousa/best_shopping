@@ -1,6 +1,14 @@
 package com.tinycoolthings.hiperprecos.models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -19,8 +27,68 @@ public class Produto implements Parcelable {
 	private Categoria categoriaPai = null;
 	private Calendar lastUpdate = null;
 	
-	public Produto() {}
+	public Produto(JSONObject prodJson) {
+		try {
+			Integer prodID = prodJson.getInt("id");
+			this.setId(prodID);
+		} catch (JSONException e) {}
+		try {
+			String prodNome = prodJson.getString("nome");
+			this.setNome(prodNome);
+		} catch (JSONException e) {}
+		try {
+			String prodMarca = prodJson.getString("marca");
+			this.setMarca(prodMarca);
+		} catch (JSONException e) {}
+		try {
+			String prodPeso = prodJson.getString("peso");
+			this.setPeso(prodPeso);
+		} catch (JSONException e) {}
+		try {
+			Double prodPreco = prodJson.getDouble("preco");
+			this.setPreco(prodPreco);
+		} catch (JSONException e) {}
+		try {
+			Double prodPrecoKg = prodJson.getDouble("preco_kg");
+			this.setPrecoKg(prodPrecoKg);
+		} catch (JSONException e) {}
+		try {
+			String prodUrlPagina = prodJson.getString("url_pagina");
+			this.setUrlPagina(prodUrlPagina);
+		} catch (JSONException e) {}
+		try {
+			String prodUrlImagem = prodJson.getString("url_imagem");
+			this.setUrlImagem(prodUrlImagem);
+		} catch (JSONException e) {}
+		try {
+			Double prodDesconto = prodJson.getDouble("desconto");
+			this.setDesconto(prodDesconto);
+		} catch (JSONException e) {}
+		try {
+			String prodLastUpdated = prodJson.getString("last_updated");
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Date value = null;
+			Calendar lastUpdateCal = Calendar.getInstance();
+		    try {
+				value = formatter.parse(prodLastUpdated);
+				lastUpdateCal.setTime(value);
+				this.setLastUpdate(lastUpdateCal);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		} catch (JSONException e) {}
+	}
 
+	public Produto() {}
+	
+	public Boolean hasLoaded() {
+		if (this.urlPagina!=null) {
+			return true;
+		}
+		return false;
+	}
+	
 	public Integer getId() {
 		return id;
 	}
@@ -161,7 +229,7 @@ public class Produto implements Parcelable {
 		this.lastUpdate = Calendar.getInstance();
 		this.lastUpdate.setTimeInMillis(in.readLong());
 	}
-	
+
 	@Override
 	public int describeContents() {
 		return hashCode();

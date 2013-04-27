@@ -6,14 +6,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.tinycoolthings.hiperprecos.models.Produto;
-import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 
 public class ProductListFragment extends SherlockListFragment {
 
@@ -34,22 +31,13 @@ public class ProductListFragment extends SherlockListFragment {
 		
 		/** Creating array adapter to set data in listview */
         ProductListAdapter adapter = new ProductListAdapter(getActivity().getBaseContext());
- 
         adapter.setData(produtos);
         
         /** Setting the array adapter to the listview */
         setListAdapter(adapter);
         
 		return super.onCreateView(inflater, container, savedInstanceState);
+		
     }
-   
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		int selectedProdID = produtos.get(position).getId();
-		CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
-		getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
-		getProduto.execute();
-	}
 	
 }

@@ -9,12 +9,14 @@ public class Constants {
 		public static final String GET_PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_PRODUTO";
 		public static final String DISPLAY_CATEGORIA = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_CATEGORIA";
 	}
+	
 	public static final class Extras {
 		public static final String HIPERS = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPERS";
 		public static final String HIPER = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPER";
 		public static final String CATEGORIAS = "COM.TINYCOOLTHINGS.HIPERPRECOS.CATEGORIAS";
 		public static final String CATEGORIA = "COM.TINYCOOLTHINGS.HIPERPRECOS.CATEGORIA";
 		public static final String PRODUTOS = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTOS";
+		public static final String PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTO";
 	}
 	public static final class Server {
 		public static final class Definitions {
