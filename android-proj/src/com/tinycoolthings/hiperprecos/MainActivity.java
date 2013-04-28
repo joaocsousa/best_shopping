@@ -22,6 +22,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapater;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Hiper;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
@@ -102,7 +103,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
 		////////////////////
 
-        HiperPrecos.setAppContext(this);
+        HiperPrecos.getInstance().setAppContext(this);
         
 		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIAS);
 		getCategorias.addParameter(Name.CATEGORIA_PAI, -1);

@@ -26,6 +26,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".NavigationList"></activity>
+        <activity android:name=".product.ProductView"></activity>
     </application>
 
 </manifest>

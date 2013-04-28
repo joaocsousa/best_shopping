@@ -1,4 +1,4 @@
-package com.tinycoolthings.hiperprecos;
+package com.tinycoolthings.hiperprecos.product;
 
 import java.util.ArrayList;
 
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;

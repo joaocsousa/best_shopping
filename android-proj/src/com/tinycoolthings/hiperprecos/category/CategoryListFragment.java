@@ -1,4 +1,4 @@
-package com.tinycoolthings.hiperprecos;
+package com.tinycoolthings.hiperprecos.category;
 
 import java.util.ArrayList;
 
@@ -11,6 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.tinycoolthings.hiperprecos.HiperPrecos;
+import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.R.layout;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;

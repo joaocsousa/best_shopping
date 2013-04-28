@@ -18,8 +18,11 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.tinycoolthings.hiperprecos.category.CategoryListFragment;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.product.ProductListFragment;
+import com.tinycoolthings.hiperprecos.product.ProductView;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -86,7 +89,7 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		mActionBar.setDisplayShowTitleEnabled(false);
 		
-		HiperPrecos.setAppContext(this);
+		HiperPrecos.getInstance().setAppContext(this);
 		
 		enterSubCategoria(categoria);
 	}
@@ -163,11 +166,11 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	}
 	
 	protected void showProduct(Produto produto) {
-		ProductViewFragment productViewFrag = new ProductViewFragment();
-    	Bundle bundle = new Bundle();
+		Bundle bundle = new Bundle();
         bundle.putInt(Constants.Extras.PRODUTO, produto.getId());
-        productViewFrag.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productViewFrag).commit();
+        Intent intent = new Intent(this, ProductView.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
 	}
 
 	@Override

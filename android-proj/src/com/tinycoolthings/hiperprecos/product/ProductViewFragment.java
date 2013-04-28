@@ -1,4 +1,4 @@
-package com.tinycoolthings.hiperprecos;
+package com.tinycoolthings.hiperprecos.product;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.tinycoolthings.hiperprecos.HiperPrecos;
+import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
@@ -43,7 +45,23 @@ public class ProductViewFragment extends SherlockFragment {
 		// NAME
 		TextView tv_prodName = ((TextView)view.findViewById(R.id.tv_prod_name));
 		tv_prodName.setText(produto.getNome());
-	
+
+		// MARCA
+		TextView tv_prod_marca = ((TextView)view.findViewById(R.id.tv_prod_marca));
+		tv_prod_marca.setText(produto.getMarca());
+
+		// PESO
+		TextView tv_prod_peso = ((TextView)view.findViewById(R.id.tv_prod_peso));
+		tv_prod_peso.setText(produto.getPeso());
+
+		// PRECO
+		TextView tv_prod_preco = ((TextView)view.findViewById(R.id.tv_prod_preco));
+		tv_prod_preco.setText(produto.getPreco() + " €");
+		
+		// PRECO KG
+		TextView tv_prod_preco_kg = ((TextView)view.findViewById(R.id.tv_prod_preco_kg));
+		tv_prod_preco_kg.setText(produto.getPrecoKg() + " € / Kg");
+
 		// LAST UPDATE DATE
 		Calendar now = Calendar.getInstance();
 		

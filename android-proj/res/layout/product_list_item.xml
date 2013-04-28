@@ -24,7 +24,6 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/app_name"
-	        android:textIsSelectable="true"
 	        android:singleLine="true"
 	        android:textSize="@dimen/prod_item_name_txt_size" />
 	
@@ -33,7 +32,6 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/app_name"
-	        android:textIsSelectable="true"
 	        android:layout_centerVertical="true" />
 	
 	    <TextView
@@ -41,7 +39,6 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/app_name"
-	        android:textIsSelectable="true"
 	        android:layout_alignParentBottom="true"
 	        android:layout_alignParentRight="true" />
         
@@ -50,7 +47,6 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/app_name"
-	        android:textIsSelectable="true"
 	        android:layout_alignParentBottom="true"
 	        android:layout_marginRight="5dp" />
 	    

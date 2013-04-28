@@ -207,11 +207,11 @@ public class HiperPrecos extends Application {
 		return categoria;
 	}
 
-	public static void setAppContext(Context ctx) {
+	public void setAppContext(Context ctx) {
 		HiperPrecos.appContext = ctx;
 	}
 
-	public static Context getAppContext() {
+	public Context getAppContext() {
 		return HiperPrecos.appContext;
 	}
 }

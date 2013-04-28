@@ -1,71 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:weightSum="7" >
     
     <ImageView
-        android:id="@+id/img_prod_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:contentDescription="@string/app_name"
-        android:layout_weight="1"
-        android:layout_margin="20dp" />
+		android:id="@+id/img_prod_image"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_gravity="center_horizontal"
+		android:contentDescription="@string/app_name"
+		android:layout_margin="20dp"
+		android:layout_weight="3" />
     
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" >
+	<TextView
+		android:id="@+id/tv_prod_name"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:textSize="25sp"
+		android:gravity="center"
+		android:textIsSelectable="true"
+		android:layout_weight="1" />
         
-        <TextView
-            android:id="@+id/tv_prod_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:layout_alignParentTop="true"
-	        android:textIsSelectable="true" />
-        
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:orientation="vertical" >
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:orientation="horizontal"
+		android:layout_weight="1" >
+          
+		<TextView
+			android:id="@+id/tv_prod_marca"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:textSize="14sp"
+			android:gravity="center"
+			android:textIsSelectable="true"
+			android:layout_weight="1" />
+		
+		<TextView
+			android:id="@+id/tv_prod_preco"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:textSize="40sp"
+			android:gravity="center"
+			android:textIsSelectable="true"
+			android:layout_weight="1" />
+		  
+	</LinearLayout>
             
-            <TextView
-	            android:id="@+id/tv_prod_last_update"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:textSize="14sp"
-	            android:text="@string/prod_img_last_update"
-	            android:gravity="center"
-		        android:textIsSelectable="true" />
-            
-			<TextView
-	            android:id="@+id/tv_prod_last_update"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:textSize="14sp"
-	            android:text="@string/prod_img_last_update"
-	            android:gravity="center"
-		        android:textIsSelectable="true" />
-            
-        </LinearLayout>
-        
-        <TextView
-            android:id="@+id/tv_prod_last_update"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="@string/prod_img_last_update"
-            android:gravity="center"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"
-	        android:textIsSelectable="true" />
-        
-    </RelativeLayout>
-    
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:layout_weight="1" >
+                
+		<TextView
+			android:id="@+id/tv_prod_peso"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:textSize="14sp"
+			android:gravity="center"
+			android:textIsSelectable="true"
+			android:layout_weight="1" />
+
+		<TextView
+			android:id="@+id/tv_prod_preco_kg"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:textSize="17sp"
+			android:gravity="center"
+			android:textIsSelectable="true"
+			android:layout_weight="1" />
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/tv_prod_last_update"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:textSize="14sp"
+		android:text="@string/prod_img_last_update"
+		android:gravity="center"
+		android:textIsSelectable="true"
+		android:layout_weight="1" />
 
 </LinearLayout>

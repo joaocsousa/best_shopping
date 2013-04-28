@@ -1,4 +1,4 @@
-package com.tinycoolthings.hiperprecos;
+package com.tinycoolthings.hiperprecos.product;
 
 import java.util.List;
 
@@ -15,6 +15,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tinycoolthings.hiperprecos.HiperPrecos;
+import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.R.id;
+import com.tinycoolthings.hiperprecos.R.layout;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
