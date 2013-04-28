@@ -17,14 +17,12 @@ import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.R.id;
-import com.tinycoolthings.hiperprecos.R.layout;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
+import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Storage;
-import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 
 @SuppressLint("NewApi")
 public class ProductListAdapter extends ArrayAdapter<Produto> {
@@ -62,11 +60,11 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		if (convertView == null) {
 			view = mInflater.inflate(R.layout.product_list_item, parent, false);
 			ViewHolder viewHolder = new ViewHolder();
-			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_prod_nome);
-			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_prod_marca);
-			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_prod_preco);
-			viewHolder.txtPeso = (TextView) view.findViewById(R.id.tv_prod_peso);
-			viewHolder.img = (ImageView) view.findViewById(R.id.im_prod_img);
+			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_item_prod_nome);
+			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_item_prod_marca);
+			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_item_prod_preco);
+			viewHolder.txtPeso = (TextView) view.findViewById(R.id.tv_item_prod_peso);
+			viewHolder.img = (ImageView) view.findViewById(R.id.iv_item_prod_img);
 			view.setTag(viewHolder);
 		} else {
 			view = convertView;
@@ -75,7 +73,11 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		Produto item = getItem(position);
 		ViewHolder holder = (ViewHolder) view.getTag();
 		holder.txtNome.setText(item.getNome());
-		holder.txtMarca.setText(item.getMarca());
+		String marca = "-";
+		if (item.getMarca()!=null ) {
+			marca = item.getMarca();
+		}
+		holder.txtMarca.setText(marca);
 		holder.txtPreco.setText(String.valueOf(item.getPreco()) + " €");
 		holder.txtPeso.setText(item.getPeso());
 		holder.position = position;

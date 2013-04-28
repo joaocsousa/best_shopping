@@ -12,7 +12,10 @@ import android.content.Context;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Hiper;
 import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
+import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 
 public class HiperPrecos extends Application {
 
@@ -213,5 +216,11 @@ public class HiperPrecos extends Application {
 
 	public Context getAppContext() {
 		return HiperPrecos.appContext;
+	}
+	
+	public void search(String text) {
+		CallWebServiceTask search = new CallWebServiceTask(Constants.Actions.SEARCH);
+		search.addParameter(Name.SEARCH_QUERY, text);
+		search.execute();
 	}
 }

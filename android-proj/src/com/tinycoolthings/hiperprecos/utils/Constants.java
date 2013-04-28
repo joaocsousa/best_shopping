@@ -9,6 +9,7 @@ public class Constants {
 		public static final String GET_PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_PRODUTO";
 		public static final String DISPLAY_CATEGORIA = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_CATEGORIA";
 		public static final String DISPLAY_PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_PRODUTO";
+		public static final String SEARCH = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
 	}
 
 	public static final class Extras {
@@ -18,6 +19,7 @@ public class Constants {
 		public static final String CATEGORIA = "COM.TINYCOOLTHINGS.HIPERPRECOS.CATEGORIA";
 		public static final String PRODUTOS = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTOS";
 		public static final String PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTO";
+		public static final String SEARCH_RESULT = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
 	}
 	public static final class Server {
 		public static final class Definitions {
@@ -28,6 +30,7 @@ public class Constants {
 			public static final String CATEGORIAS_URL = API_URL+"/categorias/";
 			public static final String PRODUTOS_URL = API_URL+"/produtos/";
 			public static final String HIPERS_URL = API_URL+"/hipers/";
+			public static final String SEARCH_URL = "http://www."+DOMAIN+"/search";
 		}
 		public static final class Parameter {
 			public static enum Name {
@@ -35,7 +38,8 @@ public class Constants {
 				CATEGORIA_PAI,
 				CATEGORIA_ID,
 				DESCONTO,
-				PRODUTO_ID
+				PRODUTO_ID,
+				SEARCH_QUERY
 			}
 		}
 	}

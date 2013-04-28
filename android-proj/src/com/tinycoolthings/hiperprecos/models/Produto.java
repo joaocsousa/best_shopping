@@ -110,7 +110,9 @@ public class Produto implements Parcelable {
 	}
 
 	public void setMarca(String marca) {
-		this.marca = marca;
+		if (marca!="null") {
+			this.marca = marca;
+		}
 	}
 
 	public Double getPreco() {
@@ -179,55 +181,56 @@ public class Produto implements Parcelable {
 
 	public void merge(Produto produto) {
 		if (this.id==null && produto.getId()!=null) {
-			this.id = produto.getId();
+			this.setId(produto.getId());
 		}
 		if (this.nome==null && produto.getNome()!=null) {
-			this.nome = produto.getNome();
+			this.setNome(produto.getNome());
 		}
 		if (this.marca==null && produto.getMarca()!=null) {
-			this.marca = produto.getMarca();
+			this.setMarca(produto.getMarca());
 		}
 		if (this.preco==null && produto.getPreco()!=null) {
-			this.preco = produto.getPreco();
+			this.setPreco(produto.getPreco());
 		}
 		if (this.precoKg==null && produto.getPrecoKg()!=null) {
-			this.precoKg = produto.getPrecoKg();
+			this.setPrecoKg(produto.getPrecoKg());
 		}
 		if (this.peso==null && produto.getPeso()!=null) {
-			this.peso = produto.getPeso();
+			this.setPeso(produto.getPeso());
 		}
 		if (this.urlPagina==null && produto.getUrlPagina()!=null) {
-			this.urlPagina = produto.getUrlPagina();
+			this.setUrlPagina(produto.getUrlPagina());
 		}
 		if (this.urlImagem==null && produto.getUrlImagem()!=null) {
-			this.urlImagem = produto.getUrlImagem();
+			this.setUrlImagem(produto.getUrlImagem());
 		}
 		if (this.desconto==null && produto.getDesconto()!=null) {
-			this.desconto = produto.getDesconto();
+			this.setDesconto(produto.getDesconto());
 		}
 		if (this.categoriaPai==null && produto.getCategoriaPai()!=null) {
-			this.categoriaPai = produto.getCategoriaPai();
+			this.setCategoriaPai(produto.getCategoriaPai());
 		}
 		if (this.lastUpdate==null && produto.getLastUpdate()!=null) {
-			this.lastUpdate = produto.getLastUpdate();
+			this.setLastUpdate(produto.getLastUpdate());
 		}
 	}
 	
 	// Parcelable
 	
 	public Produto(Parcel in) {
-		this.id = in.readInt();
-		this.nome = in.readString();
-		this.marca = in.readString();
-		this.preco = in.readDouble();
-		this.precoKg = in.readDouble();
-		this.peso = in.readString();
-		this.urlPagina = in.readString();
-		this.urlImagem = in.readString();
-		this.desconto = in.readDouble();
-		this.categoriaPai = in.readParcelable(Categoria.class.getClassLoader());
-		this.lastUpdate = Calendar.getInstance();
-		this.lastUpdate.setTimeInMillis(in.readLong());
+		this.setId(in.readInt());
+		this.setNome(in.readString());
+		this.setMarca(in.readString());
+		this.setPreco(in.readDouble());
+		this.setPrecoKg(in.readDouble());
+		this.setPeso(in.readString());
+		this.setUrlPagina(in.readString());
+		this.setUrlImagem(in.readString());
+		this.setDesconto(in.readDouble());
+		this.setCategoriaPai((Categoria) in.readParcelable(Categoria.class.getClassLoader()));
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(in.readLong());
+		this.setLastUpdate(cal);
 	}
 
 	@Override

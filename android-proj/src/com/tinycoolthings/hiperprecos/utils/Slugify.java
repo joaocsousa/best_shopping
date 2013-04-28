@@ -21,10 +21,12 @@ import java.util.Locale;
 public class Slugify {
 	
 	public static String slugify(String input) {
-		String ret = input.trim();
-		if (input.equals("")) {
+		
+		if (input==null || input.equals("")) {
 			return "";
 		}
+		
+		String ret = input.trim();
 
 		ret = normalize(ret);
 		ret = removeDuplicateWhiteSpaces(ret);

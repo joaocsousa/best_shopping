@@ -26,14 +26,14 @@ import com.tinycoolthings.hiperprecos.utils.Storage;
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	private ProgressDialog dialog;
 	private String action;
-	private Map<Name, Integer> params;
+	private Map<Name, Object> params;
 	
 	public CallWebServiceTask(String action) {
 		this.action = action;
-		this.params = new HashMap<Name, Integer>();
+		this.params = new HashMap<Name, Object>();
 	}
 
-	public void addParameter(Name name, Integer value) {
+	public void addParameter(Name name, Object value) {
 		this.params.put(name, value);
 	}
 	
@@ -55,7 +55,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.PRODUTO_ID)) {
 					Debug.PrintError(this, "No produto ID! Did you specify it?");
 				} else {
-					int prodID = this.params.get(Constants.Server.Parameter.Name.PRODUTO_ID);
+					int prodID = (Integer) this.params.get(Constants.Server.Parameter.Name.PRODUTO_ID);
 					URL += prodID;
 				}
 			} else if (this.action == Constants.Actions.GET_CATEGORIAS) {
@@ -65,9 +65,11 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.CATEGORIA_ID)) {
 					Debug.PrintError(this, "No categoria ID! Did you specify it?");
 				} else {
-					int catID = this.params.get(Constants.Server.Parameter.Name.CATEGORIA_ID);
+					int catID = (Integer) this.params.get(Constants.Server.Parameter.Name.CATEGORIA_ID);
 					URL += catID;
 				}
+			} else if (this.action == Constants.Actions.SEARCH) {
+				URL = Constants.Server.Definitions.SEARCH_URL;
 			}
 			
 			RestClient client = new RestClient(URL);
@@ -76,9 +78,9 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			
 			String logParams = "?format=json&";
 			
-			Iterator<Entry<Name, Integer>> it = this.params.entrySet().iterator();
+			Iterator<Entry<Name, Object>> it = this.params.entrySet().iterator();
 		    while (it.hasNext()) {
-		    	Entry<Name, Integer> pair = (Entry<Name, Integer>)it.next();
+		    	Entry<Name, Object> pair = (Entry<Name, Object>)it.next();
 		        switch (pair.getKey()) {
 			        case HIPER:
 			        	logParams+="hiper="+String.valueOf(pair.getValue())+"&";
@@ -91,6 +93,10 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			        case DESCONTO:
 			        	logParams+="desconto="+String.valueOf(pair.getValue())+"&";
 			        	client.AddParam("desconto", String.valueOf(pair.getValue()));
+						break;
+			        case SEARCH_QUERY:
+			        	logParams+="q="+String.valueOf(pair.getValue())+"&";
+			        	client.AddParam("q", String.valueOf(pair.getValue()));
 						break;
 					default:
 						break;
@@ -158,6 +164,8 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			intent.putExtra(Constants.Extras.CATEGORIAS, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORIA) {
 			intent.putExtra(Constants.Extras.CATEGORIA, result);
+		} else if (this.action == Constants.Actions.SEARCH) {
+			intent.putExtra(Constants.Extras.SEARCH_RESULT, result);
 		}
 		HiperPrecos.getInstance().sendBroadcast(intent);
 	}

@@ -69,6 +69,9 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUTO, -1);
 				Produto selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
 				showProduct(selectedProd);
+			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
+				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
+				Debug.PrintDebug(this, result);
 			}
 		}
 	};
@@ -131,6 +134,7 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORIA);
 		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUTO);
 		filterServerResp.addAction(Constants.Actions.GET_PRODUTO);
+		filterServerResp.addAction(Constants.Actions.SEARCH);
 		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	

@@ -48,19 +48,31 @@ public class ProductViewFragment extends SherlockFragment {
 
 		// MARCA
 		TextView tv_prod_marca = ((TextView)view.findViewById(R.id.tv_prod_marca));
-		tv_prod_marca.setText(produto.getMarca());
+		String marca = "-";
+		if (produto.getMarca()!=null) {
+			Debug.PrintError(this, "->"+produto.getMarca());
+			marca = produto.getMarca();
+		} else {
+
+			Debug.PrintError(this, ":>"+produto.getMarca());
+		}
+		tv_prod_marca.setText(marca);
 
 		// PESO
 		TextView tv_prod_peso = ((TextView)view.findViewById(R.id.tv_prod_peso));
 		tv_prod_peso.setText(produto.getPeso());
-
+	
 		// PRECO
 		TextView tv_prod_preco = ((TextView)view.findViewById(R.id.tv_prod_preco));
 		tv_prod_preco.setText(produto.getPreco() + " €");
-		
+
 		// PRECO KG
 		TextView tv_prod_preco_kg = ((TextView)view.findViewById(R.id.tv_prod_preco_kg));
-		tv_prod_preco_kg.setText(produto.getPrecoKg() + " € / Kg");
+		String precoKg = "-";
+		if (produto.getPrecoKg()!=null) {
+			precoKg = String.valueOf(produto.getPrecoKg());
+		}
+		tv_prod_preco_kg.setText(precoKg + " € / Kg");
 
 		// LAST UPDATE DATE
 		Calendar now = Calendar.getInstance();
