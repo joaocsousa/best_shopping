@@ -37,7 +37,7 @@ public class ProductView extends SherlockFragmentActivity {
 	   inflater.inflate(R.menu.menu_product, menu);
 	   return true;
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
