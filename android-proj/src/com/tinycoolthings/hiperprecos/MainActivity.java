@@ -29,6 +29,7 @@ import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapater;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Hiper;
+import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -70,6 +71,9 @@ public class MainActivity extends SherlockFragmentActivity {
 			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
 				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
 				Debug.PrintDebug(this, result);
+				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
+				searchResultsIntent.putExtras(intent);
+				startActivity(searchResultsIntent);
 			}
 		}
 	};
@@ -110,7 +114,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		HiperPrecos.getInstance().addHiper(new Hiper(1, "Continente"));
 		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
 		////////////////////
-
+		
         HiperPrecos.getInstance().setAppContext(this);
         
 		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIAS);
@@ -155,9 +159,6 @@ public class MainActivity extends SherlockFragmentActivity {
             }
         };
         
-        /** Setting the pag
-    public boolean onOptionsItemSelected(com.actionbarsherlock.view.MenuItem item) {
-        switch (item.getItemId()) {eChange listner to the viewPager */
         mPager.setOnPageChangeListener(pageChangeListener);
  
         /** Creating an instance of FragmentPagerAdapter */

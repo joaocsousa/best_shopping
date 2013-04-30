@@ -4,10 +4,7 @@ import java.util.ArrayList;
 
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-public class Hiper implements Parcelable {
+public class Hiper {
 
 	private Integer id = null;
 	private String nome = null;
@@ -96,35 +93,5 @@ public class Hiper implements Parcelable {
 		}
 		return res;
 	}
-
-	// Parcelable
-	
-	public Hiper(Parcel in) {
-		this.id = in.readInt();
-		this.nome = in.readString();
-		in.readTypedList(this.categorias, Categoria.CREATOR);
-	}
-	
-	@Override
-	public int describeContents() {
-		return hashCode();
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(this.id);
-		dest.writeString(this.nome);
-		dest.writeTypedList(this.categorias);
-	}
-
-	public static final Parcelable.Creator<Hiper> CREATOR = new Parcelable.Creator<Hiper>() {
-		public Hiper createFromParcel(Parcel in) {
-		    return new Hiper(in);
-		}
-		
-		public Hiper[] newArray(int size) {
-		    return new Hiper[size];
-		}
-	};
 
 }

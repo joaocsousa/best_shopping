@@ -37,9 +37,9 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		public ImageView img;
 		public Integer position;
 	}
-
+	
 	public ProductListAdapter(Context context) {
-		super(context, android.R.layout.simple_list_item_2);
+		super(context, android.R.layout.simple_list_item_1);
 		mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
@@ -55,11 +55,13 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		
-		View view;
+		View view = convertView;
 		
-		if (convertView == null) {
+		ViewHolder viewHolder;
+		
+		if (view == null) {
 			view = mInflater.inflate(R.layout.product_list_item, parent, false);
-			ViewHolder viewHolder = new ViewHolder();
+			viewHolder = new ViewHolder();
 			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_item_prod_nome);
 			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_item_prod_marca);
 			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_item_prod_preco);
@@ -67,25 +69,24 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 			viewHolder.img = (ImageView) view.findViewById(R.id.iv_item_prod_img);
 			view.setTag(viewHolder);
 		} else {
-			view = convertView;
+			viewHolder = (ViewHolder) view.getTag();
 		}
 		
 		Produto item = getItem(position);
-		ViewHolder holder = (ViewHolder) view.getTag();
-		holder.txtNome.setText(item.getNome());
+		viewHolder.txtNome.setText(item.getNome());
 		String marca = "-";
 		if (item.getMarca()!=null ) {
 			marca = item.getMarca();
 		}
-		holder.txtMarca.setText(marca);
-		holder.txtPreco.setText(String.valueOf(item.getPreco()) + " â‚¬");
-		holder.txtPeso.setText(item.getPeso());
-		holder.position = position;
+		viewHolder.txtMarca.setText(marca);
+		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + " Û ");
+		viewHolder.txtPeso.setText(item.getPeso());
+		viewHolder.position = position;
 		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(position, holder, fileName).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(position, viewHolder, fileName).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(position, holder, fileName).execute();
+			new ThumbnailTask(position, viewHolder, fileName).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
@@ -102,7 +103,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
 					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
 					getProduto.execute();
-				}	
+				}
 			}
 		});
 	

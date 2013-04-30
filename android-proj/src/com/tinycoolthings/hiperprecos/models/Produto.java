@@ -10,10 +10,9 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import com.tinycoolthings.hiperprecos.HiperPrecos;
 
-public class Produto implements Parcelable {
+public class Produto {
 
 	private Integer id = null;
 	private String nome = null;
@@ -26,6 +25,7 @@ public class Produto implements Parcelable {
 	private Double desconto = null;
 	private Categoria categoriaPai = null;
 	private Calendar lastUpdate = null;
+	private Hiper hiper = null;
 	
 	public Produto(JSONObject prodJson) {
 		try {
@@ -77,6 +77,20 @@ public class Produto implements Parcelable {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
+		} catch (JSONException e) {}
+		try {
+			Integer catPai = prodJson.getInt("categoria_pai");
+			Categoria categoriaPai = HiperPrecos.getInstance().getCategoriaById(catPai);
+			if (catPai>0 && catPai!=null && categoriaPai == null) {
+				categoriaPai = new Categoria();
+				categoriaPai.setId(catPai);
+			}
+			this.setCategoriaPai(categoriaPai);
+		} catch (JSONException e) {}
+		try {
+			Integer hiperID = prodJson.getInt("hiper");
+			Hiper hiper = HiperPrecos.getInstance().getHiperById(hiperID);
+			this.setHiper(hiper);
 		} catch (JSONException e) {}
 	}
 
@@ -179,6 +193,14 @@ public class Produto implements Parcelable {
 		this.lastUpdate = lastUpdate;
 	}
 
+	public Hiper getHiper() {
+		return this.hiper;
+	}
+	
+	public void setHiper(Hiper hiper) {
+		this.hiper = hiper;
+	}
+	
 	public void merge(Produto produto) {
 		if (this.id==null && produto.getId()!=null) {
 			this.setId(produto.getId());
@@ -214,53 +236,5 @@ public class Produto implements Parcelable {
 			this.setLastUpdate(produto.getLastUpdate());
 		}
 	}
-	
-	// Parcelable
-	
-	public Produto(Parcel in) {
-		this.setId(in.readInt());
-		this.setNome(in.readString());
-		this.setMarca(in.readString());
-		this.setPreco(in.readDouble());
-		this.setPrecoKg(in.readDouble());
-		this.setPeso(in.readString());
-		this.setUrlPagina(in.readString());
-		this.setUrlImagem(in.readString());
-		this.setDesconto(in.readDouble());
-		this.setCategoriaPai((Categoria) in.readParcelable(Categoria.class.getClassLoader()));
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(in.readLong());
-		this.setLastUpdate(cal);
-	}
-
-	@Override
-	public int describeContents() {
-		return hashCode();
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(this.id);
-		dest.writeString(this.nome);
-		dest.writeString(this.marca);
-		dest.writeDouble(this.preco);
-		dest.writeDouble(this.precoKg);
-		dest.writeString(this.peso);
-		dest.writeString(this.urlPagina);
-		dest.writeString(this.urlImagem);
-		dest.writeDouble(this.desconto);
-		dest.writeParcelable(this.categoriaPai, flags);
-		dest.writeLong(this.lastUpdate.getTimeInMillis());
-	}
-	
-	public static final Parcelable.Creator<Produto> CREATOR = new Parcelable.Creator<Produto>() {
-		public Produto createFromParcel(Parcel in) {
-		    return new Produto(in);
-		}
-		
-		public Produto[] newArray(int size) {
-		    return new Produto[size];
-		}
-	};
 	
 }

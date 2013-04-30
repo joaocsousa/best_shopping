@@ -2,10 +2,13 @@ package com.tinycoolthings.hiperprecos.models;
 
 import java.util.ArrayList;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class Categoria implements Parcelable {
+import com.tinycoolthings.hiperprecos.HiperPrecos;
+
+public class Categoria {
 	
 	private Integer id = null;
 	private String nome = null;
@@ -15,6 +18,67 @@ public class Categoria implements Parcelable {
 	private ArrayList<Categoria> subCategorias = new ArrayList<Categoria>();
 	
 	public Categoria() {}
+	
+	public Categoria(JSONObject currCatJson) {
+		int catID = -1;
+		String catNome = null;
+		int catHiperID = -1;
+		int catPaiID = -1;
+		JSONArray subCategorias = null;
+		JSONArray produtos = null;
+		try {
+			catID = currCatJson.getInt("id");
+		} catch (JSONException e) {}
+		try {
+			if (currCatJson.getString("nome")!="" && currCatJson.getString("nome")!="null") {
+				catNome = currCatJson.getString("nome");
+			}
+		} catch (JSONException e) {}
+		try {
+			catHiperID = currCatJson.getInt("hiper");
+		} catch (JSONException e) {}
+		try {
+			catPaiID = currCatJson.getInt("categoria_pai");
+		} catch (JSONException e) {}
+		try {
+			subCategorias = currCatJson.getJSONArray("sub_categorias");
+		} catch (JSONException e) {}
+		try {
+			produtos = currCatJson.getJSONArray("produtos");
+		} catch (JSONException e) {}
+		/* we have all the data */
+		this.setId(catID);
+		this.setNome(catNome);
+		Hiper hiper = HiperPrecos.getInstance().getHiperById(catHiperID);
+		this.setHiper(hiper);
+		if (catPaiID!=-1) {
+			Categoria categoriaPai = hiper.getCategoriaById(catPaiID);
+			this.setCategoriaPai(categoriaPai);
+		}
+		if (subCategorias != null && subCategorias.length() > 0) {
+			JSONObject currSubCatJson = null;
+			for (int i=0;i<subCategorias.length();i++) {
+				try {
+					currSubCatJson = subCategorias.getJSONObject(i);
+					Categoria subCategoria = new Categoria(currSubCatJson);
+					subCategoria.setCategoriaPai(this);
+					subCategoria.setHiper(hiper);
+					this.addSubCategoria(subCategoria);
+				} catch (JSONException e) {}
+			}
+		}
+		if (produtos != null && produtos.length() > 0) {
+			JSONObject currProdJson = null;
+			for (int i=0;i<produtos.length();i++) {
+				try {
+					currProdJson = produtos.getJSONObject(i);
+					Produto produto = new Produto(currProdJson);
+					produto.setCategoriaPai(this);
+					this.addProduto(produto);
+				} catch (JSONException e) {}
+			}
+		}
+	}
 	
 	public Integer getId() {
 		return id;
@@ -163,42 +227,6 @@ public class Categoria implements Parcelable {
 			this.subCategorias = categoria.getSubCategorias();
 		}
 	}
-	
-	// Parcelable
-	
-	public Categoria(Parcel in) {
-		this.id = in.readInt();
-		this.nome = in.readString();
-		this.hiper = in.readParcelable(Hiper.class.getClassLoader());
-		this.categoriaPai = in.readParcelable(Categoria.class.getClassLoader());
-		in.readTypedList(this.produtos, Produto.CREATOR);
-		in.readTypedList(this.subCategorias, Categoria.CREATOR);
-	}
-	
-	@Override
-	public int describeContents() {
-		return hashCode();
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(this.id);
-		dest.writeString(this.nome);
-		dest.writeParcelable(this.hiper, flags);
-		dest.writeParcelable(this.categoriaPai, flags);
-		dest.writeTypedList(this.produtos);
-		dest.writeTypedList(this.subCategorias);
-	}
-
-	public static final Parcelable.Creator<Categoria> CREATOR = new Parcelable.Creator<Categoria>() {
-		public Categoria createFromParcel(Parcel in) {
-		    return new Categoria(in);
-		}
-		
-		public Categoria[] newArray(int size) {
-		    return new Categoria[size];
-		}
-	};
 
 	public ArrayList<Categoria> getSiblings() {
 		if (this.getCategoriaPai().getId()==null) {

@@ -135,7 +135,7 @@ public class Storage {
 			        Bitmap bitmap = Storage.getFileFromStorage(context, fileName);
 			        File fileCmp = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), Storage.getFileNameCompressed(fileName));
 			        FileOutputStream outScaled = new FileOutputStream(fileCmp);
-			        bitmap.compress(Bitmap.CompressFormat.JPEG, 35, outScaled);
+			        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, outScaled);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -178,16 +178,19 @@ public class Storage {
 			File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
 			if (file.exists()) {
 				fileFound = true;
-		        Debug.PrintWarning(Storage.class, "File " + fileName + " found in external storage.");
+		        Debug.PrintInfo(Storage.class, "File " + fileName + " found in external storage.");
+			} else {
+		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in external storage.");
 			}
 		}
-
+		
 		if (!mExternalStorageAvailable && !fileFound) {
 			//try internal storage instead
-			try {
-				context.openFileInput(fileName);
+			File file = context.getFileStreamPath(fileName);
+			if (file.exists()) {
 				fileFound = true;
-			} catch (FileNotFoundException e) {
+				Debug.PrintInfo(Storage.class, "File " + fileName + " found in internal storage.");
+			} else {
 		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in internal storage.");
 			}
 		}

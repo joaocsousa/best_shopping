@@ -27,6 +27,10 @@
         </activity>
         <activity android:name=".NavigationList"></activity>
         <activity android:name=".product.ProductView"></activity>
+        <activity android:name=".search.SearchResults"></activity>
+        <service
+            android:exported="false"
+            android:name=".serverComm.ContentService" />
     </application>
 
 </manifest>

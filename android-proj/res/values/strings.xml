@@ -8,5 +8,6 @@
 	<string name="prod_img_last_update">Atualizado em</string>
 	<string name="ontem">Ontem</string>
 	<string name="hoje">Hoje</string>
+	<string name="sem_resultados">Sem Resultados</string>
 	
 </resources>
