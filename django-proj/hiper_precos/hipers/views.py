@@ -1,5 +1,5 @@
 from hipers.models import Hiper, Categoria, Produto
-from hipers.serializers import HiperSerializer, HiperResultSerializer, CategoriaSerializer, CategoriaListSerializer, ProdutoSerializer
+from hipers.serializers import HiperSerializer, HiperResultSerializer, CategoriaSerializer, CategoriaListSerializer, ProdutoResultSerializer, ProdutoSerializer
 from rest_framework import generics, permissions, renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -51,7 +51,7 @@ class ProdutoList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     paginate_by = 10
-    
+
     def get_queryset(self):
         queryset = Produto.objects.all()
         hiper = self.request.QUERY_PARAMS.get('hiper', None)
@@ -98,9 +98,9 @@ def search(request):
             categorias = categorias.filter(nome__icontains=q)
 
             dict = {
-                'prodPorNome': ProdutoSerializer(prodPorNome, many=True).data,
-                'prodPorMarca': ProdutoSerializer(prodPorMarca, many=True).data,
-                'categorias' : CategoriaSerializer(categorias).data,
+                'prodPorNome': ProdutoResultSerializer(prodPorNome).data,
+                'prodPorMarca': ProdutoResultSerializer(prodPorMarca).data,
+                'categorias' : CategoriaListSerializer(categorias).data,
             }
 
             return JSONResponse(dict)
