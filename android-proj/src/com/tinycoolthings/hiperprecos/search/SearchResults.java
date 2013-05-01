@@ -7,24 +7,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.widget.ArrayAdapter;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
+import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.models.Categoria;
+import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.viewpagerindicator.TabPageIndicator;
 
 public class SearchResults extends SherlockFragmentActivity {
 	
-	ArrayList<Integer> produtos = new ArrayList<Integer>();
-	ArrayList<Integer> categorias = new ArrayList<Integer>();
+	ArrayList<Produto> produtos = new ArrayList<Produto>();
+	ArrayList<Categoria> categorias = new ArrayList<Categoria>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,69 +41,69 @@ public class SearchResults extends SherlockFragmentActivity {
 			JSONArray catsJSON = searchJSON.getJSONArray("categorias");
 			
 			for (int i=0;i<catsJSON.length();i++) {
-				categorias.add(HiperPrecos.getInstance().addCategoria(catsJSON.getJSONObject(i)).getId());
+				categorias.add(HiperPrecos.getInstance().addCategoria(catsJSON.getJSONObject(i)));
 			}
 			
 			for (int i=0;i<prodMarcaJSON.length();i++) {
-				produtos.add(HiperPrecos.getInstance().addProduto(prodMarcaJSON.getJSONObject(i)).getId());
+				produtos.add(HiperPrecos.getInstance().addProduto(prodMarcaJSON.getJSONObject(i)));
 			}
 			
 			for (int i=0;i<prodNomeJSON.length();i++) {
-				produtos.add(HiperPrecos.getInstance().addProduto(prodNomeJSON.getJSONObject(i)).getId());
+				produtos.add(HiperPrecos.getInstance().addProduto(prodNomeJSON.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		
 		/** Getting a reference to action bar of this activity */
-		ActionBar mActionBar = getSupportActionBar();
+		final ActionBar mActionBar = getSupportActionBar();
  
         /** Set tab navigation mode */
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         mActionBar.setDisplayShowTitleEnabled(false);
         
         HiperPrecos.getInstance().setAppContext(this);
         
-        /** Getting a reference to ViewPager from the layout */
-        ViewPager mPager = (ViewPager)findViewById(R.id.search_results_pager);
-     
+        HiperPrecos.getInstance().setLatestProdSearch(produtos);
+        HiperPrecos.getInstance().setLatestCatSearch(categorias);
+        
         /** Creating an instance of FragmentPagerAdapter */
         final SearchPagerAdapter fragmentPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
-	
-        fragmentPagerAdapter.setContent(categorias, produtos);
         
-		/** Setting the FragmentPagerAdapter object to the viewPager object */
+        /** Getting a reference to ViewPager from the layout */
+        final ViewPager mPager = (ViewPager)findViewById(R.id.search_results_pager);
+        
+        /** Defining a listener for pageChange */
+        ViewPager.SimpleOnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener(){
+            @Override
+            public void onPageSelected(int position) {
+            	mActionBar.setSelectedNavigationItem(position);
+                super.onPageSelected(position);
+            }
+        };
+        
+        mPager.setOnPageChangeListener(pageChangeListener);
+        
+        /** Setting the FragmentPagerAdapter object to the viewPager object */
         mPager.setAdapter(fragmentPagerAdapter);
-
-        TabPageIndicator tabs = (TabPageIndicator)findViewById(R.id.search_results_tabs);
         
-        tabs.setViewPager(mPager);
-    	
-        ArrayList<String> options = new ArrayList<String>();
-        options.add("Produtos");
-        options.add("Categorias");
-		
-		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, options);
-		
-		/** Defining Navigation listener */
-        mActionBar.setListNavigationCallbacks(adapter, new OnNavigationListener() {
+        /** Defining tab listener */
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
 			@Override
-			public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-				if (itemPosition == 0) {
-					//produtos
-					Debug.PrintInfo(this, "Selected Produtos");
-					fragmentPagerAdapter.setContentType(SearchPagerAdapter.TYPE_PRODUTOS);
-				} else if (itemPosition == 1) {
-					//categorias
-					Debug.PrintInfo(this, "Selected Categorias");
-					fragmentPagerAdapter.setContentType(SearchPagerAdapter.TYPE_CATEGORIAS);
-				}
-				return false;
+			public void onTabSelected(Tab tab, FragmentTransaction ft) {
+				mPager.setCurrentItem(tab.getPosition());
 			}
-		});
+			@Override
+			public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
+			@Override
+			public void onTabReselected(Tab tab, FragmentTransaction ft) {}
+        };
         
-        mActionBar.setSelectedNavigationItem(0);
+        Tab tabProds = mActionBar.newTab().setText("Produtos").setTabListener(tabListener);
+        Tab tabCats = mActionBar.newTab().setText("Categorias").setTabListener(tabListener);
+		mActionBar.addTab(tabProds);
+        mActionBar.addTab(tabCats);
 		
 	}
 

@@ -2,8 +2,6 @@ package com.tinycoolthings.hiperprecos;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
@@ -14,8 +12,8 @@ import com.tinycoolthings.hiperprecos.models.Hiper;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
+import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class HiperPrecos extends Application {
 
@@ -24,6 +22,10 @@ public class HiperPrecos extends Application {
 	private static Context appContext;
 	
 	private ArrayList<Hiper> hipers = null;
+	
+	private ArrayList<Produto> latestProdSearch = new ArrayList<Produto>();
+	
+	private ArrayList<Categoria> latestCatSearch = new ArrayList<Categoria>();
 	
 	/**
      * Convenient accessor, saves having to call and cast getApplicationContext() 
@@ -126,6 +128,24 @@ public class HiperPrecos extends Application {
 		CallWebServiceTask search = new CallWebServiceTask(Constants.Actions.SEARCH);
 		search.addParameter(Name.SEARCH_QUERY, text);
 		search.execute();
+	}
+	
+	public void setLatestProdSearch(ArrayList<Produto> prodSearch) {
+		this.latestProdSearch.clear();
+		this.latestProdSearch.addAll(prodSearch);
+	}
+	
+	public ArrayList<Produto> getLatestProdSearch() {
+		return this.latestProdSearch;
+	}
+	
+	public void setLatestCatSearch(ArrayList<Categoria> catSearch) {
+		this.latestCatSearch.clear();
+		this.latestCatSearch.addAll(catSearch);
+	}
+	
+	public ArrayList<Categoria> getLatestCatSearch() {
+		return this.latestCatSearch;
 	}
 	
 }

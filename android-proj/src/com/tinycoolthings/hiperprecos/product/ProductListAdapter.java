@@ -79,7 +79,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 			marca = item.getMarca();
 		}
 		viewHolder.txtMarca.setText(marca);
-		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + " Û ");
+		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + " â‚¬");
 		viewHolder.txtPeso.setText(item.getPeso());
 		viewHolder.position = position;
 		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
@@ -110,7 +110,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		return view;
 	}
 
-	private static class ThumbnailTask extends AsyncTask <Void, Void, Bitmap> {
+	private class ThumbnailTask extends AsyncTask <Void, Void, Bitmap> {
 	    private int mPosition;
 	    private ViewHolder mHolder;
 	    private String mFileName;

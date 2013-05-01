@@ -1,6 +1,7 @@
 package com.tinycoolthings.hiperprecos.serverComm;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -116,8 +117,16 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		    Object json = new JSONTokener(response).nextValue();
 		    if (json instanceof JSONObject) {
 		    	JSONObject jsonObj = (JSONObject)json;
+		    	ArrayList<String> prodJsonNames = new ArrayList<String>();
 		    	if (jsonObj.has("produtos")) {
-		    		JSONArray produtos = jsonObj.getJSONArray("produtos");
+		    		prodJsonNames.add("produtos");
+		    	} else if (jsonObj.has("prodPorNome")) {
+		    		prodJsonNames.add("prodPorNome");
+		    	} else if (jsonObj.has("prodPorMarca")) {
+		    		prodJsonNames.add("prodPorMarca");
+		    	}
+		    	for (int j=0;j<prodJsonNames.size();j++) {
+		    		JSONArray produtos = jsonObj.getJSONArray(prodJsonNames.get(j));
 		    		if (produtos.length()>0) {
 		    			ExecutorService executor = Executors.newFixedThreadPool(produtos.length());
 			    		for (int i=0;i<produtos.length();i++) {
@@ -131,7 +140,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 				    			String fileName = Storage.getFileName(currProdUrl, currProdJson.getString("nome"), currProdJson.getString("marca"));
 				    			Runnable worker = new CallWebServiceTask.FetchImage(currProdUrl, fileName);
 				    			executor.execute(worker);
-			    			} catch (Exception e) {}
+			    			} catch (Exception e) { e.printStackTrace(); }
 			    		}
 			    		executor.shutdown();
 			    		// Wait until all threads are finish
@@ -182,6 +191,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		@Override
 		public void run() {
 			if (!Storage.fileExists(HiperPrecos.getInstance(), this.fileName)) {
+				Debug.PrintError(this, "Storing " + this.fileName);
 				Storage.storeFileToStorage(HiperPrecos.getInstance(), this.url, this.fileName);
 			}
 		}
