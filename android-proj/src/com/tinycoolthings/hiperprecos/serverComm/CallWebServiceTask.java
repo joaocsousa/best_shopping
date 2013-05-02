@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
+import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.serverComm.RestClient.RequestMethod;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -40,7 +41,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPreExecute() {
-		this.dialog = ProgressDialog.show(HiperPrecos.getInstance().getAppContext(), "Calling", "Time Service...", true);
+		this.dialog = ProgressDialog.show(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getResources().getString(R.string.loading), HiperPrecos.getInstance().getResources().getString(R.string.wait), true);
 	}
 
 	@Override

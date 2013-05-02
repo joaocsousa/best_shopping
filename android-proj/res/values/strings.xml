@@ -9,5 +9,8 @@
 	<string name="ontem">Ontem</string>
 	<string name="hoje">Hoje</string>
 	<string name="sem_resultados">Sem Resultados</string>
+	<string name="filter">Filtrar</string>
+	<string name="loading">A Carregar</string>
+	<string name="wait">Espere por favor...</string>
 	
 </resources>

@@ -122,7 +122,7 @@ public class SearchResults extends SherlockFragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.main, menu);		
+		inflater.inflate(R.menu.menu_search, menu);		
 		return super.onCreateOptionsMenu(menu);
 	}
 	

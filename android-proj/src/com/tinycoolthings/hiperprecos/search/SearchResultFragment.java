@@ -10,6 +10,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.utils.Constants;
+import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class SearchResultFragment extends SherlockFragment {
 	
@@ -34,9 +35,11 @@ public class SearchResultFragment extends SherlockFragment {
 			
 		} else if (args.containsKey(Constants.Extras.CATEGORIA)) {
 			
-			CategorySearchListAdapter productSearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestCatSearch());
+			Debug.PrintError(this, "Displaying categorias!");
 			
-			expandableList.setAdapter(productSearchListAdapter);
+			CategorySearchListAdapter categorySearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestCatSearch());
+			
+			expandableList.setAdapter(categorySearchListAdapter);
 			
 		}
 		
