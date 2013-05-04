@@ -11,6 +11,13 @@
 	<string name="sem_resultados">Sem Resultados</string>
 	<string name="filter">Filtrar</string>
 	<string name="loading">A Carregar</string>
-	<string name="wait">Espere por favor...</string>
+	<string name="wait">Espere por favor&#8230;</string>
+	<string name="order">Ordenar</string>
+	<string name="nome_asc">Nome Ascendente</string>
+	<string name="nome_desc">Nome Descendente</string>
+	<string name="marca_asc">Marca Ascendente</string>
+	<string name="marca_desc">Marca Descendente</string>
+	<string name="preco_asc">Preço Ascendente</string>
+	<string name="preco_desc">Preço Descendente</string>
 	
 </resources>

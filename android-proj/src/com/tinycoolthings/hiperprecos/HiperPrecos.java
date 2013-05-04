@@ -27,6 +27,8 @@ public class HiperPrecos extends Application {
 	
 	private ArrayList<Categoria> latestCatSearch = new ArrayList<Categoria>();
 	
+	private String latestSearchTerm = "";
+	
 	/**
      * Convenient accessor, saves having to call and cast getApplicationContext() 
      */
@@ -125,6 +127,7 @@ public class HiperPrecos extends Application {
 	}
 	
 	public void search(String text) {
+		latestSearchTerm = text;
 		CallWebServiceTask search = new CallWebServiceTask(Constants.Actions.SEARCH);
 		search.addParameter(Name.SEARCH_QUERY, text);
 		search.execute();
@@ -146,6 +149,10 @@ public class HiperPrecos extends Application {
 	
 	public ArrayList<Categoria> getLatestCatSearch() {
 		return this.latestCatSearch;
+	}
+	
+	public String getLatestSearchTerm() {
+		return latestSearchTerm;
 	}
 	
 }

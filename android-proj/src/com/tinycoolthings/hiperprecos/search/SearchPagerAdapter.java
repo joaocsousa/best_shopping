@@ -44,4 +44,9 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     	return HiperPrecos.getInstance().getNumberOfHipers();
     }
 	
+    @Override
+    public int getItemPosition(Object object) {
+    	return POSITION_NONE;
+    }
+    
 }

@@ -64,7 +64,7 @@ public class ProductViewFragment extends SherlockFragment {
 	
 		// PRECO
 		TextView tv_prod_preco = ((TextView)view.findViewById(R.id.tv_prod_preco));
-		tv_prod_preco.setText(produto.getPreco() + " Û");
+		tv_prod_preco.setText(produto.getPreco() + " â‚¬");
 
 		// PRECO KG
 		TextView tv_prod_preco_kg = ((TextView)view.findViewById(R.id.tv_prod_preco_kg));
@@ -72,7 +72,7 @@ public class ProductViewFragment extends SherlockFragment {
 		if (produto.getPrecoKg()!=null) {
 			precoKg = String.valueOf(produto.getPrecoKg());
 		}
-		tv_prod_preco_kg.setText(precoKg + " Û / Kg");
+		tv_prod_preco_kg.setText(precoKg + " â‚¬ / Kg");
 
 		// LAST UPDATE DATE
 		Calendar now = Calendar.getInstance();

@@ -20,6 +20,7 @@ public class Constants {
 		public static final String PRODUTOS = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTOS";
 		public static final String PRODUTO = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTO";
 		public static final String SEARCH_RESULT = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
+		public static final String PRODUTO_SORT = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTO_SORT";
 	}
 	public static final class Server {
 		public static final class Definitions {
@@ -42,6 +43,14 @@ public class Constants {
 				SEARCH_QUERY
 			}
 		}
+	}
+	public static final class Sort {
+		public static final int NOME_ASCENDING = 0;
+		public static final int NOME_DESCENDING = 1;
+		public static final int MARCA_ASCENDING = 2;
+		public static final int MARCA_DESCENDING = 3;
+		public static final int PRECO_ASCENDING = 4;
+		public static final int PRECO_DESCENDING = 5;
 	}
 	public static final class Debug {
 		public static enum MsgType {

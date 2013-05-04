@@ -200,7 +200,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.main, menu);
+		inflater.inflate(R.menu.category_list_menu, menu);
 		// Get the SearchView and set the searchable configuration
 	    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
 		

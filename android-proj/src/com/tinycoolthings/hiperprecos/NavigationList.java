@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -26,7 +29,9 @@ import com.tinycoolthings.hiperprecos.product.ProductView;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
+import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class NavigationList extends SherlockFragmentActivity implements OnNavigationListener {
 
@@ -34,6 +39,12 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 
 	private ArrayList<Categoria> categoriasListMenu = new ArrayList<Categoria>();
 
+	private static boolean viewingProductsList = false;
+	
+	private static int currSelectedSort = Sort.NOME_ASCENDING;
+	
+	private static int currSelectedCat = 0;
+	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -99,9 +110,22 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	   MenuInflater inflater = getSupportMenuInflater();
-	   inflater.inflate(R.menu.main, menu);
-	   return true;
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.category_list_menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.clear();
+		MenuInflater inflater = getSupportMenuInflater();
+		if (viewingProductsList) {
+			inflater.inflate(R.menu.product_list_menu, menu);
+		} else {
+			inflater.inflate(R.menu.category_list_menu, menu);
+		}
+		
+		return super.onPrepareOptionsMenu(menu);
 	}
 	
 	@Override
@@ -109,9 +133,38 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
 	        	exitToMainMenu();
-	            return true;
+	            break;
+	        case R.id.menu_sort:
+	        	showSortMenu();
+	        	break;
 	    }
 	    return super.onOptionsItemSelected(item);
+	}
+	
+	public void showSortMenu() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getResources().getString(R.string.order));         
+		int selected = currSelectedSort;
+		String[] options = new String[] {
+				getResources().getString(R.string.nome_asc),
+				getResources().getString(R.string.nome_desc),
+				getResources().getString(R.string.marca_asc),
+				getResources().getString(R.string.marca_desc),
+				getResources().getString(R.string.preco_asc),
+				getResources().getString(R.string.preco_desc)
+		};
+		builder.setSingleChoiceItems( options, selected, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog,int which) {
+				if (currSelectedSort != which) {
+					currSelectedSort = which;
+					onNavigationItemSelected(currSelectedCat, 0);
+				}
+				dialog.dismiss();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 	
 	private void exitToMainMenu() {
@@ -153,6 +206,9 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		int preSelectedPosition = -1;
 		// vai buscar os siblings da categoria pai
 		categoriasListMenu = categoria.getSiblings();
+		
+		Utils.sortCategoriesByName(categoriasListMenu, false);
+		
 		Debug.PrintError(this, "Siblings: " + categoriasListMenu.size());
 		for (int j=0;j<categoriasListMenu.size();j++) {
 			if (categoria.getId().equals(categoriasListMenu.get(j).getId())) {
@@ -160,7 +216,7 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 			}
 			categorias.add(categoriasListMenu.get(j).getNome());
 		}
-		
+	
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, categorias);
 		
 		/** Defining Navigation listener */
@@ -177,8 +233,10 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
         startActivity(intent);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		currSelectedCat = itemPosition;
 		Categoria selectedCat = categoriasListMenu.get(itemPosition);
     	Debug.PrintInfo(NavigationList.this, "Selected categoria -> " + selectedCat.getNome());
     	if (selectedCat.hasProdutos()) {
@@ -186,14 +244,23 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
     		ProductListFragment productListFrag = new ProductListFragment();
     		Bundle bundle = new Bundle();
             bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
+            bundle.putInt(Constants.Extras.PRODUTO_SORT, currSelectedSort);
             productListFrag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
+            viewingProductsList = true;
+            if (android.os.Build.VERSION.SDK_INT > 11) {
+                invalidateOptionsMenu();
+            }
     	} else if (selectedCat.hasSubCategorias()) {
         	CategoryListFragment categoryListFrag = new CategoryListFragment();
         	Bundle bundle = new Bundle();
             bundle.putInt(Constants.Extras.CATEGORIA, selectedCat.getId());
         	categoryListFrag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content, categoryListFrag).commit();
+            viewingProductsList = false;
+            if (android.os.Build.VERSION.SDK_INT > 11) {
+                invalidateOptionsMenu();
+            }
     	} else {
     		Debug.PrintWarning(NavigationList.this, selectedCat.getNome() + " has no information.");
     		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);

@@ -47,13 +47,17 @@ public class ProductView extends SherlockFragmentActivity {
 		    	if (!prodUrl.startsWith("http://") && !prodUrl.startsWith("https://")) {
 		    		prodUrl = "http://" + prodUrl;
 		    	}
-		    	Debug.PrintInfo(this, "Opening: "+prodUrl);
+		    	if (prodUrl.contains("continente")) {
+		    		prodUrl = prodUrl.substring(0, prodUrl.indexOf("&"));
+		    	}
+		    	Debug.PrintInfo(this, "Opening: "+Uri.parse(prodUrl));
 		    	Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(prodUrl));
 		    	startActivity(browserIntent);
-		        return true;
+		        break;
 		    default:
 		        return super.onOptionsItemSelected(item);
 	    }
+	    return super.onOptionsItemSelected(item);
 	}
 }
 

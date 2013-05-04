@@ -90,6 +90,8 @@ def search(request):
             errors.append('Enter a search term.')
         elif len(q) > 50:
             errors.append('Please enter at most 20 characters.')
+        elif len(q) < 3:
+            errors.append('Please enter at least 3 characters.')
         else:
             produtos = Produto.objects.all()
             categorias = Categoria.objects.all()

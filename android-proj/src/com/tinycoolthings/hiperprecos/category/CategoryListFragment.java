@@ -17,6 +17,7 @@ import com.tinycoolthings.hiperprecos.R.layout;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 import com.tinycoolthings.hiperprecos.utils.Constants.Actions;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
@@ -37,6 +38,8 @@ public class CategoryListFragment extends SherlockListFragment {
 		} else {
 			return null;
 		}
+		
+		Utils.sortCategoriesByName(categorias, false);
 		
 		ArrayList<String> catsToShow = new ArrayList<String>();
 		
