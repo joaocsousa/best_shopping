@@ -22,6 +22,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapater;
 import com.tinycoolthings.hiperprecos.models.Categoria;
@@ -202,13 +203,16 @@ public class MainActivity extends SherlockFragmentActivity {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.category_list_menu, menu);
 		// Get the SearchView and set the searchable configuration
-	    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+	    final MenuItem menuItem = menu.findItem(R.id.menu_search);
+		SearchView searchView = (SearchView) menuItem.getActionView();
 		
 	    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
 	    	@Override
 	    	public boolean onQueryTextSubmit(String query) {
-	            menu.findItem(R.id.menu_search).collapseActionView();
+	    		if (Utils.validSearch(query)) {
+	    			menuItem.collapseActionView();
+	    		}
 	    		HiperPrecos.getInstance().search(query);
 	            return false;
 	        }

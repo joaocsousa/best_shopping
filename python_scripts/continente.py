@@ -15,7 +15,7 @@ class Continente(hiper.Hiper):
         self._url = Utils.toStr(self._domain + "/" + self._mainPath)
 
         hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
-        
+
         # Save to DB
         hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
         Utils.saveObjToDB(hiperDB)
@@ -40,7 +40,7 @@ class Continente(hiper.Hiper):
                 Utils.printMsg(self._name, "Nao consegui encontrar categorias!", Utils.getLineNo())
                 Utils.printMsg(self._name, str(e), Utils.getLineNo())
         for cat in categorias:
-            
+
             # Categoria - URL
             try:
                 catUrl = self._domain+"/"+Utils.strip(cat['href'])
@@ -68,7 +68,7 @@ class Continente(hiper.Hiper):
             # Categoria - SubCategorias
             subCats = soupCat.find("div", {"id": "subcatNav"}).findAll("div", recursive=False)
             for subCat in subCats:
-                
+
                 if "button" in subCat["class"]:
 
                     # SubCategoria - Nome
@@ -84,7 +84,7 @@ class Continente(hiper.Hiper):
                         subCatUrl = self._domain+"/"+Utils.strip(subCat.find("a")["href"])
                     except:
                         subCatUrl = None
-                    
+
                     # Save to DB
                     subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
                     Utils.saveObjToDB(subCatDB)
@@ -96,7 +96,7 @@ class Continente(hiper.Hiper):
                 elif "menu" in subCat["class"]:
                     subSubCats = subCat.findAll("div", {"class": "menuNode"}, recursive=False)
                     for subSubCat in subSubCats:
-                    
+
                         # SubSubCategoria - Nome
                         try:
                             subSubCatName = Utils.strip(subSubCat.text)
@@ -121,7 +121,7 @@ class Continente(hiper.Hiper):
                         try:
                             subSubSubCats = subCat.find("div", {"id" : subSubCat["id"]+"Menu", "class": "menu"}, recursive=False).findAll("div", {"class": "menuNode"}, recursive=False)
                             for subSubSubCat in subSubSubCats:
-                                
+
                                 # SubSubSubCategoria - Nome
                                 try:
                                     subSubSubCatName = Utils.strip(subSubSubCat.text)
@@ -146,9 +146,9 @@ class Continente(hiper.Hiper):
 
                         except KeyError:
                             pass
-            
+
             # reset session
-            self._session = requests.Session() 
+            self._session = requests.Session()
             Utils.makeGetRequest(self._session, self._url)
 
             Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
@@ -176,11 +176,11 @@ class Continente(hiper.Hiper):
 
         #parse Produtos
         produtos = soupPagina.findAll("div",{"class":"product-view"})
-        
+
         nrProdutosParsed = 0
 
         for produto in produtos:
-            
+
             # Produto - Nome
             try:
                 nome = Utils.strip(produto.find("a", {"class":"product-view-text-item"}).find(text=True))
@@ -190,7 +190,7 @@ class Continente(hiper.Hiper):
                 nome = None
                 #Skip this product if it is ineligable
                 continue
-            
+
             # Produto - URL
             try:
                 urlProduto = Utils.strip(produto.find("a")["href"])
@@ -199,13 +199,13 @@ class Continente(hiper.Hiper):
                     raise Exception("")
             except:
                 urlProduto = None
-            
+
             # Produto - Preco
             try:
                 precoProduto = float(re.findall(r'\d*[.,]\d*', Utils.strip(produto.find("div",{"class":"product-view-price"}).text).replace(",","."))[0])
             except:
                 precoProduto = None
-            
+
             # Produto - Preco/Kg
             try:
                 precoKg = float(re.findall(r'\d*[.,]\d*', Utils.strip(produto.find("span",{"class":"produtoListaPrecoUnit"}).text).replace(",","."))[0])
@@ -226,7 +226,7 @@ class Continente(hiper.Hiper):
 
             # Produto - Imagem
             try:
-                imagem = self._domain + Utils.strip(produto.find("img")["src"].replace("\\","/").replace("/Med/","/Lar/").replace("_med","_lar"))
+                imagem = self._domain + Utils.strip(produto.find("img")["src"].replace("\\","/").replace("/med/","/lar/").replace("/Med/","/Lar/").replace("_med","_lar").replace("_Med","_Lar"))
                 if imagem == "":
                     raise Exception("")
             except:
@@ -265,7 +265,7 @@ class Continente(hiper.Hiper):
 
             nrProdutosParsed += 1
 
-        Utils.printMsg(self._name, catDB.nome+"-"+"Pagina [" + str(pagina) + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())    
+        Utils.printMsg(self._name, catDB.nome+"-"+"Pagina [" + str(pagina) + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())
 
         try:
             paginas = soupPagina.find("span",{"id":"ProductsMain1_DataListPages"}).findAll(id=re.compile('.*_DataListPages__.*'))

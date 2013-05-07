@@ -19,7 +19,7 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int selectedPos) {
     	Bundle bundle = new Bundle();
-    	SearchResultFragment productSearchFrag = new SearchResultFragment();
+    	SearchResultFragment searchResultFrag = new SearchResultFragment();
     	if (selectedPos == 0) {
     		// Produtos
     		if (HiperPrecos.getInstance().getLatestProdSearch().size()>0) {
@@ -35,8 +35,8 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
 				return new NoResultsFragment();
 			}
     	}
-		productSearchFrag.setArguments(bundle);
-    	return productSearchFrag;
+		searchResultFrag.setArguments(bundle);
+    	return searchResultFrag;
     }
  
     @Override

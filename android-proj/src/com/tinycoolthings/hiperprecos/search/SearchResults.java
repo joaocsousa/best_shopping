@@ -7,8 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -25,9 +28,10 @@ import com.tinycoolthings.hiperprecos.MainActivity;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.product.ProductView;
 import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
+import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class SearchResults extends SherlockFragmentActivity {
@@ -42,6 +46,52 @@ public class SearchResults extends SherlockFragmentActivity {
 	private SearchPagerAdapter fragmentPagerAdapter = null;
 	
 	private ViewPager mPager = null;
+	
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Constants.Actions.GET_PRODUTO)) {
+				String result = intent.getStringExtra(Constants.Extras.PRODUTO);
+				try {
+					JSONObject prodJson = new JSONObject(result);
+					Produto produto = HiperPrecos.getInstance().addProduto(prodJson);
+					Debug.PrintWarning(SearchResults.this, "Received data for produto " + produto.getId() + " - " + produto.getNome());
+					Produto existingProd = HiperPrecos.getInstance().getProdutoById(produto.getId());
+					if (existingProd!=null) {
+						existingProd.merge(produto);
+					} else {
+						existingProd = produto;
+					}
+					showProduct(existingProd);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUTO)) {
+				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUTO, -1);
+				Produto selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
+				showProduct(selectedProd);
+			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
+				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
+				Debug.PrintDebug(this, result);
+				Intent searchResultsIntent = new Intent(SearchResults.this, SearchResults.class);
+				searchResultsIntent.addFlags(
+		                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+		                Intent.FLAG_ACTIVITY_NEW_TASK);
+				searchResultsIntent.putExtras(intent);
+				startActivity(searchResultsIntent);
+			}
+		}
+	};
+	
+	protected void showProduct(Produto produto) {
+		Bundle bundle = new Bundle();
+        bundle.putInt(Constants.Extras.PRODUTO, produto.getId());
+        Intent intent = new Intent(this, ProductView.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -133,10 +183,16 @@ public class SearchResults extends SherlockFragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		Debug.PrintDebug(this, "onResume");
+		IntentFilter filterServerResp = new IntentFilter();
+		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUTO);
+		filterServerResp.addAction(Constants.Actions.GET_PRODUTO);
+		filterServerResp.addAction(Constants.Actions.SEARCH);
+		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	
 	@Override
 	protected void onPause() {
+		unregisterReceiver(broadcastReceiver);
 		Debug.PrintDebug(this, "onPause");
 		super.onPause();
 	}
@@ -145,7 +201,24 @@ public class SearchResults extends SherlockFragmentActivity {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.menu_search, menu);
-		MenuItem searchMenuItem = menu.findItem( R.id.menu_search); // get my MenuItem with placeholder submenu
+		final MenuItem searchMenuItem = menu.findItem( R.id.menu_search); // get my MenuItem with placeholder submenu
+		// Get the SearchView and set the searchable configuration
+	    SearchView searchView = (SearchView) searchMenuItem.getActionView();
+		
+	    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+	    	@Override
+	    	public boolean onQueryTextSubmit(String query) {
+	    		if (Utils.validSearch(query)) {
+	    			searchMenuItem.collapseActionView();
+	    		}
+	    		HiperPrecos.getInstance().search(query);
+	            return false;
+	        }
+	        @Override
+	        public boolean onQueryTextChange(String newText) {
+				return false;
+			}
+	    });
 	    searchMenuItem.expandActionView();
 	    ((SearchView)searchMenuItem.getActionView()).clearFocus();
 	    ((SearchView)searchMenuItem.getActionView()).setQuery(HiperPrecos.getInstance().getLatestSearchTerm(), false);

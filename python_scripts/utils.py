@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import inspect, urlparse, string, datetime, csv, traceback, time, requests
 from django.utils.encoding import smart_text
 from getproxies import GetProxies

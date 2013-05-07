@@ -19,5 +19,7 @@
 	<string name="marca_desc">Marca Descendente</string>
 	<string name="preco_asc">Preço Ascendente</string>
 	<string name="preco_desc">Preço Descendente</string>
+	<string name="short_search_term">Pesquisa curta!\n\nMínimo - 3 letras.</string>
+	
 	
 </resources>

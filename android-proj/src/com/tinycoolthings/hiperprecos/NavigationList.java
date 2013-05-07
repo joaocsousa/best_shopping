@@ -21,11 +21,13 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.hiperprecos.category.CategoryListFragment;
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Produto;
 import com.tinycoolthings.hiperprecos.product.ProductListFragment;
 import com.tinycoolthings.hiperprecos.product.ProductView;
+import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -83,6 +85,9 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
 				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
 				Debug.PrintDebug(this, result);
+				Intent searchResultsIntent = new Intent(NavigationList.this, SearchResults.class);
+				searchResultsIntent.putExtras(intent);
+				startActivity(searchResultsIntent);
 			}
 		}
 	};
@@ -108,15 +113,15 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		enterSubCategoria(categoria);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.category_list_menu, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		MenuInflater inflater = getSupportMenuInflater();
+//		inflater.inflate(R.menu.category_list_menu, menu);
+//		return super.onCreateOptionsMenu(menu);
+//	}
 	
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public boolean onPrepareOptionsMenu(final Menu menu) {
 		menu.clear();
 		MenuInflater inflater = getSupportMenuInflater();
 		if (viewingProductsList) {
@@ -124,7 +129,28 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		} else {
 			inflater.inflate(R.menu.category_list_menu, menu);
 		}
+		// Get the SearchView and set the searchable configuration
+	    final MenuItem menuItem = menu.findItem(R.id.menu_search);
 		
+		SearchView searchView = (SearchView) menuItem.getActionView();
+		
+	    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+	    	@Override
+	    	public boolean onQueryTextSubmit(String query) {
+	    		if (Utils.validSearch(query)) {
+	    			menuItem.collapseActionView();
+	    		}
+	    		HiperPrecos.getInstance().search(query);
+	            return false;
+	        }
+
+	        @Override
+	        public boolean onQueryTextChange(String newText) {
+	            // suggestions go here
+	            return false;
+	        }
+	    });
 		return super.onPrepareOptionsMenu(menu);
 	}
 	

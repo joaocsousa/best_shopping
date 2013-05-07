@@ -36,6 +36,13 @@ public class Utils {
 		return random.nextInt(n);
 	}
 	
+	public static boolean validSearch(String text) {
+		if (text.length()<3) {
+			return false;
+		}
+		return true;
+	}
+	
 	private static class CategoryComparator implements Comparator<Categoria> {
 	    @Override
 	    public int compare(Categoria o1, Categoria o2) {

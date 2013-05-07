@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,18 +76,23 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		Produto item = getItem(position);
 		viewHolder.txtNome.setText(item.getNome());
 		String marca = "-";
-		if (item.getMarca()!=null ) {
+		if (item.getMarca()!=null && !item.getMarca().equals("")) {
 			marca = item.getMarca();
 		}
 		viewHolder.txtMarca.setText(marca);
 		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + " €");
-		viewHolder.txtPeso.setText(item.getPeso());
+		String peso = "-";
+		if (item.getPeso()!=null && !item.getPeso().equals("")) {
+			peso = item.getPeso();
+		}
+		Debug.PrintError(this, "|"+peso+"|");
+		viewHolder.txtPeso.setText(peso);
 		viewHolder.position = position;
 		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(position, viewHolder, fileName).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(position, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(position, viewHolder, fileName).execute();
+			new ThumbnailTask(position, viewHolder, fileName, item.getHiper().getNome()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
@@ -114,11 +120,13 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	    private int mPosition;
 	    private ViewHolder mHolder;
 	    private String mFileName;
+	    private String mHiper;
 	
-	    public ThumbnailTask(int position, ViewHolder holder, String fileName) {
+	    public ThumbnailTask(int position, ViewHolder holder, String fileName, String hiper) {
 	        mPosition = position;
 	        mHolder = holder;
 	        mFileName = fileName;
+	        mHiper = hiper;
 	    }
 	
 	    @Override
@@ -129,7 +137,17 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	    @Override
 	    protected void onPostExecute(Bitmap bitmap) {
 	        if (mHolder.position == mPosition) {
-	        	mHolder.img.setImageBitmap(bitmap);
+	        	if (bitmap == null) {
+	        		if (mHiper.toLowerCase().contains("continente")) {
+	        			mHolder.img.setBackgroundResource(R.drawable.continente_not_found);
+	        		}
+	        	} else {
+	        		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN){
+	        			mHolder.img.setBackground(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bitmap));
+	    			} else{
+	    				mHolder.img.setBackgroundDrawable(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bitmap));
+	    			}
+	        	}
 	        }
 	    }
 	}

@@ -14,7 +14,7 @@ class Hiper(models.Model):
 
     def __unicode__(self):
         return self.nome
-  
+
     def save(self, *args, **kwargs):
         if not self.id:
             # Newly created object, so set slug
@@ -68,6 +68,7 @@ class Produto(models.Model):
     desconto = models.FloatField(default=None, null=True)
     categoria_pai = models.ForeignKey(Categoria, related_name='produtos')
     hiper = models.ForeignKey(Hiper, related_name='produtos')
+    imagem = models.ImageField(upload_to="produtos")
     last_updated = models.DateTimeField()
 
     def __unicode__(self):
@@ -85,4 +86,5 @@ class Produto(models.Model):
         if not self.id:
             # Newly created object, so set slug
             self.slug = slugify(self.nome)
+        imagem
         super(Produto, self).save()

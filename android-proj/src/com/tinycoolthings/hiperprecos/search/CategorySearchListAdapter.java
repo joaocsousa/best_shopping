@@ -6,11 +6,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
@@ -79,7 +83,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 		View view = convertView;
 		
 		ChildViewHolder viewHolder;
-
+		
 		if (view == null) {
 			view = mInflater.inflate(R.layout.sherlock_spinner_dropdown_item, parent, false);
 			viewHolder = new ChildViewHolder();
@@ -90,18 +94,27 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 		}
 		
 		final Categoria item = categorias.get(groupPosition).get(childPosition);
-		viewHolder.txtNome.setText(item.getNome());
-
+		viewHolder.txtNome.setText("   " + item.getNome());
+		
+		view.clearFocus();
+		
+//		view.setFocusable(true);
+//		view.setFocusableInTouchMode(true);
+//		view.setClickable(true);
+		view.setBackgroundResource(R.drawable.list_item_selector_holo_light);
+		
+//		viewHolder.txtNome.setFocusable(true);
+//		viewHolder.txtNome.setFocusableInTouchMode(true);
+//		viewHolder.txtNome.setClickable(true);
+		
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				
 				int selectedCatID = item.getId();
 				Debug.PrintInfo(CategorySearchListAdapter.this, "Selected categoria with id " + selectedCatID);
 				if (item.hasLoaded()) {
-					Intent intent = new Intent();
-					intent.setAction(Constants.Actions.DISPLAY_CATEGORIA);
-					intent.putExtra(Constants.Extras.CATEGORIA, selectedCatID);
-					HiperPrecos.getInstance().sendBroadcast(intent);
+					enterSubCategoria(HiperPrecos.getInstance().getCategoriaById(selectedCatID));
 				} else {
 					CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
 					getCategoria.addParameter(Name.CATEGORIA_ID, selectedCatID);
@@ -153,7 +166,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 	    Hiper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
 	    
 	    viewHolder.txtNome.setText(hiper.getNome());
-	     
+	   	    
 	    return view;
 	    
 	}
@@ -165,7 +178,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
-		return false;
+		return true;
 	}
 	
 }

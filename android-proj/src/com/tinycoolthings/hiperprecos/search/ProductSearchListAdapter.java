@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -114,9 +115,9 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		viewHolder.position = childPosition;
 		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(childPosition, viewHolder, fileName).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(childPosition, viewHolder, fileName).execute();
+			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHiper().getNome()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
@@ -199,11 +200,13 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	    private int mPosition;
 	    private ChildViewHolder mHolder;
 	    private String mFileName;
+	    private String mHiper;
 	
-	    public ThumbnailTask(int position, ChildViewHolder holder, String fileName) {
+	    public ThumbnailTask(int position, ChildViewHolder holder, String fileName, String hiper) {
 	        mPosition = position;
 	        mHolder = holder;
 	        mFileName = fileName;
+	        mHiper = hiper;
 	    }
 	
 	    @Override
@@ -211,10 +214,21 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	        return Storage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
 	    }
 	
-	    @Override
+	    @SuppressLint("NewApi")
+		@Override
 	    protected void onPostExecute(Bitmap bitmap) {
-	        if (mHolder.position == mPosition) {
-	        	mHolder.img.setImageBitmap(bitmap);
+	    	if (mHolder.position == mPosition) {
+	        	if (bitmap == null) {
+	        		if (mHiper.toLowerCase().contains("continente")) {
+	        			mHolder.img.setBackgroundResource(R.drawable.continente_not_found);
+	        		}
+	        	} else {
+	        		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN){
+	        			mHolder.img.setBackground(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bitmap));
+	    			} else{
+	    				mHolder.img.setBackgroundDrawable(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bitmap));
+	    			}
+	        	}
 	        }
 	    }
 	}

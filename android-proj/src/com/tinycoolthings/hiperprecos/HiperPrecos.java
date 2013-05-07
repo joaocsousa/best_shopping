@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
 
 import com.tinycoolthings.hiperprecos.models.Categoria;
 import com.tinycoolthings.hiperprecos.models.Hiper;
@@ -14,6 +16,7 @@ import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class HiperPrecos extends Application {
 
@@ -96,6 +99,14 @@ public class HiperPrecos extends Application {
     	for (int i=0;produto==null && i<hipers.size();i++) {
     		produto = hipers.get(i).getProdutoById(prodID);
     	}
+    	if (produto == null && this.latestProdSearch.size()>0) {
+    		for (int i=0;i<this.latestProdSearch.size();i++) {
+    			Produto currProd = this.latestProdSearch.get(i);
+    			if (prodID.equals(currProd.getId())) {
+    				produto = currProd;
+    			}
+    		}
+    	}
     	return produto;
 	}
 
@@ -127,10 +138,23 @@ public class HiperPrecos extends Application {
 	}
 	
 	public void search(String text) {
-		latestSearchTerm = text;
-		CallWebServiceTask search = new CallWebServiceTask(Constants.Actions.SEARCH);
-		search.addParameter(Name.SEARCH_QUERY, text);
-		search.execute();
+		text = text.trim();
+		if (!Utils.validSearch(text)) {
+			AlertDialog.Builder altDialog = new AlertDialog.Builder(HiperPrecos.getInstance().getAppContext());
+			altDialog.setMessage(R.string.short_search_term);
+			altDialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			altDialog.show();
+		} else {
+			latestSearchTerm = text;
+			CallWebServiceTask search = new CallWebServiceTask(Constants.Actions.SEARCH);
+			search.addParameter(Name.SEARCH_QUERY, text);
+			search.execute();
+		}
 	}
 	
 	public void setLatestProdSearch(ArrayList<Produto> prodSearch) {

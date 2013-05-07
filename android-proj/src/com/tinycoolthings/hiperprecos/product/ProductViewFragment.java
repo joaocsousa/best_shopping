@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +30,8 @@ public class ProductViewFragment extends SherlockFragment {
 		super.onResume();
 	}
 	
+	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
@@ -40,7 +45,19 @@ public class ProductViewFragment extends SherlockFragment {
 		ImageView img_prodImg = ((ImageView)view.findViewById(R.id.img_prod_image));
 		
 		String fileName = Storage.getFileName(produto.getUrlImagem(), produto.getNome(), produto.getMarca());
-		img_prodImg.setImageBitmap(Storage.getFileFromStorage(HiperPrecos.getInstance(), fileName));
+		Bitmap bm = Storage.getFileFromStorage(HiperPrecos.getInstance(), fileName);
+		if (bm == null) {
+			if (produto.getHiper().getNome().toLowerCase().contains("continente")) {
+				img_prodImg.setBackgroundResource(R.drawable.continente_not_found);
+    		}
+		} else {
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN){
+				img_prodImg.setBackground(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bm));
+			} else{
+				img_prodImg.setBackgroundDrawable(new BitmapDrawable(HiperPrecos.getInstance().getResources(), bm));
+			}
+			
+		}
 		
 		// NAME
 		TextView tv_prodName = ((TextView)view.findViewById(R.id.tv_prod_name));

@@ -77,10 +77,10 @@ public class Storage {
 			}
 		}
 
-		if (bMap == null) {
-			Debug.PrintWarning(Storage.class, "File " + fileName + " not found. Use Android default.");
-			bMap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
-        }
+//		if (bMap == null) {
+//			Debug.PrintWarning(Storage.class, "File " + fileName + " not found. Use Android default.");
+//			bMap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+//        }
 		
 		return bMap;
 	}

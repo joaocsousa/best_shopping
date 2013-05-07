@@ -5,8 +5,8 @@ from hipers import models
 from django.utils import timezone
 import random
 
-class Jumbo(hiper.Hiper):        
-    
+class Jumbo(hiper.Hiper):
+
     #constructor
     def __init__(self):
         # self.proxies = {
@@ -16,9 +16,9 @@ class Jumbo(hiper.Hiper):
         self._domain = "http://www.jumbo.pt"
         self._mainPath = "Frontoffice/ContentPages/JumboNetWelcome.aspx"
         self._url = Utils.toStr(self._domain + "/" + self._mainPath)
-        
+
         hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
-        
+
         # Save to DB
         hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
         Utils.saveObjToDB(hiperDB)
@@ -53,7 +53,7 @@ class Jumbo(hiper.Hiper):
                 Utils.printMsg(self._name, str(e), Utils.getLineNo())
         currentCat = 1
         for categoria in categorias:
-            
+
             # Categoria - URL
             try:
                 catUrl = Utils.strip(categoria['href'])
@@ -76,7 +76,7 @@ class Jumbo(hiper.Hiper):
             subCategorias = soupJumbo.findAll("a", id = re.compile(r"subItem_"+str(currentCat)+"_"))
             currentSubCat = 1
             for subCategoria in subCategorias:
-            
+
                 # SubCategoria - Nome
                 try:
                     subCatName = Utils.strip(subCategoria.text)
@@ -96,11 +96,11 @@ class Jumbo(hiper.Hiper):
                 Utils.saveObjToDB(subCatDB)
 
                 # SubCategoria - SubSubCategorias
-                subSubCategorias = soupJumbo.findAll("div", id = re.compile(r"subsubCategorias_"+str(currentCat)+"_"+str(currentSubCat)+"$")) 
+                subSubCategorias = soupJumbo.findAll("div", id = re.compile(r"subsubCategorias_"+str(currentCat)+"_"+str(currentSubCat)+"$"))
                 currentSubSubCat = 1
                 for subSubCategoriaGroup in subSubCategorias:
                     for subSubCategoria in subSubCategoriaGroup:
-                        
+
                         if len(Utils.strip(subSubCategoria.string))>0:
 
                             # SubSubCategoria - Nome
@@ -108,7 +108,7 @@ class Jumbo(hiper.Hiper):
                                 subSubCatName = Utils.strip(subSubCategoria.string)
                             except:
                                 subSubCatName = None
-                        
+
                             Utils.printMsg(self._name, "SubSubCategoria [" + subSubCatName + "]", Utils.getLineNo())
 
                             # SubSubCategoria - URL
@@ -123,17 +123,17 @@ class Jumbo(hiper.Hiper):
 
                             # SubSubCategoria - Produtos
                             self._getProdutosFromCat(subSubCatDB)
-                            
+
                     currentSubSubCat+=1
                 currentSubCat+=1
             currentCat+=1
 
             Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
-        
+
         Utils.printMsg(self._name, "-" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
 
     def _getProdutosFromCat(self, catDB):
-        
+
         if not Utils.validUrl(catDB.url):
             return False
 
@@ -161,14 +161,14 @@ class Jumbo(hiper.Hiper):
                 except:
                     nextPage = pagina.string
                     pass
-                    
+
             #we have currentPage and NextPage
 
             #parse products for this page
             nrProdutosParsed = 0
             products = productsPageSoup.findAll("div", {"class" : "produtoLista"})
             for product in products:
-                
+
                 # Produto - Nome
                 try:
                     nome = Utils.strip(product.find("a", {"class" : "titProd"}).text)
@@ -241,7 +241,7 @@ class Jumbo(hiper.Hiper):
                 Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr("") + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
 
                 nrProdutosParsed += 1
-                
+
             Utils.printMsg(self._name, catDB.nome+"-"+"Pagina [" + currentPage + "]: " + str(nrProdutosParsed) + " produtos", Utils.getLineNo())
 
         #new page, reset session

@@ -181,6 +181,9 @@ public class Categoria {
 		if (this.hasProduto(produto)) {
 			this.getProdutoById(produto.getId()).merge(produto);
 		} else {
+			if (produto.getHiper()==null) {
+				produto.setHiper(this.getHiper());
+			}
 			this.produtos.add(produto);
 		}
 	}
