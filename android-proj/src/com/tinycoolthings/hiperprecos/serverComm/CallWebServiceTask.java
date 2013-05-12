@@ -13,26 +13,30 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
-import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.serverComm.RestClient.RequestMethod;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Storage;
+import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
-	private ProgressDialog dialog;
 	private String action;
 	private Map<Name, Object> params;
+	private Boolean hideDialogOnFinish;
 	
-	public CallWebServiceTask(String action) {
+	/**
+	 * Starts a request to the web services
+	 * @param action
+	 * @param hideDialogOnFinish - to hide or not the waiting dialog once the request has finished
+	 */
+	public CallWebServiceTask(String action, boolean hideDialogOnFinish) {
 		this.action = action;
 		this.params = new HashMap<Name, Object>();
+		this.hideDialogOnFinish = hideDialogOnFinish;
 	}
 
 	public void addParameter(Name name, Object value) {
@@ -41,14 +45,14 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPreExecute() {
-		this.dialog = ProgressDialog.show(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getResources().getString(R.string.loading), HiperPrecos.getInstance().getResources().getString(R.string.wait), true);
+		HiperPrecos.getInstance().showWaitingDialog();
 	}
 
 	@Override
 	protected String doInBackground(Void... params) {
 		try {
 			String URL = "";
-			if (this.action == Constants.Actions.GET_HIPERS) {
+			if (this.action == Constants.Actions.GET_HYPERS) {
 				URL = Constants.Server.Definitions.HIPERS_URL;
 			} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
@@ -60,10 +64,10 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 					int prodID = (Integer) this.params.get(Constants.Server.Parameter.Name.PRODUTO_ID);
 					URL += prodID;
 				}
-			} else if (this.action == Constants.Actions.GET_CATEGORIAS) {
-				URL = Constants.Server.Definitions.CATEGORIAS_URL;
-			} else if (this.action == Constants.Actions.GET_CATEGORIA) {
-				URL = Constants.Server.Definitions.CATEGORIAS_URL;
+			} else if (this.action == Constants.Actions.GET_CATEGORIES) {
+				URL = Constants.Server.Definitions.CATEGORIES_URL;
+			} else if (this.action == Constants.Actions.GET_CATEGORY) {
+				URL = Constants.Server.Definitions.CATEGORIES_URL;
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.CATEGORIA_ID)) {
 					Debug.PrintError(this, "No categoria ID! Did you specify it?");
 				} else {
@@ -84,11 +88,11 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		    while (it.hasNext()) {
 		    	Entry<Name, Object> pair = (Entry<Name, Object>)it.next();
 		        switch (pair.getKey()) {
-			        case HIPER:
+			        case HYPER:
 			        	logParams+="hiper="+String.valueOf(pair.getValue())+"&";
 			        	client.AddParam("hiper", String.valueOf(pair.getValue()));
 			        	break;
-			        case CATEGORIA_PAI:
+			        case PARENT_CATEGORY:
 			        	logParams+="categoria_pai="+String.valueOf(pair.getValue())+"&";
 			        	client.AddParam("categoria_pai", String.valueOf(pair.getValue()));
 			        	break;
@@ -138,7 +142,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			    				URL u = new URL(currProdUrl);
 				    			u.toURI();
 				    			//////////////
-				    			String fileName = Storage.getFileName(currProdUrl, currProdJson.getString("nome"), currProdJson.getString("marca"));
+				    			String fileName = ImageStorage.getFileName(currProdUrl, currProdJson.getString("nome"), currProdJson.getString("marca"));
 				    			Runnable worker = new CallWebServiceTask.FetchImage(currProdUrl, fileName);
 				    			executor.execute(worker);
 			    			} catch (Exception e) { e.printStackTrace(); }
@@ -161,19 +165,21 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	
 	@Override
 	protected void onPostExecute(String result) {
-		this.dialog.cancel();
+		if (hideDialogOnFinish) {
+			HiperPrecos.getInstance().hideWaitingDialog();
+		}
 		Intent intent = new Intent();
 		intent.setAction(this.action);
-		if (this.action == Constants.Actions.GET_HIPERS) {
+		if (this.action == Constants.Actions.GET_HYPERS) {
 			intent.putExtra(Constants.Extras.HIPERS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 			intent.putExtra(Constants.Extras.PRODUTOS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTO) {
 			intent.putExtra(Constants.Extras.PRODUTO, result);
-		} else if (this.action == Constants.Actions.GET_CATEGORIAS) {
-			intent.putExtra(Constants.Extras.CATEGORIAS, result);
-		} else if (this.action == Constants.Actions.GET_CATEGORIA) {
-			intent.putExtra(Constants.Extras.CATEGORIA, result);
+		} else if (this.action == Constants.Actions.GET_CATEGORIES) {
+			intent.putExtra(Constants.Extras.CATEGORIES, result);
+		} else if (this.action == Constants.Actions.GET_CATEGORY) {
+			intent.putExtra(Constants.Extras.CATEGORY, result);
 		} else if (this.action == Constants.Actions.SEARCH) {
 			intent.putExtra(Constants.Extras.SEARCH_RESULT, result);
 		}
@@ -191,9 +197,9 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 
 		@Override
 		public void run() {
-			if (!Storage.fileExists(HiperPrecos.getInstance(), this.fileName)) {
+			if (!ImageStorage.fileExists(HiperPrecos.getInstance(), this.fileName)) {
 				Debug.PrintError(this, "Storing " + this.fileName);
-				Storage.storeFileToStorage(HiperPrecos.getInstance(), this.url, this.fileName);
+				ImageStorage.storeFileToStorage(HiperPrecos.getInstance(), this.url, this.fileName);
 			}
 		}
 	}

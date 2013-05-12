@@ -33,7 +33,7 @@ public class SearchResultFragment extends SherlockFragment {
 			
 			expandableList.setAdapter(productSearchListAdapter);
 			
-		} else if (args.containsKey(Constants.Extras.CATEGORIA)) {
+		} else if (args.containsKey(Constants.Extras.CATEGORY)) {
 			
 			Debug.PrintError(this, "Displaying categorias!");
 			

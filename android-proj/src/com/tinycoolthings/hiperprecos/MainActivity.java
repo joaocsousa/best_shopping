@@ -1,6 +1,7 @@
 package com.tinycoolthings.hiperprecos;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,8 +26,8 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapater;
-import com.tinycoolthings.hiperprecos.models.Categoria;
-import com.tinycoolthings.hiperprecos.models.Hiper;
+import com.tinycoolthings.hiperprecos.models.Category;
+import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
@@ -39,34 +40,29 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ActionBar mActionBar;
 	private ViewPager mPager;
 	private ActionBar.TabListener tabListener;
-
+	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(Constants.Actions.GET_CATEGORIAS)) {
-				String result = intent.getStringExtra(Constants.Extras.CATEGORIAS);
-				try {
-					JSONArray categoriasJSON = new JSONArray(result);
-					for (int i=0;i<categoriasJSON.length();i++) {
-						HiperPrecos.getInstance().addCategoria(categoriasJSON.getJSONObject(i));
-					}
-					populateHipers();
-				} catch (JSONException e) {
-					e.printStackTrace();
+			String action = intent.getAction();
+			if (action.equals(Constants.Actions.GET_HYPERS)) {
+				// Received hypers
+				HiperPrecos.getInstance().addHypers(intent.getStringExtra(Constants.Extras.CATEGORIES));
+				// get categories for each hyper
+				List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
+				for (int i=0; i < hypers.size(); i++) {
+					CallWebServiceTask getCategories = new CallWebServiceTask(Constants.Actions.GET_CATEGORIES, false);
+					getCategories.addParameter(Constants.Server.Parameter.Name.PARENT_CATEGORY, -1);
+					getCategories.addParameter(Constants.Server.Parameter.Name.HYPER, hypers.get(i).getId());
+					getCategories.execute();
 				}
-			} else if (intent.getAction().equals(Constants.Actions.GET_CATEGORIA)) {
-				String result = intent.getStringExtra(Constants.Extras.CATEGORIA);
-				try {
-					JSONObject catJson = new JSONObject(result);
-					Categoria categoria = HiperPrecos.getInstance().addCategoria(catJson);
-					Debug.PrintWarning(MainActivity.this, "Received data for categoria " + categoria.getNome());
-					enterSubCategoria(categoria);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
+			} else if (action.equals(Constants.Actions.GET_CATEGORIES)) {
+				HiperPrecos.getInstance().addCategories(intent.getStringExtra(Constants.Extras.CATEGORIES));
+				populateHipers();
+			} else if (action.equals(Constants.Actions.GET_CATEGORY)) {
+				Category category = HiperPrecos.getInstance().addCategory(intent.getStringExtra(Constants.Extras.CATEGORY));
+				enterSubCategory(category);
+			} else if (action.equals(Constants.Actions.SEARCH)) {
 				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
 				Debug.PrintDebug(this, result);
 				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
@@ -96,44 +92,38 @@ public class MainActivity extends SherlockFragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		
+		HiperPrecos.getInstance().setAppContext(this);
+		
 		Debug.PrintDebug(this, "onResume");
 		
 		IntentFilter filterServerResp = new IntentFilter();
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORIAS);
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORIA);
+		filterServerResp.addAction(Constants.Actions.GET_HYPERS);
+		filterServerResp.addAction(Constants.Actions.GET_CATEGORIES);
+		filterServerResp.addAction(Constants.Actions.GET_CATEGORY);
 		filterServerResp.addAction(Constants.Actions.SEARCH);
 		registerReceiver(broadcastReceiver, filterServerResp);
 		
 		mActionBar.removeAllTabs();
 		
-		HiperPrecos.getInstance().clearHipers();
+		CallWebServiceTask getHypers = new CallWebServiceTask(Constants.Actions.GET_HYPERS, false);
+		getHypers.execute();
 		
-		// ADD HIPERS:
-		HiperPrecos.getInstance().addHiper(new Hiper(1, "Continente"));
-		HiperPrecos.getInstance().addHiper(new Hiper(2, "Jumbo"));
-		////////////////////
-		
-        HiperPrecos.getInstance().setAppContext(this);
-        
-		CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIAS);
-		getCategorias.addParameter(Name.CATEGORIA_PAI, -1);
-		getCategorias.execute();
 	}
 	
-	protected void enterSubCategoria(Categoria categoria) {
+	protected void enterSubCategory(Category category) {
 		
-		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + categoria.getNome());
+		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + category.getName());
 		
-		Debug.PrintWarning(MainActivity.this, categoria.getNome() + " has subcategorias.");
+		Debug.PrintInfo(MainActivity.this, category.getName() + " has subcategorias.");
         Intent intent = new Intent(MainActivity.this, NavigationList.class);
         Bundle bundle = new Bundle();
-        bundle.putInt(Constants.Extras.CATEGORIA, categoria.getId());
+        bundle.putInt(Constants.Extras.CATEGORY, category.getId());
         intent.putExtras(bundle);
         startActivity(intent);
         
 	}
 
-	private void populateHipers() throws JSONException {
+	private void populateHipers() {
 		
 		/** Getting a reference to ViewPager from the layout */
         mPager = new ViewPager(this);
@@ -178,9 +168,9 @@ public class MainActivity extends SherlockFragmentActivity {
         };
         
         /** Create Tabs */
-        ArrayList<Hiper> hipers = HiperPrecos.getInstance().getHipers();
+        ArrayList<Hyper> hipers = HiperPrecos.getInstance().getHipers();
 		for (int i=0;i<hipers.size();i++) {
-			Hiper currHiper = hipers.get(i);
+			Hyper currHiper = hipers.get(i);
 			String currHiperName = currHiper.getNome();
 			/** Creating Tab */
 	        Tab tab = mActionBar.newTab()

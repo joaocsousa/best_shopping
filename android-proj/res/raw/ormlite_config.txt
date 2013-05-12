@@ -1,0 +1,86 @@
+#
+# generated on 2013/05/11 02:16:19
+#
+# --table-start--
+dataClass=com.tinycoolthings.hiperprecos.models.Hyper
+tableName=hypers
+# --table-fields-start--
+# --field-start--
+fieldName=id
+id=true
+# --field-end--
+# --field-start--
+fieldName=name
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.tinycoolthings.hiperprecos.models.Category
+tableName=categories
+# --table-fields-start--
+# --field-start--
+fieldName=id
+id=true
+# --field-end--
+# --field-start--
+fieldName=name
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=hyper
+canBeNull=false
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=parentCat
+foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.tinycoolthings.hiperprecos.models.Product
+tableName=products
+# --table-fields-start--
+# --field-start--
+fieldName=id
+id=true
+# --field-end--
+# --field-start--
+fieldName=name
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=brand
+# --field-end--
+# --field-start--
+fieldName=price
+# --field-end--
+# --field-start--
+fieldName=priceKg
+# --field-end--
+# --field-start--
+fieldName=weight
+# --field-end--
+# --field-start--
+fieldName=ulrPage
+# --field-end--
+# --field-start--
+fieldName=ulrImage
+# --field-end--
+# --field-start--
+fieldName=discount
+# --field-end--
+# --field-start--
+fieldName=latestUpdate
+# --field-end--
+# --field-start--
+fieldName=parentCat
+canBeNull=false
+foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

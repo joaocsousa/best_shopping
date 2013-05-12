@@ -18,15 +18,15 @@ import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Storage;
+import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 
 @SuppressLint("NewApi")
-public class ProductListAdapter extends ArrayAdapter<Produto> {
+public class ProductListAdapter extends ArrayAdapter<Product> {
 	
 	private final LayoutInflater mInflater;
 
@@ -44,10 +44,10 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
-	public void setData(List<Produto> data) {
+	public void setData(List<Product> data) {
 		clear();
 		if (data != null) {
-			for (Produto appEntry : data) {
+			for (Product appEntry : data) {
 				add(appEntry);
 			}
 		}
@@ -73,7 +73,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 			viewHolder = (ViewHolder) view.getTag();
 		}
 		
-		Produto item = getItem(position);
+		Product item = getItem(position);
 		viewHolder.txtNome.setText(item.getNome());
 		String marca = "-";
 		if (item.getMarca()!=null && !item.getMarca().equals("")) {
@@ -88,7 +88,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 		Debug.PrintError(this, "|"+peso+"|");
 		viewHolder.txtPeso.setText(peso);
 		viewHolder.position = position;
-		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
+		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
 			new ThumbnailTask(position, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
@@ -131,7 +131,7 @@ public class ProductListAdapter extends ArrayAdapter<Produto> {
 	
 	    @Override
 	    protected Bitmap doInBackground(Void... arg0) {
-	        return Storage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
+	        return ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
 	    }
 	
 	    @Override

@@ -26,8 +26,8 @@ import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.MainActivity;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Categoria;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Category;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.product.ProductView;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
@@ -36,8 +36,8 @@ import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class SearchResults extends SherlockFragmentActivity {
 	
-	ArrayList<Produto> produtos = new ArrayList<Produto>();
-	ArrayList<Categoria> categorias = new ArrayList<Categoria>();
+	ArrayList<Product> produtos = new ArrayList<Product>();
+	ArrayList<Category> categorias = new ArrayList<Category>();
 	
 	private static int[] currSelectedSort = new int[] {Sort.NOME_ASCENDING, Sort.NOME_ASCENDING};
 	
@@ -54,9 +54,9 @@ public class SearchResults extends SherlockFragmentActivity {
 				String result = intent.getStringExtra(Constants.Extras.PRODUTO);
 				try {
 					JSONObject prodJson = new JSONObject(result);
-					Produto produto = HiperPrecos.getInstance().addProduto(prodJson);
+					Product produto = HiperPrecos.getInstance().addProduto(prodJson);
 					Debug.PrintWarning(SearchResults.this, "Received data for produto " + produto.getId() + " - " + produto.getNome());
-					Produto existingProd = HiperPrecos.getInstance().getProdutoById(produto.getId());
+					Product existingProd = HiperPrecos.getInstance().getProdutoById(produto.getId());
 					if (existingProd!=null) {
 						existingProd.merge(produto);
 					} else {
@@ -70,8 +70,24 @@ public class SearchResults extends SherlockFragmentActivity {
 				}
 			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUTO)) {
 				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUTO, -1);
-				Produto selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
+				Product selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
 				showProduct(selectedProd);
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORIA)) {
+				Integer selectedCatID = intent.getIntExtra(Constants.Extras.CATEGORY, -1);
+				Category selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
+				showCategoria(selectedCat);
+			} else if (intent.getAction().equals(Constants.Actions.GET_CATEGORY)) {
+				String result = intent.getStringExtra(Constants.Extras.CATEGORY);
+				try {
+					JSONObject catJson = new JSONObject(result);
+					Category categoria = HiperPrecos.getInstance().addCategoria(catJson);
+					Debug.PrintWarning(SearchResults.this, "Received data for categoria " + categoria.getNome());
+//					enterSubCategoria(categoria);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
 				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
 				Debug.PrintDebug(this, result);
@@ -85,7 +101,11 @@ public class SearchResults extends SherlockFragmentActivity {
 		}
 	};
 	
-	protected void showProduct(Produto produto) {
+	private void showCategoria(Category selectedCat) {
+		
+	}
+	
+	protected void showProduct(Product produto) {
 		Bundle bundle = new Bundle();
         bundle.putInt(Constants.Extras.PRODUTO, produto.getId());
         Intent intent = new Intent(this, ProductView.class);
@@ -187,6 +207,7 @@ public class SearchResults extends SherlockFragmentActivity {
 		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUTO);
 		filterServerResp.addAction(Constants.Actions.GET_PRODUTO);
 		filterServerResp.addAction(Constants.Actions.SEARCH);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORIA);
 		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	

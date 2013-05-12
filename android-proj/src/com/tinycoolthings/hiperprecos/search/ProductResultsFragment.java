@@ -9,14 +9,14 @@ import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.product.ProductListAdapter;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class ProductResultsFragment extends SherlockListFragment {
 
-	private ArrayList<Produto> produtos;
+	private ArrayList<Product> produtos;
 	
 	@Override
 	public void onResume() {
@@ -33,7 +33,7 @@ public class ProductResultsFragment extends SherlockListFragment {
 
 		Debug.PrintInfo(this, "Showing " + prodsIDs.size() + " products");
 		for (int i=0; i < prodsIDs.size(); i++) {
-			Produto produto = HiperPrecos.getInstance().getProdutoById(prodsIDs.get(i));
+			Product produto = HiperPrecos.getInstance().getProdutoById(prodsIDs.get(i));
 			Debug.PrintInfo(this, "Adding " + produto.getNome());
 			produtos.add(produto);
 		}

@@ -17,10 +17,10 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Storage;
+import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 
 public class ProductViewFragment extends SherlockFragment {
 	
@@ -37,15 +37,15 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		Bundle args = getArguments();
 
-		Produto produto = HiperPrecos.getInstance().getProdutoById(args.getInt(Constants.Extras.PRODUTO));
+		Product produto = HiperPrecos.getInstance().getProdutoById(args.getInt(Constants.Extras.PRODUTO));
 		
 		View view = inflater.inflate(R.layout.product_view, container, false);
 		
 		// IMAGE
 		ImageView img_prodImg = ((ImageView)view.findViewById(R.id.img_prod_image));
 		
-		String fileName = Storage.getFileName(produto.getUrlImagem(), produto.getNome(), produto.getMarca());
-		Bitmap bm = Storage.getFileFromStorage(HiperPrecos.getInstance(), fileName);
+		String fileName = ImageStorage.getFileName(produto.getUrlImagem(), produto.getNome(), produto.getMarca());
+		Bitmap bm = ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), fileName);
 		if (bm == null) {
 			if (produto.getHiper().getNome().toLowerCase().contains("continente")) {
 				img_prodImg.setBackgroundResource(R.drawable.continente_not_found);

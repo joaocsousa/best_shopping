@@ -6,21 +6,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.SparseIntArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Categoria;
-import com.tinycoolthings.hiperprecos.models.Hiper;
+import com.tinycoolthings.hiperprecos.models.Category;
+import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
@@ -29,7 +25,7 @@ import com.tinycoolthings.hiperprecos.utils.Debug;
 public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 
 	private Context context;
-	private ArrayList<ArrayList<Categoria>> categorias = new ArrayList<ArrayList<Categoria>>();
+	private ArrayList<ArrayList<Category>> categorias = new ArrayList<ArrayList<Category>>();
 	private final LayoutInflater mInflater;
 	
 	private static class GroupViewHolder {
@@ -40,21 +36,21 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 		private TextView txtNome;
 	}
 	
-	public CategorySearchListAdapter(Context context, ArrayList<Categoria> categorias) {
+	public CategorySearchListAdapter(Context context, ArrayList<Category> categorias) {
 		this.context = context;
 		
 		this.categorias.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
 		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hiper currHiper = HiperPrecos.getInstance().getHipers().get(i);
+			Hyper currHiper = HiperPrecos.getInstance().getHipers().get(i);
 			mapHiperGroup.put(currHiper.getId(), i);
 		}
 		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hiper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
-			ArrayList<Categoria> currCatsHiper = new ArrayList<Categoria>();
+			Hyper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
+			ArrayList<Category> currCatsHiper = new ArrayList<Category>();
 			for (int j = 0; j < categorias.size(); j++) {
-				Categoria currCat = categorias.get(j);
+				Category currCat = categorias.get(j);
 				Integer catHiper = currCat.getHiper().getId();
 				if (catHiper.equals(currentHiper.getId())) {
 					currCatsHiper.add(currCat);
@@ -93,7 +89,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (ChildViewHolder) view.getTag();
 		}
 		
-		final Categoria item = categorias.get(groupPosition).get(childPosition);
+		final Category item = categorias.get(groupPosition).get(childPosition);
 		viewHolder.txtNome.setText("   " + item.getNome());
 		
 		view.clearFocus();
@@ -113,10 +109,18 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 				
 				int selectedCatID = item.getId();
 				Debug.PrintInfo(CategorySearchListAdapter.this, "Selected categoria with id " + selectedCatID);
+				if (item.hasSubCategorias()) {
+					Debug.PrintError(CategorySearchListAdapter.this, "Subcats " + item.getSubCategorias().size());
+				}
+				if (item.hasProdutos()) {
+					Debug.PrintError(CategorySearchListAdapter.this, "Prods " + item.getProdutos().size());
+				}
 				if (item.hasLoaded()) {
-					enterSubCategoria(HiperPrecos.getInstance().getCategoriaById(selectedCatID));
+					Intent intent = new Intent(Constants.Actions.DISPLAY_CATEGORIA);
+					intent.putExtra(Constants.Extras.CATEGORY, selectedCatID);
+					HiperPrecos.getInstance().sendBroadcast(intent);
 				} else {
-					CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
+					CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORY);
 					getCategoria.addParameter(Name.CATEGORIA_ID, selectedCatID);
 					getCategoria.execute();
 				}
@@ -163,7 +167,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (GroupViewHolder) view.getTag();
 		}
 	         
-	    Hiper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
+	    Hyper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
 	    
 	    viewHolder.txtNome.setText(hiper.getNome());
 	   	    

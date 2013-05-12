@@ -30,7 +30,7 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     	} else if (selectedPos == 1) {
     		// Categorias
     		if (HiperPrecos.getInstance().getLatestCatSearch().size()>0) {
-				bundle.putInt(Constants.Extras.CATEGORIA, selectedPos);
+				bundle.putInt(Constants.Extras.CATEGORY, selectedPos);
             } else {
 				return new NoResultsFragment();
 			}

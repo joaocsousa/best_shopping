@@ -10,13 +10,13 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class ProductView extends SherlockFragmentActivity {
 
-	Produto currProd = null;
+	Product currProd = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

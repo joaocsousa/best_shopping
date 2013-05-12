@@ -16,6 +16,9 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data
+			android:name="ormdroid.database.name"
+			android:value="HiperPrecos" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -28,9 +31,6 @@
         <activity android:name=".NavigationList"></activity>
         <activity android:name=".product.ProductView"></activity>
         <activity android:name=".search.SearchResults"></activity>
-        <service
-            android:exported="false"
-            android:name=".serverComm.ContentService" />
     </application>
 
 </manifest>

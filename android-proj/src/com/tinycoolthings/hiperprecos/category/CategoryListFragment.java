@@ -14,7 +14,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.R.layout;
-import com.tinycoolthings.hiperprecos.models.Categoria;
+import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Utils;
@@ -24,7 +24,7 @@ import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class CategoryListFragment extends SherlockListFragment {
 
-	private ArrayList<Categoria> categorias;
+	private ArrayList<Category> categorias;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,8 +33,8 @@ public class CategoryListFragment extends SherlockListFragment {
 
 		if (args.containsKey(Constants.Extras.HIPER)) {
 			categorias = HiperPrecos.getInstance().getHipers().get(args.getInt(Constants.Extras.HIPER)).getCategorias();
-		} else if (args.containsKey(Constants.Extras.CATEGORIA)) {
-			categorias = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORIA)).getSubCategorias();
+		} else if (args.containsKey(Constants.Extras.CATEGORY)) {
+			categorias = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORY)).getSubCategorias();
 		} else {
 			return null;
 		}
@@ -61,13 +61,13 @@ public class CategoryListFragment extends SherlockListFragment {
 		super.onListItemClick(l, v, position, id);
 		int selectedCatID = categorias.get(position).getId();
 		Debug.PrintInfo(this, "Selected categoria with id " + selectedCatID);
-		Categoria selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
+		Category selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
 		if (selectedCat!=null && selectedCat.hasLoaded()) {
 			Intent intent = new Intent(Actions.DISPLAY_CATEGORIA);
-			intent.putExtra(Constants.Extras.CATEGORIA, selectedCatID);
+			intent.putExtra(Constants.Extras.CATEGORY, selectedCatID);
 			HiperPrecos.getInstance().sendBroadcast(intent);
 		} else {
-			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORIA);
+			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORY);
 			getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
 			getCategorias.execute();
 		}

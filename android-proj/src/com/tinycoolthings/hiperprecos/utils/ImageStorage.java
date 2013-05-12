@@ -17,7 +17,7 @@ import android.os.Environment;
 
 import com.tinycoolthings.hiperprecos.R;
 
-public class Storage {
+public class ImageStorage {
 
 	public static String getFileName(String url, String prodName, String prodMarca) {
 		String extension = url.substring(url.lastIndexOf("."));
@@ -59,10 +59,10 @@ public class Storage {
 			try {
 				FileInputStream fis = new FileInputStream(file);
 				bMap = BitmapFactory.decodeStream(fis);
-		        Debug.PrintDebug(Storage.class, "Read file " + fileName + " from external storage.");
+		        Debug.PrintDebug(ImageStorage.class, "Read file " + fileName + " from external storage.");
 				fileFound = true;
 			} catch (FileNotFoundException e) {
-		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in external storage.");
+		        Debug.PrintWarning(ImageStorage.class, "File " + fileName + " not found in external storage.");
 			}
 		}
 
@@ -71,9 +71,9 @@ public class Storage {
 			try {
 				FileInputStream fis = context.openFileInput(fileName);
 				bMap = BitmapFactory.decodeStream(fis);
-		        Debug.PrintDebug(Storage.class, "Read file " + fileName + " from internal storage.");
+		        Debug.PrintDebug(ImageStorage.class, "Read file " + fileName + " from internal storage.");
 			} catch (FileNotFoundException e) {
-		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in internal storage.");
+		        Debug.PrintWarning(ImageStorage.class, "File " + fileName + " not found in internal storage.");
 			}
 		}
 
@@ -131,9 +131,9 @@ public class Storage {
 			        	fos.write(buffer, 0, bufferLength);
 			        }
 			        fos.close();
-			        Debug.PrintDebug(Storage.class, "Saved " + fileName + " to external storage.");
-			        Bitmap bitmap = Storage.getFileFromStorage(context, fileName);
-			        File fileCmp = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), Storage.getFileNameCompressed(fileName));
+			        Debug.PrintDebug(ImageStorage.class, "Saved " + fileName + " to external storage.");
+			        Bitmap bitmap = ImageStorage.getFileFromStorage(context, fileName);
+			        File fileCmp = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), ImageStorage.getFileNameCompressed(fileName));
 			        FileOutputStream outScaled = new FileOutputStream(fileCmp);
 			        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, outScaled);
 				} catch (FileNotFoundException e) {
@@ -149,14 +149,14 @@ public class Storage {
 		        	fos.write(buffer, 0, bufferLength);
 		        }
 		        fos.close();
-		        Debug.PrintDebug(Storage.class, "Saved " + fileName + " to internal storage.");
+		        Debug.PrintDebug(ImageStorage.class, "Saved " + fileName + " to internal storage.");
 			}
 
 		} catch (MalformedURLException e) {
-			Debug.PrintError(Storage.class, "Error downloading user image: Invalid URL.");
+			Debug.PrintError(ImageStorage.class, "Error downloading user image: Invalid URL.");
 			e.printStackTrace();
 		} catch (IOException e) {
-			Debug.PrintError(Storage.class, "Error downloading user image: No Internet?");
+			Debug.PrintError(ImageStorage.class, "Error downloading user image: No Internet?");
 			e.printStackTrace();
 		}
 	}
@@ -178,9 +178,9 @@ public class Storage {
 			File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), fileName);
 			if (file.exists()) {
 				fileFound = true;
-		        Debug.PrintInfo(Storage.class, "File " + fileName + " found in external storage.");
+		        Debug.PrintInfo(ImageStorage.class, "File " + fileName + " found in external storage.");
 			} else {
-		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in external storage.");
+		        Debug.PrintWarning(ImageStorage.class, "File " + fileName + " not found in external storage.");
 			}
 		}
 		
@@ -189,9 +189,9 @@ public class Storage {
 			File file = context.getFileStreamPath(fileName);
 			if (file.exists()) {
 				fileFound = true;
-				Debug.PrintInfo(Storage.class, "File " + fileName + " found in internal storage.");
+				Debug.PrintInfo(ImageStorage.class, "File " + fileName + " found in internal storage.");
 			} else {
-		        Debug.PrintWarning(Storage.class, "File " + fileName + " not found in internal storage.");
+		        Debug.PrintWarning(ImageStorage.class, "File " + fileName + " not found in internal storage.");
 			}
 		}
 		

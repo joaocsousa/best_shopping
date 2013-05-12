@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
@@ -17,7 +17,7 @@ import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class ProductListFragment extends SherlockListFragment {
 
-	private ArrayList<Produto> produtos;
+	private ArrayList<Product> produtos;
 	
 	@Override
 	public void onResume() {
@@ -30,7 +30,7 @@ public class ProductListFragment extends SherlockListFragment {
 		
 		Bundle args = getArguments();
 
-		produtos = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORIA)).getProdutos();
+		produtos = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORY)).getProdutos();
 		
 		int sortType = args.getInt(Constants.Extras.PRODUTO_SORT);
 		

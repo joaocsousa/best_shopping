@@ -19,18 +19,18 @@ import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
-import com.tinycoolthings.hiperprecos.models.Hiper;
-import com.tinycoolthings.hiperprecos.models.Produto;
+import com.tinycoolthings.hiperprecos.models.Hyper;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
-import com.tinycoolthings.hiperprecos.utils.Storage;
+import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 
 public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
 	private Context context;
-	private ArrayList<ArrayList<Produto>> produtos = new ArrayList<ArrayList<Produto>>();
+	private ArrayList<ArrayList<Product>> produtos = new ArrayList<ArrayList<Product>>();
 	private final LayoutInflater mInflater;
 	
 	private static class GroupViewHolder {
@@ -46,21 +46,21 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		public int position;
 	}
 	
-	public ProductSearchListAdapter(Context context, ArrayList<Produto> produtos) {
+	public ProductSearchListAdapter(Context context, ArrayList<Product> produtos) {
 		this.context = context;
 		
 		this.produtos.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
 		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hiper currHiper = HiperPrecos.getInstance().getHipers().get(i);
+			Hyper currHiper = HiperPrecos.getInstance().getHipers().get(i);
 			mapHiperGroup.put(currHiper.getId(), i);
 		}
 		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hiper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
-			ArrayList<Produto> currProdsHiper = new ArrayList<Produto>();
+			Hyper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
+			ArrayList<Product> currProdsHiper = new ArrayList<Product>();
 			for (int j = 0; j < produtos.size(); j++) {
-				Produto currProd = produtos.get(j);
+				Product currProd = produtos.get(j);
 				Integer prodHiper = currProd.getHiper().getId();
 				if (prodHiper.equals(currentHiper.getId())) {
 					currProdsHiper.add(currProd);
@@ -103,7 +103,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (ChildViewHolder) view.getTag();
 		}
 		
-		final Produto item = produtos.get(groupPosition).get(childPosition);
+		final Product item = produtos.get(groupPosition).get(childPosition);
 		viewHolder.txtNome.setText(item.getNome());
 		String marca = "-";
 		if (item.getMarca()!=null ) {
@@ -113,7 +113,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + "€");
 		viewHolder.txtPeso.setText(item.getPeso());
 		viewHolder.position = childPosition;
-		String fileName = Storage.getFileNameCompressed(Storage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
+		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
 			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
@@ -178,7 +178,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (GroupViewHolder) view.getTag();
 		}
 	         
-	    Hiper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
+	    Hyper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
 	    
 	    viewHolder.txtNome.setText(hiper.getNome());
 	     
@@ -211,7 +211,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	
 	    @Override
 	    protected Bitmap doInBackground(Void... arg0) {
-	        return Storage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
+	        return ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
 	    }
 	
 	    @SuppressLint("NewApi")

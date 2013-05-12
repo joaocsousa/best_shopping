@@ -8,15 +8,15 @@ if uuid.getnode() in PRODUCTION_SERVERS:
 else:
     PRODUCTION = False
 
-DEBUG = not PRODUCTION
+# DEBUG = not PRODUCTION
+DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
 DATABASE_USERNAME = "tinycool_admin"
 DATABASE_PASSWORD = "UCaHmEco1"
 
-if uuid.getnode() == 202481596860717L:
-    # IF RASPBERRY PI
+if DEBUG:
     DATABASE_HOST = "tinycoolthings.com"
     DATABASE_PORT = "3306"
 else:
