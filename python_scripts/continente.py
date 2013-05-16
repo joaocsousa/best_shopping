@@ -4,6 +4,8 @@ from utils import Utils
 from hipers import models
 from django.utils import timezone
 import random
+from getproxies import GetProxies
+from random import choice
 
 class Continente(hiper.Hiper):
 
@@ -17,12 +19,35 @@ class Continente(hiper.Hiper):
         hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
 
         # Save to DB
-        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
+        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath, latest_update=timezone.now())
         Utils.saveObjToDB(hiperDB)
 
         self._hiperRef = hiperDB
 
         self._session = requests.Session()
+
+        self._useProxies = False
+
+        self._resetProxies()
+
+    def _resetProxies(self):
+        if self._useProxies:
+            self._proxies = GetProxies().getVerifiedProxies()
+            self._failedProxies = []
+
+    def _checkProxies(self):
+        if self._useProxies and self._failedProxies and set(self._failedProxies).issubset(self._proxies):
+            self._resetProxies()
+
+    def _getProxy(self):
+        if self._useProxies:
+            self._checkProxies()
+            proxy = choice(self._proxies)
+            while (proxy in self._failedProxies):
+                proxy = choice(self._proxies)
+            return proxy
+        else:
+            return None
 
     def startFetchingProducts(self):
         start_time = time.time()
@@ -32,7 +57,15 @@ class Continente(hiper.Hiper):
         success = False
         while (success == False):
             try:
-                continentMainPage = Utils.makeGetRequest(self._session, self._url)
+                while True:
+                    proxy = self._getProxy()
+                    try:
+                        continentMainPage = Utils.makeGetRequest(self._session, self._url, proxy)
+                        break
+                    except requests.ConnectionError:
+                        print traceback.format_exc()
+                        self._failedProxies.append(proxy)
+                        pass
                 soupContinente = BeautifulSoup(continentMainPage)
                 categorias = soupContinente.find("table", { "id" : "Table4" }).findAll("a")
                 success = True
@@ -45,22 +78,28 @@ class Continente(hiper.Hiper):
             try:
                 catUrl = self._domain+"/"+Utils.strip(cat['href'])
             except:
-                print traceback.format_exc()
                 catUrl = None
 
             # Categoria - Abre Categoria
-            catRequest = Utils.makeGetRequest(self._session, catUrl)
+            while True:
+                proxy = self._getProxy()
+                try:
+                    catRequest = Utils.makeGetRequest(self._session, catUrl, proxy)
+                    break
+                except requests.ConnectionError:
+                    print traceback.format_exc()
+                    self._failedProxies.append(proxy)
+                    pass
             soupCat = BeautifulSoup(catRequest)
 
             # Categoria - Nome
             try:
                 catName = Utils.strip(soupCat.find("a", {"class": "navmainOpcoesMenu"}).text)
             except Exception, e:
-                print traceback.format_exc()
                 catName = None
 
             # Save to DB
-            catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef)
+            catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef, latest_update=timezone.now())
             Utils.saveObjToDB(catDB)
 
             Utils.printMsg(self._name, "Categoria [" + catName + "]", Utils.getLineNo())
@@ -86,7 +125,7 @@ class Continente(hiper.Hiper):
                         subCatUrl = None
 
                     # Save to DB
-                    subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
+                    subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef, latest_update=timezone.now())
                     Utils.saveObjToDB(subCatDB)
 
                     # SubCategoria - Produtos
@@ -112,7 +151,7 @@ class Continente(hiper.Hiper):
                             subSubCatUrl = None
 
                         # Save to DB
-                        subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef)
+                        subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef, latest_update=timezone.now())
                         Utils.saveObjToDB(subSubCatDB)
 
                         # SubSubCategoria - Produtos
@@ -137,7 +176,7 @@ class Continente(hiper.Hiper):
                                     subSubSubCatUrl = None
 
                                 # Save to DB
-                                subSubSubCatDB = models.Categoria(url=subSubSubCatUrl, nome=subSubSubCatName, categoria_pai=subSubCatDB, hiper=self._hiperRef)
+                                subSubSubCatDB = models.Categoria(url=subSubSubCatUrl, nome=subSubSubCatName, categoria_pai=subSubCatDB, hiper=self._hiperRef, latest_update=timezone.now())
                                 Utils.saveObjToDB(subSubSubCatDB)
 
                                 # SubSubSubCategoria - Produtos
@@ -149,7 +188,15 @@ class Continente(hiper.Hiper):
 
             # reset session
             self._session = requests.Session()
-            Utils.makeGetRequest(self._session, self._url)
+            while True:
+                proxy = self._getProxy()
+                try:
+                    Utils.makeGetRequest(self._session, self._url, proxy)
+                    break
+                except requests.ConnectionError:
+                    print traceback.format_exc()
+                    self._failedProxies.append(proxy)
+                    pass
 
             Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
 
@@ -167,7 +214,14 @@ class Continente(hiper.Hiper):
                     '__EVENTTARGET': 'ProductsMain1:DataListPages:_ctl'+str((pagina - 1) * 2)+':linkButton',
                     'ProductsMain1:cmbPaginacao':'48'
                     }
-        request = Utils.makePostRequest(self._session, catDB.url, payload)
+        while True:
+            proxy = self._getProxy()
+            try:
+                request = Utils.makePostRequest(self._session, catDB.url, payload, proxy)
+                break
+            except requests.ConnectionError:
+                self._failedProxies.append(proxy)
+                print traceback.format_exc()
         soupPagina = BeautifulSoup(request)
         error = soupPagina.find("span",{"id":"Error1_lblErrorDescription"})
         if error:
@@ -258,7 +312,7 @@ class Continente(hiper.Hiper):
                                         desconto=desconto,
                                         categoria_pai=catDB,
                                         hiper=self._hiperRef,
-                                        last_updated=timezone.now())
+                                        latest_update=timezone.now())
             Utils.saveObjToDB(produtoDB)
 
             Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr(desconto) + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))

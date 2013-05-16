@@ -121,6 +121,10 @@ def api_root(request, format=None):
 def get_db_to_write_to(request, format=None):
     return HttpResponse(Utils.getDbToWriteTo());
 
+# this method has the returning the current database to read from
+def get_db_to_read_from(request, format=None):
+    return HttpResponse(Utils.getDbToReadFrom());
+
 # this method has the purpose of informing the server
 # that the database was updated to update the log file
 def hipers_updated(request, format=None):

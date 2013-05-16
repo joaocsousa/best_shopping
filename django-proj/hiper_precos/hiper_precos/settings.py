@@ -8,8 +8,7 @@ if uuid.getnode() in PRODUCTION_SERVERS:
 else:
     PRODUCTION = False
 
-# DEBUG = not PRODUCTION
-DEBUG = True
+DEBUG = not PRODUCTION
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -48,8 +47,11 @@ DATABASES = {
         'PASSWORD': DATABASE_PASSWORD,
         'HOST': DATABASE_HOST,
         'PORT': DATABASE_PORT
-    }
+    },
 }
+
+# AUXILIAR VARIABLE. DO NOT DELETE
+LAST_WRITTEN_DATABASE = None
 
 DATABASE_ROUTERS = ['hipers.db_router.DBRouter',]
 

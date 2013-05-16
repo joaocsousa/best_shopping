@@ -4,8 +4,7 @@ from django.core import validators
 from django.template.defaultfilters import slugify
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
-
-import difflib
+import difflib, urllib2
 
 # Create your models here.
 class Hiper(models.Model):
@@ -59,7 +58,6 @@ class Produto(models.Model):
     url_pagina    = models.CharField(max_length=300, null=True)
     url_imagem    = models.CharField(max_length=300, null=True)
     desconto      = models.FloatField(default=None, null=True)
-    imagem        = models.ImageField("Image", upload_to="images/", blank=True, null=True)
     categoria_pai = models.ForeignKey(Categoria, related_name='produtos')
     hiper         = models.ForeignKey(Hiper, related_name='produtos')
     latest_update  = models.DateTimeField()
@@ -74,12 +72,3 @@ class Produto(models.Model):
                     "url_imagem": self.url_imagem,
                     "desconto": self.desconto
                 }
-
-    def save(self):
-        self.hiper.latest_update = self.latest_update
-        self.categoria_pai.latest_update = self.latest_update
-        img_temp = NamedTemporaryFile(delete=True)
-        img_temp.write(urllib2.urlopen(self.url_imagem).read())
-        img_temp.flush()
-        self.imagem.save("image_%s" % self.id, File(img_temp))
-        super(MyForm, self).save()

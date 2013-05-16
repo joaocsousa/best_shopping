@@ -85,6 +85,23 @@ class GetProxies:
                 pass
         return proxylist
 
+    def getVerifiedProxies(self):
+        self.trueIP = self.getTrueIP()
+        proxylist1 = self.getAllProxies()
+        proxylist = []
+        for proxy in proxylist1:
+            if proxy not in proxylist:
+                proxylist.append(proxy)
+        random.shuffle(proxylist)
+        proxiesToRtrn = []
+        for proxy in proxylist:
+            if (self.check(proxy)):
+                print "Verified proxy - %s" % proxy
+                proxiesToRtrn.append(proxy)
+            if len(proxiesToRtrn) == 10:
+                break
+        return proxiesToRtrn
+
     def getProxy(self):
         self.trueIP = self.getTrueIP()
         proxylist1 = self.getAllProxies()

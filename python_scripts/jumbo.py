@@ -4,14 +4,13 @@ from utils import Utils
 from hipers import models
 from django.utils import timezone
 import random
+from getproxies import GetProxies
+from random import choice
 
 class Jumbo(hiper.Hiper):
 
     #constructor
     def __init__(self):
-        # self.proxies = {
-        #     "http": proxy,
-        # }
         self._name = "Jumbo"
         self._domain = "http://www.jumbo.pt"
         self._mainPath = "Frontoffice/ContentPages/JumboNetWelcome.aspx"
@@ -20,13 +19,35 @@ class Jumbo(hiper.Hiper):
         hiper.Hiper.__init__(self, name=self._name, domain=self._domain, mainPath=self._mainPath)
 
         # Save to DB
-        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath)
+        hiperDB = models.Hiper(nome=self._name, domain=self._domain, mainPath=self._mainPath, latest_update=timezone.now())
         Utils.saveObjToDB(hiperDB)
 
         self._hiperRef = hiperDB
 
         self._session = requests.Session()
         self._viewStateKey = ""
+
+        self._useProxies = False
+
+        self._resetProxies()
+
+    def _resetProxies(self):
+        if self._useProxies:
+            self._proxies = GetProxies().getVerifiedProxies()
+            self._failedProxies = []
+
+    def _checkProxies(self):
+        if self._useProxies and self._failedProxies and set(self._failedProxies).issubset(self._proxies):
+            self._resetProxies()
+
+    def _getProxy(self):
+        if self._useProxies:
+            self._checkProxies()
+            proxy = choice(self._proxies)
+            while (proxy in self._failedProxies):
+                proxy = choice(self._proxies)
+            return proxy
+        return None
 
     def _updateViewStateKey(self, soupObj):
         viewStateKeyObj = soupObj.find("input", { "id" : "__VIEWSTATE_KEY" })
@@ -43,7 +64,15 @@ class Jumbo(hiper.Hiper):
         success = False
         while (success == False):
             try:
-                jumboMainPage = Utils.makeGetRequest(self._session, self._url)
+                while True:
+                    proxy = self._getProxy()
+                    try:
+                        jumboMainPage = Utils.makeGetRequest(self._session, self._url, proxy)
+                        break
+                    except requests.ConnectionError:
+                        print traceback.format_exc()
+                        self._failedProxies.append(proxy)
+                        pass
                 soupJumbo = BeautifulSoup(jumboMainPage)
                 categorias = soupJumbo.findAll("a", { "class" : "btCategoria" })
                 self._updateViewStateKey(soupJumbo)
@@ -69,7 +98,7 @@ class Jumbo(hiper.Hiper):
             Utils.printMsg(self._name, "Categoria [" + catName + "]", Utils.getLineNo())
 
             # Save to DB
-            catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef)
+            catDB = models.Categoria(url=catUrl, nome=catName, categoria_pai=None, hiper=self._hiperRef, latest_update=timezone.now())
             Utils.saveObjToDB(catDB)
 
             # Categoria - SubCategorias
@@ -92,7 +121,7 @@ class Jumbo(hiper.Hiper):
                     subCatUrl = None
 
                 # Save to DB
-                subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef)
+                subCatDB = models.Categoria(url=subCatUrl, nome=subCatName, categoria_pai=catDB, hiper=self._hiperRef, latest_update=timezone.now())
                 Utils.saveObjToDB(subCatDB)
 
                 # SubCategoria - SubSubCategorias
@@ -118,7 +147,7 @@ class Jumbo(hiper.Hiper):
                                 subSubCatUrl = None
 
                             # Save to DB
-                            subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef)
+                            subSubCatDB = models.Categoria(url=subSubCatUrl, nome=subSubCatName, categoria_pai=subCatDB, hiper=self._hiperRef, latest_update=timezone.now())
                             Utils.saveObjToDB(subSubCatDB)
 
                             # SubSubCategoria - Produtos
@@ -235,7 +264,7 @@ class Jumbo(hiper.Hiper):
                                             desconto=None,
                                             categoria_pai=catDB,
                                             hiper=self._hiperRef,
-                                            last_updated=timezone.now())
+                                            latest_update=timezone.now())
                 Utils.saveObjToDB(produtoDB)
 
                 Utils.logProdutos(self._name, Utils.toStr(nome) + Utils.logSeparator + Utils.toStr(marca) + Utils.logSeparator + Utils.toStr(precoProduto) + Utils.logSeparator + Utils.toStr(precoKg) + Utils.logSeparator + Utils.toStr("") + Utils.logSeparator + Utils.toStr(peso) + Utils.logSeparator + Utils.toStr(idProduto) + Utils.logSeparator + Utils.toStr(urlProduto) + Utils.logSeparator + Utils.toStr(imagem))
@@ -261,7 +290,31 @@ class Jumbo(hiper.Hiper):
                     }
         if page == "1":
             payload['hdnPrdListData'] = "4$$48"
-            Utils.makePostRequest(self._session, url, payload) #request to update cookies
-            Utils.makePostRequest(self._session, url, payload) #request to update cookies
-        request = Utils.makePostRequest(self._session, url, payload) #real request
+            while True:
+                proxy = self._getProxy()
+                try:
+                    Utils.makePostRequest(self._session, url, payload, proxy) #request to update cookies
+                    break
+                except requests.ConnectionError:
+                    print traceback.format_exc()
+                    self._failedProxies.append(proxy)
+                    pass
+            while True:
+                proxy = self._getProxy()
+                try:
+                    Utils.makePostRequest(self._session, url, payload, proxy) #request to update cookies
+                    break
+                except requests.ConnectionError:
+                    print traceback.format_exc()
+                    self._failedProxies.append(proxy)
+                    pass
+        while True:
+            proxy = self._getProxy()
+            try:
+                request = Utils.makePostRequest(self._session, url, payload, proxy) #real request
+                break
+            except requests.ConnectionError:
+                print traceback.format_exc()
+                self._failedProxies.append(proxy)
+                pass
         return request

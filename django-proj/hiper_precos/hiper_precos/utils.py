@@ -1,11 +1,11 @@
 from hiper_precos import settings
-import os
-import unicodedata
+import os, unicodedata
 from django.utils.encoding import smart_text
+from os.path import expanduser
 
 class Utils:
-    lastDbFile = "lastWrittenDb.dat"
-    userHome = "/home/tinycool/"
+    lastWrittenDbFile = "lastWrittenDb.dat"
+    userHome = expanduser("~")+"/"
     @staticmethod
     def getNextInArray(current, array):
         currPos = array.index(current)
@@ -28,7 +28,7 @@ class Utils:
         return False
     @staticmethod
     def getDbLogFile():
-        return Utils.userHome+Utils.lastDbFile
+        return Utils.userHome+Utils.lastWrittenDbFile
     @staticmethod
     def getDefaultDbToReadFrom():
         return Utils.getAllDbs()[0]
@@ -37,33 +37,39 @@ class Utils:
         return Utils.getNextInArray(Utils.getDefaultDbToReadFrom(), Utils.getAllDbs())
     @staticmethod
     def getDbToReadFrom():
-        try:
-            file = open(Utils.getDbLogFile())
-        except IOError:
-            # no file, no database was written yet, so use the default database to read from
-            return Utils.getDefaultDbToReadFrom()
-        # file exists, check last database used to write to
-        file.seek(0)
-        lastDb = file.readline()
-        if (Utils.dbExists(lastDb)):
-            return lastDb
+        if settings.LAST_WRITTEN_DATABASE:
+            lastWrittenDb = settings.LAST_WRITTEN_DATABASE
+        else:
+            try:
+                file = open(Utils.getDbLogFile())
+            except IOError:
+                # no file, no database was written yet, so use the default database to read from
+                return Utils.getDefaultDbToReadFrom()
+            # file exists, check last database used to write to
+            file.seek(0)
+            lastWrittenDb = file.readline()
+            file.close()
+        if (Utils.dbExists(lastWrittenDb)):
+            return lastWrittenDb
         else:
             print "ERROR: Unknown written database. Reading from default database."
             Utils.getDefaultDbToReadFrom()
-        file.close()
     @staticmethod
     def getDbToWriteTo():
-        try:
-            file = open(Utils.getDbLogFile())
-        except IOError:
-            # no file, no database was written yet, so use the default database to write to
-            return Utils.getDefaultDbToWriteTo()
-        # file exists, check last database used to write to
-        file.seek(0)
-        lastDb = file.readline()
-        if (Utils.dbExists(lastDb)):
-            return Utils.getNextInArray(lastDb, Utils.getAllDbs())
-        file.close()
+        if settings.LAST_WRITTEN_DATABASE:
+            lastWrittenDb = settings.LAST_WRITTEN_DATABASE
+        else:
+            try:
+                file = open(Utils.getDbLogFile())
+            except IOError:
+                # no file, no database was written yet, so use the default database to write to
+                return Utils.getDefaultDbToWriteTo()
+            # file exists, check last database used to write to
+            file.seek(0)
+            lastWrittenDb = file.readline()
+            file.close()
+        if (Utils.dbExists(lastWrittenDb)):
+            return Utils.getNextInArray(lastWrittenDb, Utils.getAllDbs())
     @staticmethod
     def dbPopulated():
         currDbToWrite = Utils.getDbToWriteTo()
