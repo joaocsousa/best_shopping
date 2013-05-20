@@ -37,17 +37,17 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		Bundle args = getArguments();
 
-		Product produto = HiperPrecos.getInstance().getProdutoById(args.getInt(Constants.Extras.PRODUTO));
+		Product product = HiperPrecos.getInstance().getProductById(args.getInt(Constants.Extras.PRODUCT));
 		
 		View view = inflater.inflate(R.layout.product_view, container, false);
 		
 		// IMAGE
 		ImageView img_prodImg = ((ImageView)view.findViewById(R.id.img_prod_image));
 		
-		String fileName = ImageStorage.getFileName(produto.getUrlImagem(), produto.getNome(), produto.getMarca());
+		String fileName = ImageStorage.getFileName(product.getUrlImage(), product.getName(), product.getBrand());
 		Bitmap bm = ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), fileName);
 		if (bm == null) {
-			if (produto.getHiper().getNome().toLowerCase().contains("continente")) {
+			if (product.getHyper().getName().toLowerCase(Locale.FRENCH).contains("continente")) {
 				img_prodImg.setBackgroundResource(R.drawable.continente_not_found);
     		}
 		} else {
@@ -61,33 +61,33 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		// NAME
 		TextView tv_prodName = ((TextView)view.findViewById(R.id.tv_prod_name));
-		tv_prodName.setText(produto.getNome());
+		tv_prodName.setText(product.getName());
 
 		// MARCA
 		TextView tv_prod_marca = ((TextView)view.findViewById(R.id.tv_prod_marca));
 		String marca = "-";
-		if (produto.getMarca()!=null) {
-			Debug.PrintError(this, "->"+produto.getMarca());
-			marca = produto.getMarca();
+		if (product.getBrand()!=null) {
+			Debug.PrintError(this, "->"+product.getBrand());
+			marca = product.getBrand();
 		} else {
 
-			Debug.PrintError(this, ":>"+produto.getMarca());
+			Debug.PrintError(this, ":>"+product.getBrand());
 		}
 		tv_prod_marca.setText(marca);
 
 		// PESO
 		TextView tv_prod_peso = ((TextView)view.findViewById(R.id.tv_prod_peso));
-		tv_prod_peso.setText(produto.getPeso());
+		tv_prod_peso.setText(product.getWeight());
 	
 		// PRECO
 		TextView tv_prod_preco = ((TextView)view.findViewById(R.id.tv_prod_preco));
-		tv_prod_preco.setText(produto.getPreco() + " €");
+		tv_prod_preco.setText(product.getWeight() + " €");
 
 		// PRECO KG
 		TextView tv_prod_preco_kg = ((TextView)view.findViewById(R.id.tv_prod_preco_kg));
 		String precoKg = "-";
-		if (produto.getPrecoKg()!=null) {
-			precoKg = String.valueOf(produto.getPrecoKg());
+		if (product.getPriceKg()!=null) {
+			precoKg = String.valueOf(product.getPriceKg());
 		}
 		tv_prod_preco_kg.setText(precoKg + " € / Kg");
 
@@ -98,10 +98,12 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		String dayOfLastUpdate = "";
 		String formatString = "";
-		if(now.get(Calendar.DATE) == produto.getLastUpdate().get(Calendar.DATE) ) {
+		Calendar latestUpdateDate = Calendar.getInstance();
+		latestUpdateDate.setTime(product.getLatestUpdate());
+		if(now.get(Calendar.DATE) == latestUpdateDate.get(Calendar.DATE) ) {
 			dayOfLastUpdate = getString(R.string.hoje) + " - ";
 			formatString = "HH:mm";
-		} else if (now.get(Calendar.DATE) - produto.getLastUpdate().get(Calendar.DATE) == 1 ){
+		} else if (now.get(Calendar.DATE) - latestUpdateDate.get(Calendar.DATE) == 1 ){
 			dayOfLastUpdate = getString(R.string.ontem) + " - ";
 			formatString = "HH:mm";
 		} else {
@@ -110,7 +112,7 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat(formatString, Locale.getDefault());
 		
-		String lastUpdateDate = sdf.format(produto.getLastUpdate().getTime());
+		String lastUpdateDate = sdf.format(product.getLatestUpdate().getTime());
 		
 		tv_lastUpdate.setText(tv_lastUpdate.getText() + ": " + dayOfLastUpdate + lastUpdateDate);
 		

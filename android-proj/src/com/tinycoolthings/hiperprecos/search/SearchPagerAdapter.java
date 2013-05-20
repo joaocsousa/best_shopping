@@ -6,8 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
-import com.tinycoolthings.hiperprecos.product.NoResultsFragment;
-import com.tinycoolthings.hiperprecos.utils.Constants;
 
 public class SearchPagerAdapter extends FragmentPagerAdapter {
 
@@ -22,18 +20,18 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     	SearchResultFragment searchResultFrag = new SearchResultFragment();
     	if (selectedPos == 0) {
     		// Produtos
-    		if (HiperPrecos.getInstance().getLatestProdSearch().size()>0) {
-    	    	bundle.putInt(Constants.Extras.PRODUTO, selectedPos);
-			} else {
-				return new NoResultsFragment();
-			}
+//    		if (HiperPrecos.getInstance().getLatestProdSearch().size()>0) {
+//    	    	bundle.putInt(Constants.Extras.PRODUCT, selectedPos);
+//			} else {
+//				return new NoResultsFragment();
+//			}
     	} else if (selectedPos == 1) {
     		// Categorias
-    		if (HiperPrecos.getInstance().getLatestCatSearch().size()>0) {
-				bundle.putInt(Constants.Extras.CATEGORY, selectedPos);
-            } else {
-				return new NoResultsFragment();
-			}
+//    		if (HiperPrecos.getInstance().getLatestCatSearch().size()>0) {
+//				bundle.putInt(Constants.Extras.CATEGORY, selectedPos);
+//            } else {
+//				return new NoResultsFragment();
+//			}
     	}
 		searchResultFrag.setArguments(bundle);
     	return searchResultFrag;
@@ -41,7 +39,7 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
  
     @Override
     public int getCount() {
-    	return HiperPrecos.getInstance().getNumberOfHipers();
+    	return (int) HiperPrecos.getInstance().getNumberOfHypers();
     }
 	
     @Override

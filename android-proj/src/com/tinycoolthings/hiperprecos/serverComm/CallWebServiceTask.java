@@ -56,7 +56,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 				URL = Constants.Server.Definitions.HIPERS_URL;
 			} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
-			} else if (this.action == Constants.Actions.GET_PRODUTO) {
+			} else if (this.action == Constants.Actions.GET_PRODUCT) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.PRODUTO_ID)) {
 					Debug.PrintError(this, "No produto ID! Did you specify it?");
@@ -174,8 +174,8 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			intent.putExtra(Constants.Extras.HIPERS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 			intent.putExtra(Constants.Extras.PRODUTOS, result);
-		} else if (this.action == Constants.Actions.GET_PRODUTO) {
-			intent.putExtra(Constants.Extras.PRODUTO, result);
+		} else if (this.action == Constants.Actions.GET_PRODUCT) {
+			intent.putExtra(Constants.Extras.PRODUCT, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORIES) {
 			intent.putExtra(Constants.Extras.CATEGORIES, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORY) {

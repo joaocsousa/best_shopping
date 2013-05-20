@@ -1,6 +1,8 @@
 package com.tinycoolthings.hiperprecos.search;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,23 +20,30 @@ import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Actions;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
+import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class CategoryResultsFragment extends SherlockListFragment {
 
-	private ArrayList<Category> categorias;
+	private List<Category> categories;
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
 		Bundle args = getArguments();
 
-		categorias = HiperPrecos.getInstance().getCategoriaById(args.getInt(Constants.Extras.CATEGORY)).getSubCategorias();
+		Category category = HiperPrecos.getInstance().getCategoryById(args.getInt(Constants.Extras.CATEGORY));
+		
+		try {
+			categories = HiperPrecos.getInstance().getSubCategoriesFromParent(category, Sort.NAME_ASCENDING);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		
 		ArrayList<String> catsToShow = new ArrayList<String>();
 		
-		for (int i=0;i<categorias.size();i++) {
-			catsToShow.add(categorias.get(i).getNome());
+		for (int i=0;i<categories.size();i++) {
+			catsToShow.add(categories.get(i).getName());
 		}
 		
 		/** Creating array adapter to set data in listview */
@@ -49,15 +58,21 @@ public class CategoryResultsFragment extends SherlockListFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		int selectedCatID = categorias.get(position).getId();
+		int selectedCatID = categories.get(position).getId();
 		Debug.PrintInfo(this, "Selected categoria with id " + selectedCatID);
-		Category selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
-		if (selectedCat!=null && selectedCat.hasLoaded()) {
-			Intent intent = new Intent(Actions.DISPLAY_CATEGORIA);
+		Category selectedCat = HiperPrecos.getInstance().getCategoryById(selectedCatID);
+		boolean categoryHasLoaded = false;
+		try {
+			categoryHasLoaded = HiperPrecos.getInstance().categoryLoaded(selectedCat);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (selectedCat!=null && categoryHasLoaded) {
+			Intent intent = new Intent(Actions.DISPLAY_CATEGORY);
 			intent.putExtra(Constants.Extras.CATEGORY, selectedCatID);
 			HiperPrecos.getInstance().sendBroadcast(intent);
 		} else {
-			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORY);
+			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, true);
 			getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
 			getCategorias.execute();
 		}

@@ -36,10 +36,10 @@ import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class SearchResults extends SherlockFragmentActivity {
 	
-	ArrayList<Product> produtos = new ArrayList<Product>();
-	ArrayList<Category> categorias = new ArrayList<Category>();
+	ArrayList<Product> products = new ArrayList<Product>();
+	ArrayList<Category> categories = new ArrayList<Category>();
 	
-	private static int[] currSelectedSort = new int[] {Sort.NOME_ASCENDING, Sort.NOME_ASCENDING};
+	private static int[] currSelectedSort = new int[] {Sort.NAME_ASCENDING, Sort.NAME_ASCENDING};
 	
 	private static boolean viewingProductsList = true;
 	
@@ -50,38 +50,32 @@ public class SearchResults extends SherlockFragmentActivity {
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(Constants.Actions.GET_PRODUTO)) {
-				String result = intent.getStringExtra(Constants.Extras.PRODUTO);
+			if (intent.getAction().equals(Constants.Actions.GET_PRODUCT)) {
+				String result = intent.getStringExtra(Constants.Extras.PRODUCT);
 				try {
 					JSONObject prodJson = new JSONObject(result);
-					Product produto = HiperPrecos.getInstance().addProduto(prodJson);
-					Debug.PrintWarning(SearchResults.this, "Received data for produto " + produto.getId() + " - " + produto.getNome());
-					Product existingProd = HiperPrecos.getInstance().getProdutoById(produto.getId());
-					if (existingProd!=null) {
-						existingProd.merge(produto);
-					} else {
-						existingProd = produto;
-					}
-					showProduct(existingProd);
+					Product product = HiperPrecos.getInstance().addProduct(prodJson);
+					Debug.PrintWarning(SearchResults.this, "Received data for produto " + product.getId() + " - " + product.getName());
+					showProduct(product);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUTO)) {
-				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUTO, -1);
-				Product selectedProd = HiperPrecos.getInstance().getProdutoById(selectedProdID);
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUCT)) {
+				Integer selectedProdID = intent.getIntExtra(Constants.Extras.PRODUCT, -1);
+				Product selectedProd = HiperPrecos.getInstance().getProductById(selectedProdID);
 				showProduct(selectedProd);
-			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORIA)) {
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORY)) {
 				Integer selectedCatID = intent.getIntExtra(Constants.Extras.CATEGORY, -1);
-				Category selectedCat = HiperPrecos.getInstance().getCategoriaById(selectedCatID);
+				Category selectedCat = HiperPrecos.getInstance().getCategoryById(selectedCatID);
 				showCategoria(selectedCat);
 			} else if (intent.getAction().equals(Constants.Actions.GET_CATEGORY)) {
 				String result = intent.getStringExtra(Constants.Extras.CATEGORY);
 				try {
 					JSONObject catJson = new JSONObject(result);
-					Category categoria = HiperPrecos.getInstance().addCategoria(catJson);
-					Debug.PrintWarning(SearchResults.this, "Received data for categoria " + categoria.getNome());
+					Category categoria = HiperPrecos.getInstance().addCategory(catJson);
+					Debug.PrintWarning(SearchResults.this, "Received data for categoria " + categoria.getName());
 //					enterSubCategoria(categoria);
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -107,7 +101,7 @@ public class SearchResults extends SherlockFragmentActivity {
 	
 	protected void showProduct(Product produto) {
 		Bundle bundle = new Bundle();
-        bundle.putInt(Constants.Extras.PRODUTO, produto.getId());
+        bundle.putInt(Constants.Extras.PRODUCT, produto.getId());
         Intent intent = new Intent(this, ProductView.class);
         intent.putExtras(bundle);
         startActivity(intent);
@@ -127,15 +121,15 @@ public class SearchResults extends SherlockFragmentActivity {
 			JSONArray catsJSON = searchJSON.getJSONArray("categorias");
 			
 			for (int i=0;i<catsJSON.length();i++) {
-				categorias.add(HiperPrecos.getInstance().addCategoria(catsJSON.getJSONObject(i)));
+				categories.add(HiperPrecos.getInstance().addCategory(catsJSON.getJSONObject(i)));
 			}
 			
 			for (int i=0;i<prodMarcaJSON.length();i++) {
-				produtos.add(HiperPrecos.getInstance().addProduto(prodMarcaJSON.getJSONObject(i)));
+				products.add(HiperPrecos.getInstance().addProduct(prodMarcaJSON.getJSONObject(i)));
 			}
 			
 			for (int i=0;i<prodNomeJSON.length();i++) {
-				produtos.add(HiperPrecos.getInstance().addProduto(prodNomeJSON.getJSONObject(i)));
+				products.add(HiperPrecos.getInstance().addProduct(prodNomeJSON.getJSONObject(i)));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -152,12 +146,6 @@ public class SearchResults extends SherlockFragmentActivity {
         mActionBar.setDisplayHomeAsUpEnabled(true);
         
         HiperPrecos.getInstance().setAppContext(this);
-        
-        Utils.sortProdutos(produtos, Sort.NOME_ASCENDING);
-        Utils.sortCategoriesByName(categorias, false);
-        
-        HiperPrecos.getInstance().setLatestProdSearch(produtos);
-        HiperPrecos.getInstance().setLatestCatSearch(categorias);
         
         /** Creating an instance of FragmentPagerAdapter */
         fragmentPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
@@ -204,10 +192,10 @@ public class SearchResults extends SherlockFragmentActivity {
 		super.onResume();
 		Debug.PrintDebug(this, "onResume");
 		IntentFilter filterServerResp = new IntentFilter();
-		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUTO);
-		filterServerResp.addAction(Constants.Actions.GET_PRODUTO);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUCT);
+		filterServerResp.addAction(Constants.Actions.GET_PRODUCT);
 		filterServerResp.addAction(Constants.Actions.SEARCH);
-		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORIA);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORY);
 		registerReceiver(broadcastReceiver, filterServerResp);
 	}
 	
@@ -292,13 +280,12 @@ public class SearchResults extends SherlockFragmentActivity {
 					currSelectedSort[sortType] = which;
 					
 					if (viewingProductsList) {
-						Utils.sortProdutos(produtos, currSelectedSort[sortType]);
-						HiperPrecos.getInstance().setLatestProdSearch(produtos);
+//						currSelectedSort[sortType]
+//						HiperPrecos.getInstance().setLatestProdSearch(products);
 					} else {
-						Utils.sortCategoriesByName(categorias, (currSelectedSort[sortType] == 1));
-						HiperPrecos.getInstance().setLatestCatSearch(categorias);
+//						(currSelectedSort[sortType] == 1)
+//						HiperPrecos.getInstance().setLatestCatSearch(categories);
 					}
-					Debug.PrintError(this, "DATA CHANGED");
 					fragmentPagerAdapter.notifyDataSetChanged();
 				}
 				dialog.dismiss();

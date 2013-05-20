@@ -76,3 +76,5 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+nohup.out

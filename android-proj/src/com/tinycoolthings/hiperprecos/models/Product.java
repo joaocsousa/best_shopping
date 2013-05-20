@@ -1,6 +1,6 @@
 package com.tinycoolthings.hiperprecos.models;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -8,13 +8,18 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "products")
 public class Product {
 
+	public static final String PARENT_CATEGORY_FIELD_NAME = "parentCat";
+	public static final String NAME_FIELD_NAME = "name";
+	public static final String BRAND_FIELD_NAME = "brand";
+	public static final String PRICE_FIELD_NAME = "price";
+
 	@DatabaseField(id = true)
 	private int id;
-	@DatabaseField(canBeNull = false)
+	@DatabaseField(canBeNull = false, columnName = NAME_FIELD_NAME)
 	private String name;
-	@DatabaseField(canBeNull = true)
+	@DatabaseField(canBeNull = true, columnName = BRAND_FIELD_NAME)
 	private String brand;
-	@DatabaseField(canBeNull = true)
+	@DatabaseField(canBeNull = true, columnName = PRICE_FIELD_NAME)
 	private Double price;
 	@DatabaseField(canBeNull = true)
 	private Double priceKg;
@@ -26,12 +31,33 @@ public class Product {
 	private String ulrImage;
 	@DatabaseField(canBeNull = true)
 	private Double discount;
-	@DatabaseField(canBeNull = true)
-	private Calendar latestUpdate;
-	@DatabaseField(foreign = true, canBeNull = false)
+	@DatabaseField(foreign = true, canBeNull = false, columnName = PARENT_CATEGORY_FIELD_NAME)
 	private Category parentCat;
+	@DatabaseField(canBeNull = true)
+	private Date latestUpdate;
+	@DatabaseField(foreign = true, canBeNull = false)
+	private Hyper hyper;
 	
-	Product() {}
+	Product() {
+	}
+	
+	public Product(int id, String name, String brand, Double price,
+			Double priceKg, String weight, String ulrPage, String ulrImage,
+			Double discount, Category parentCat, Date latestUpdate,
+			Hyper hyper) {
+		this.id = id;
+		this.name = name;
+		this.brand = brand;
+		this.price = price;
+		this.priceKg = priceKg;
+		this.weight = weight;
+		this.ulrPage = ulrPage;
+		this.ulrImage = ulrImage;
+		this.discount = discount;
+		this.parentCat = parentCat;
+		this.latestUpdate = latestUpdate;
+		this.hyper = hyper;
+	}
 
 	public int getId() {
 		return id;
@@ -61,7 +87,7 @@ public class Product {
 		return ulrPage;
 	}
 
-	public String getUlrImage() {
+	public String getUrlImage() {
 		return ulrImage;
 	}
 
@@ -69,25 +95,31 @@ public class Product {
 		return discount;
 	}
 
-	public Calendar getLatestUpdate() {
+	public Date getLatestUpdate() {
 		return latestUpdate;
 	}
 
 	public Category getParentCat() {
 		return parentCat;
 	}
-	
+
+	public Hyper getHyper() {
+		return hyper;
+	}
+
 	@Override
 	public int hashCode() {
-		return (this.name+this.id).hashCode();
+		return (this.name + this.id).hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
 		if (other == null || other.getClass() != getClass()) {
 			return false;
 		}
-		return ( name.equals(((Product) other).name) && (id==((Product) other).id) );
+		return (name.equals(((Product) other).name)
+				&& (id == ((Product) other).id) && hyper
+					.equals(((Product) other).hyper));
 	}
-	
+
 }

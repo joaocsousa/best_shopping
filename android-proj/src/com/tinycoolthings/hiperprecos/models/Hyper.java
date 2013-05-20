@@ -1,5 +1,7 @@
 package com.tinycoolthings.hiperprecos.models;
 
+import java.util.Date;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -10,13 +12,16 @@ public class Hyper {
 	private int id;
 	@DatabaseField(canBeNull = false)
 	private String name;
+	@DatabaseField(canBeNull = true)
+	private Date latestUpdate;
 	
 	Hyper() {
 	}
 	
-	public Hyper(int id, String name) {
+	public Hyper(int id, String name, Date latestUpdate) {
 		this.id = id;
 		this.name = name;
+		this.latestUpdate = latestUpdate;
 	}
 	
 	public int getId() {
@@ -37,7 +42,7 @@ public class Hyper {
 		if (other == null || other.getClass() != getClass()) {
 			return false;
 		}
-		return ( name.equals(((Hyper) other).name) && (id==((Hyper) other).id) );
+		return (name.equals(((Hyper) other).name) && (id == ((Hyper) other).id));
 	}
 
 }

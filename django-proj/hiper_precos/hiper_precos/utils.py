@@ -2,6 +2,8 @@ from hiper_precos import settings
 import os, unicodedata
 from django.utils.encoding import smart_text
 from os.path import expanduser
+import time
+import datetime, calendar
 
 class Utils:
     lastWrittenDbFile = "lastWrittenDb.dat"
@@ -85,3 +87,8 @@ class Utils:
         if s is None:
             return ''
         return smart_text(s, encoding='utf-8', strings_only=False, errors='strict')
+    @staticmethod
+    def toUTC(dateTime):
+        timeStamp = time.mktime(dateTime.timetuple())
+        dateTimeUTC = datetime.datetime.utcfromtimestamp(timeStamp)
+        return calendar.timegm(dateTimeUTC.utctimetuple())

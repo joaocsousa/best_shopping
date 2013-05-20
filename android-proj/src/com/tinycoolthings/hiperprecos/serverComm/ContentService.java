@@ -13,4 +13,4 @@ public class ContentService extends IntentService {
 	  protected void onHandleIntent(Intent intent) {
 	      
 	  }
-	}
+}

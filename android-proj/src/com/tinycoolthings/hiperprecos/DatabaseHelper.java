@@ -40,7 +40,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
 	}
-
+	
 	/**
 	 * This is called when the database is first created. Usually you should call createTable statements here to create
 	 * the tables that will store your data.
@@ -48,7 +48,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
 		try {
-			Log.i(DatabaseHelper.class.getName(), "onCreate");
+			Debug.PrintInfo(DatabaseHelper.class.getName(), "onCreate");
 			TableUtils.createTable(connectionSource, Hyper.class);
 			TableUtils.createTable(connectionSource, Category.class);
 			TableUtils.createTable(connectionSource, Product.class);

@@ -1,5 +1,5 @@
 #
-# generated on 2013/05/11 02:16:19
+# generated on 2013/05/19 11:35:58
 #
 # --table-start--
 dataClass=com.tinycoolthings.hiperprecos.models.Hyper
@@ -12,6 +12,9 @@ id=true
 # --field-start--
 fieldName=name
 canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=latestUpdate
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -26,16 +29,22 @@ id=true
 # --field-end--
 # --field-start--
 fieldName=name
+columnName=name
 canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=hyper
+columnName=hyper
 canBeNull=false
 foreign=true
 # --field-end--
 # --field-start--
 fieldName=parentCat
+columnName=parentCat
 foreign=true
+# --field-end--
+# --field-start--
+fieldName=latestUpdate
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -50,13 +59,16 @@ id=true
 # --field-end--
 # --field-start--
 fieldName=name
+columnName=name
 canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=brand
+columnName=brand
 # --field-end--
 # --field-start--
 fieldName=price
+columnName=price
 # --field-end--
 # --field-start--
 fieldName=priceKg
@@ -74,10 +86,16 @@ fieldName=ulrImage
 fieldName=discount
 # --field-end--
 # --field-start--
+fieldName=parentCat
+columnName=parentCat
+canBeNull=false
+foreign=true
+# --field-end--
+# --field-start--
 fieldName=latestUpdate
 # --field-end--
 # --field-start--
-fieldName=parentCat
+fieldName=hyper
 canBeNull=false
 foreign=true
 # --field-end--

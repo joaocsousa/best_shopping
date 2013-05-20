@@ -24,7 +24,7 @@ public class ProductView extends SherlockFragmentActivity {
 		
 		if (savedInstanceState == null) {
 			ProductViewFragment productViewFrag = new ProductViewFragment();
-			currProd = HiperPrecos.getInstance().getProdutoById(getIntent().getExtras().getInt(Constants.Extras.PRODUTO));
+			currProd = HiperPrecos.getInstance().getProductById(getIntent().getExtras().getInt(Constants.Extras.PRODUCT));
 			productViewFrag.setArguments(getIntent().getExtras());
 			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productViewFrag).commit();
         }
@@ -43,7 +43,7 @@ public class ProductView extends SherlockFragmentActivity {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 		    case R.id.menu_icon_browser:
-		    	String prodUrl = currProd.getUrlPagina();
+		    	String prodUrl = currProd.getUlrPage();
 		    	if (!prodUrl.startsWith("http://") && !prodUrl.startsWith("https://")) {
 		    		prodUrl = "http://" + prodUrl;
 		    	}

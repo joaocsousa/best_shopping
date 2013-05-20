@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.core import validators
-from django.template.defaultfilters import slugify
-from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
-import difflib, urllib2
+import hiper_precos.utils
 
 # Create your models here.
 class Hiper(models.Model):
@@ -15,6 +11,9 @@ class Hiper(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+    def get_latest_update(self):
+        return hiper_precos.utils.Utils.toUTC(self.latest_update)
 
 class Categoria(models.Model):
     url           = models.CharField(max_length=300, null=True)
@@ -29,25 +28,30 @@ class Categoria(models.Model):
             catPai = self.categoria_pai.id
         except:
             pass
-        return {    "id"           : self.id,
+        return {
+                    "id"           : self.id,
                     "nome"         : self.nome,
                     "hiper"        : self.hiper.id,
-                    "categoria_pai": catPai
+                    "categoria_pai": catPai,
+                    "latest_update": hiper_precos.utils.Utils.toUTC(self.latest_update)
                 }
 
-    def _recurse_for_parents(self, cat_obj):
-        p_list = []
-        if cat_obj.categoria_pai_id:
-            p = cat_obj.categoria_pai
-            p_list.append(p.nome)
-            more = self._recurse_for_parents(p)
-            p_list.extend(more)
-        if cat_obj == self and p_list:
-            p_list.reverse()
-        return p_list
+    def get_latest_update(self):
+        return hiper_precos.utils.Utils.toUTC(self.latest_update)
 
-    def get_separator(self):
-        return ' :: '
+    # def _recurse_for_parents(self, cat_obj):
+    #     p_list = []
+    #     if cat_obj.categoria_pai_id:
+    #         p = cat_obj.categoria_pai
+    #         p_list.append(p.nome)
+    #         more = self._recurse_for_parents(p)
+    #         p_list.extend(more)
+    #     if cat_obj == self and p_list:
+    #         p_list.reverse()
+    #     return p_list
+
+    # def get_separator(self):
+    #     return ' :: '
 
 class Produto(models.Model):
     nome          = models.CharField(max_length=300, null=True)
@@ -60,15 +64,23 @@ class Produto(models.Model):
     desconto      = models.FloatField(default=None, null=True)
     categoria_pai = models.ForeignKey(Categoria, related_name='produtos')
     hiper         = models.ForeignKey(Hiper, related_name='produtos')
-    latest_update  = models.DateTimeField()
+    latest_update = models.DateTimeField()
 
     def __unicode__(self):
         return {
-                    "id" : self.id,
-                    "nome" : self.nome,
-                    "marca" : self.marca,
-                    "preco": self.preco,
-                    "peso": self.peso,
-                    "url_imagem": self.url_imagem,
-                    "desconto": self.desconto
+                    "id"           : self.id,
+                    "nome"         : self.nome,
+                    "marca"        : self.marca,
+                    "preco"        : self.preco,
+                    "preco_kg"     : self.preco_kg,
+                    "peso"         : self.peso,
+                    "url_pagina"   : self.url_pagina,
+                    "url_imagem"   : self.url_imagem,
+                    "desconto"     : self.desconto,
+                    "categoria_pai": self.categoria_pai.id,
+                    "hiper"        : self.hiper.id,
+                    "latest_update": hiper_precos.utils.Utils.toUTC(self.latest_update)
                 }
+
+    def get_latest_update(self):
+        return hiper_precos.utils.Utils.toUTC(self.latest_update)

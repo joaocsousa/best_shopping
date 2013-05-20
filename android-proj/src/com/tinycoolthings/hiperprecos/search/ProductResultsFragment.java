@@ -33,8 +33,8 @@ public class ProductResultsFragment extends SherlockListFragment {
 
 		Debug.PrintInfo(this, "Showing " + prodsIDs.size() + " products");
 		for (int i=0; i < prodsIDs.size(); i++) {
-			Product produto = HiperPrecos.getInstance().getProdutoById(prodsIDs.get(i));
-			Debug.PrintInfo(this, "Adding " + produto.getNome());
+			Product produto = HiperPrecos.getInstance().getProductById(prodsIDs.get(i));
+			Debug.PrintInfo(this, "Adding " + produto.getName());
 			produtos.add(produto);
 		}
 		

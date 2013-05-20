@@ -15,8 +15,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
-import com.tinycoolthings.hiperprecos.R;
-
 public class ImageStorage {
 
 	public static String getFileName(String url, String prodName, String prodMarca) {

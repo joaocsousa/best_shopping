@@ -1,5 +1,5 @@
 from hipers.models import Hiper, Categoria, Produto
-from hipers.serializers import HiperSerializer, HiperResultSerializer, CategoriaSerializer, CategoriaListSerializer, ProdutoResultSerializer, ProdutoSerializer
+from hipers.serializers import HiperSerializer, HiperResultSerializer, CategoriaSerializer, CategoriaListSerializer, ProdutoSerializer
 from rest_framework import generics, permissions, renderers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -100,8 +100,8 @@ def search(request):
             categorias = categorias.filter(nome__icontains=q)
 
             dict = {
-                'prodPorNome': ProdutoResultSerializer(prodPorNome).data,
-                'prodPorMarca': ProdutoResultSerializer(prodPorMarca).data,
+                'prodPorNome': ProdutoSerializer(prodPorNome).data,
+                'prodPorMarca': ProdutoSerializer(prodPorMarca).data,
                 'categorias' : CategoriaListSerializer(categorias).data,
             }
 
@@ -119,18 +119,24 @@ def api_root(request, format=None):
 
 # this method has the returning the current database to write to
 def get_db_to_write_to(request, format=None):
-    return HttpResponse(Utils.getDbToWriteTo());
+    return HttpResponse(Utils.getDbToWriteTo())
 
 # this method has the returning the current database to read from
 def get_db_to_read_from(request, format=None):
-    return HttpResponse(Utils.getDbToReadFrom());
+    return HttpResponse(Utils.getDbToReadFrom())
+
+@api_view(('GET',))
+def get_latest_update(request, format=None):
+    queryset = Hiper.objects.all()
+    latestUpdate = queryset.order_by('-latest_update')[0].latest_update
+    return HttpResponse(latestUpdate)
 
 # this method has the purpose of informing the server
 # that the database was updated to update the log file
 def hipers_updated(request, format=None):
     # try:
     Utils.dbPopulated()
-    return HttpResponse("OK");
+    return HttpResponse("OK")
     # except:
     #     pass
     # return HttpResponse("FAILED");

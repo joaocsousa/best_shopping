@@ -1,17 +1,10 @@
 package com.tinycoolthings.hiperprecos.utils;
 
-import java.text.Collator;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
-
-import com.tinycoolthings.hiperprecos.models.Category;
-import com.tinycoolthings.hiperprecos.models.Product;
-import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 
 public class Utils {
 	
@@ -23,6 +16,12 @@ public class Utils {
 	public static String convertCalToString(Calendar cal) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
 		return(sdf.format(cal.getTime()));
+	}
+	
+	public static Date convertStringToDate(Long dateTimeStamp) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(dateTimeStamp);
+		return cal.getTime();
 	}
 	
 	public static Integer getRandomInt() {

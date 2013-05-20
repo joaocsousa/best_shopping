@@ -16,7 +16,7 @@ public class Debug {
 	public static void PrintError(Object caller, String msg) {
 		String errorMsg = "";
 		if (caller instanceof Class) {
-			errorMsg = ((Class)caller).getSimpleName() + ": "+ msg;
+			errorMsg = ((Class<?>)caller).getSimpleName() + ": "+ msg;
 		} else {
 			errorMsg = caller.getClass().getSimpleName() + ": "+ msg;
 		}
@@ -29,7 +29,7 @@ public class Debug {
 	public static void PrintWarning(Object caller, String msg) {
 		String warningMsg = "";
 		if (caller instanceof Class) {
-			warningMsg = ((Class)caller).getSimpleName() + ": "+ msg;
+			warningMsg = ((Class<?>)caller).getSimpleName() + ": "+ msg;
 		} else {
 			warningMsg = caller.getClass().getSimpleName() + ": "+ msg;
 		}
@@ -42,7 +42,7 @@ public class Debug {
 	public static void PrintDebug(Object caller, String msg) {
 		String debugMsg = "";
 		if (caller instanceof Class) {
-			debugMsg = ((Class)caller).getSimpleName() + ": "+ msg;
+			debugMsg = ((Class<?>)caller).getSimpleName() + ": "+ msg;
 		} else {
 			debugMsg = caller.getClass().getSimpleName() + ": "+ msg;
 		}
@@ -55,7 +55,7 @@ public class Debug {
 	public static void PrintInfo(Object caller, String msg){
 		String infoMsg = "";
 		if (caller instanceof Class) {
-			infoMsg = ((Class)caller).getSimpleName() + ": "+ msg;
+			infoMsg = ((Class<?>)caller).getSimpleName() + ": "+ msg;
 		} else {
 			infoMsg = caller.getClass().getSimpleName() + ": "+ msg;
 		}

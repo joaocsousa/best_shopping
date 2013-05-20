@@ -1,6 +1,7 @@
 package com.tinycoolthings.hiperprecos.product;
 
 import java.util.List;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,9 +20,7 @@ import android.widget.TextView;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Product;
-import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 
@@ -74,42 +73,44 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 		}
 		
 		Product item = getItem(position);
-		viewHolder.txtNome.setText(item.getNome());
+		viewHolder.txtNome.setText(item.getName());
 		String marca = "-";
-		if (item.getMarca()!=null && !item.getMarca().equals("")) {
-			marca = item.getMarca();
+		if (item.getBrand()!=null && !item.getBrand().equals("")) {
+			marca = item.getBrand();
 		}
 		viewHolder.txtMarca.setText(marca);
-		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + " €");
+		viewHolder.txtPreco.setText(String.valueOf(item.getPrice()) + " €");
 		String peso = "-";
-		if (item.getPeso()!=null && !item.getPeso().equals("")) {
-			peso = item.getPeso();
+		if (item.getWeight()!=null && !item.getWeight().equals("")) {
+			peso = item.getWeight();
 		}
 		Debug.PrintError(this, "|"+peso+"|");
 		viewHolder.txtPeso.setText(peso);
 		viewHolder.position = position;
-		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
+		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(position, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(position, viewHolder, fileName, item.getHyper().getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(position, viewHolder, fileName, item.getHiper().getNome()).execute();
+			new ThumbnailTask(position, viewHolder, fileName, item.getHyper().getName()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				int selectedProdID = getItem(position).getId();
+				Product selectedProd = getItem(position);
+				int selectedProdID = selectedProd.getId();
 				Debug.PrintInfo(ProductListAdapter.this, "Selected produto with id " + selectedProdID);
-				if (getItem(position).hasLoaded()) {
+//				boolean productHasLoaded = HiperPrecos.getInstance().productHasLoaded(selectedProd);
+//				if (productHasLoaded) {
 					Intent intent = new Intent();
-					intent.setAction(Constants.Actions.DISPLAY_PRODUTO);
-					intent.putExtra(Constants.Extras.PRODUTO, selectedProdID);
+					intent.setAction(Constants.Actions.DISPLAY_PRODUCT);
+					intent.putExtra(Constants.Extras.PRODUCT, selectedProdID);
 					HiperPrecos.getInstance().sendBroadcast(intent);
-				} else {
-					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
-					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
-					getProduto.execute();
-				}
+//				} else {
+//					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUCT, true);
+//					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
+//					getProduto.execute();
+//				}
 			}
 		});
 	
@@ -134,11 +135,12 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 	        return ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
 	    }
 	
-	    @Override
+	    @SuppressWarnings("deprecation")
+		@Override
 	    protected void onPostExecute(Bitmap bitmap) {
 	        if (mHolder.position == mPosition) {
 	        	if (bitmap == null) {
-	        		if (mHiper.toLowerCase().contains("continente")) {
+	        		if (mHiper.toLowerCase(Locale.FRENCH).contains("continente")) {
 	        			mHolder.img.setBackgroundResource(R.drawable.continente_not_found);
 	        		}
 	        	} else {

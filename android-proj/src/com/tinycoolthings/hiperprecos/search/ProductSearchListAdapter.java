@@ -52,16 +52,16 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		this.produtos.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
-		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hyper currHiper = HiperPrecos.getInstance().getHipers().get(i);
+		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHypers(); i++) {
+			Hyper currHiper = HiperPrecos.getInstance().getHypers().get(i);
 			mapHiperGroup.put(currHiper.getId(), i);
 		}
-		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hyper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
+		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHypers(); i++) {
+			Hyper currentHiper = HiperPrecos.getInstance().getHypers().get(i);
 			ArrayList<Product> currProdsHiper = new ArrayList<Product>();
 			for (int j = 0; j < produtos.size(); j++) {
 				Product currProd = produtos.get(j);
-				Integer prodHiper = currProd.getHiper().getId();
+				Integer prodHiper = currProd.getHyper().getId();
 				if (prodHiper.equals(currentHiper.getId())) {
 					currProdsHiper.add(currProd);
 				}
@@ -104,37 +104,37 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		}
 		
 		final Product item = produtos.get(groupPosition).get(childPosition);
-		viewHolder.txtNome.setText(item.getNome());
+		viewHolder.txtNome.setText(item.getName());
 		String marca = "-";
-		if (item.getMarca()!=null ) {
-			marca = item.getMarca();
+		if (item.getBrand()!=null ) {
+			marca = item.getBrand();
 		}
 		viewHolder.txtMarca.setText(marca);
-		viewHolder.txtPreco.setText(String.valueOf(item.getPreco()) + "€");
-		viewHolder.txtPeso.setText(item.getPeso());
+		viewHolder.txtPreco.setText(String.valueOf(item.getPrice()) + "€");
+		viewHolder.txtPeso.setText(item.getWeight());
 		viewHolder.position = childPosition;
-		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImagem(), item.getNome(), item.getMarca()));
+		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHiper().getNome()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHyper().getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHiper().getNome()).execute();
+			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHyper().getName()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				int selectedProdID = item.getId();
-				Debug.PrintInfo(ProductSearchListAdapter.this, "Selected produto with id " + selectedProdID);
-				if (item.hasLoaded()) {
-					Intent intent = new Intent();
-					intent.setAction(Constants.Actions.DISPLAY_PRODUTO);
-					intent.putExtra(Constants.Extras.PRODUTO, selectedProdID);
-					HiperPrecos.getInstance().sendBroadcast(intent);
-				} else {
-					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUTO);
-					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
-					getProduto.execute();
-				}
+				Debug.PrintInfo(ProductSearchListAdapter.this, "Selected product with id " + selectedProdID);
+//				if (item.hasLoaded()) {
+				Intent intent = new Intent();
+				intent.setAction(Constants.Actions.DISPLAY_PRODUCT);
+				intent.putExtra(Constants.Extras.PRODUCT, selectedProdID);
+				HiperPrecos.getInstance().sendBroadcast(intent);
+//				} else {
+//					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUCT, true);
+//					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
+//					getProduto.execute();
+//				}
 			}
 		});
 	
@@ -178,9 +178,9 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (GroupViewHolder) view.getTag();
 		}
 	         
-	    Hyper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
+	    Hyper hiper = HiperPrecos.getInstance().getHypers().get(groupPosition);
 	    
-	    viewHolder.txtNome.setText(hiper.getNome());
+	    viewHolder.txtNome.setText(hiper.getName());
 	     
 	    return view;
 	    

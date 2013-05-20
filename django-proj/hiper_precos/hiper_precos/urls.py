@@ -30,6 +30,7 @@ urlpatterns += patterns('hipers.views',
     url(r'^get_db_to_write_to/$', views.get_db_to_write_to),
     url(r'^get_db_to_read_from/$', views.get_db_to_read_from),
     url(r'^search/$', views.search),
+    url(r'^get_latest_update/$', views.get_latest_update),
 )
 
 if settings.DEBUG:

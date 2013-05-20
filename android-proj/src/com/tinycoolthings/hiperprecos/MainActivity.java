@@ -1,11 +1,6 @@
 package com.tinycoolthings.hiperprecos;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,7 +26,6 @@ import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
 import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
@@ -41,13 +35,15 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ViewPager mPager;
 	private ActionBar.TabListener tabListener;
 	
+	private Integer nrCatsListsReceived = 0;
+	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			if (action.equals(Constants.Actions.GET_HYPERS)) {
 				// Received hypers
-				HiperPrecos.getInstance().addHypers(intent.getStringExtra(Constants.Extras.CATEGORIES));
+				HiperPrecos.getInstance().addHypers(intent.getStringExtra(Constants.Extras.HIPERS));
 				// get categories for each hyper
 				List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
 				for (int i=0; i < hypers.size(); i++) {
@@ -57,9 +53,13 @@ public class MainActivity extends SherlockFragmentActivity {
 					getCategories.execute();
 				}
 			} else if (action.equals(Constants.Actions.GET_CATEGORIES)) {
+				nrCatsListsReceived++;
 				HiperPrecos.getInstance().addCategories(intent.getStringExtra(Constants.Extras.CATEGORIES));
-				populateHipers();
+				if (nrCatsListsReceived == HiperPrecos.getInstance().getNumberOfHypers()) {
+					populateHipers();
+				}
 			} else if (action.equals(Constants.Actions.GET_CATEGORY)) {
+				Debug.PrintInfo(MainActivity.this, "GET_CATEGORY -> Displaying category...");
 				Category category = HiperPrecos.getInstance().addCategory(intent.getStringExtra(Constants.Extras.CATEGORY));
 				enterSubCategory(category);
 			} else if (action.equals(Constants.Actions.SEARCH)) {
@@ -68,6 +68,9 @@ public class MainActivity extends SherlockFragmentActivity {
 				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
 				searchResultsIntent.putExtras(intent);
 				startActivity(searchResultsIntent);
+			} else if (intent.getAction().equals(Constants.Actions.DISPLAY_CATEGORY)) {
+				Debug.PrintInfo(MainActivity.this, "DISPLAY_CATEGORY -> Displaying category...");
+				enterSubCategory(HiperPrecos.getInstance().getCategoryById(intent.getIntExtra(Constants.Extras.CATEGORY, -1)));
 			}
 		}
 	};
@@ -101,9 +104,14 @@ public class MainActivity extends SherlockFragmentActivity {
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORIES);
 		filterServerResp.addAction(Constants.Actions.GET_CATEGORY);
 		filterServerResp.addAction(Constants.Actions.SEARCH);
+		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORY);
 		registerReceiver(broadcastReceiver, filterServerResp);
 		
 		mActionBar.removeAllTabs();
+		
+		if (mPager != null) {
+			mPager.removeAllViews();
+		}
 		
 		CallWebServiceTask getHypers = new CallWebServiceTask(Constants.Actions.GET_HYPERS, false);
 		getHypers.execute();
@@ -111,10 +119,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	}
 	
 	protected void enterSubCategory(Category category) {
-		
+	
 		Debug.PrintInfo(MainActivity.this, "Selected categoria -> " + category.getName());
 		
-		Debug.PrintInfo(MainActivity.this, category.getName() + " has subcategorias.");
         Intent intent = new Intent(MainActivity.this, NavigationList.class);
         Bundle bundle = new Bundle();
         bundle.putInt(Constants.Extras.CATEGORY, category.getId());
@@ -124,6 +131,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	}
 
 	private void populateHipers() {
+		
+		nrCatsListsReceived = 0;
 		
 		/** Getting a reference to ViewPager from the layout */
         mPager = new ViewPager(this);
@@ -168,10 +177,10 @@ public class MainActivity extends SherlockFragmentActivity {
         };
         
         /** Create Tabs */
-        ArrayList<Hyper> hipers = HiperPrecos.getInstance().getHipers();
+        List<Hyper> hipers = HiperPrecos.getInstance().getHypers();
 		for (int i=0;i<hipers.size();i++) {
 			Hyper currHiper = hipers.get(i);
-			String currHiperName = currHiper.getNome();
+			String currHiperName = currHiper.getName();
 			/** Creating Tab */
 	        Tab tab = mActionBar.newTab()
 	                .setText(currHiperName)
@@ -179,6 +188,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	 
 	        mActionBar.addTab(tab);
 		}
+		
+		HiperPrecos.getInstance().hideWaitingDialog();
+		
 	}
 	
 	@Override

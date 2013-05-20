@@ -27,19 +27,19 @@ public class SearchResultFragment extends SherlockFragment {
 		
 		Bundle args = getArguments();
 		
-		if (args.containsKey(Constants.Extras.PRODUTO)) {
+		if (args.containsKey(Constants.Extras.PRODUCT)) {
 			
-			ProductSearchListAdapter productSearchListAdapter = new ProductSearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestProdSearch());
+//			ProductSearchListAdapter productSearchListAdapter = new ProductSearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestProdSearch());
 			
-			expandableList.setAdapter(productSearchListAdapter);
+//			expandableList.setAdapter(productSearchListAdapter);
 			
 		} else if (args.containsKey(Constants.Extras.CATEGORY)) {
 			
 			Debug.PrintError(this, "Displaying categorias!");
 			
-			CategorySearchListAdapter categorySearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestCatSearch());
+//			CategorySearchListAdapter categorySearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestCatSearch());
 			
-			expandableList.setAdapter(categorySearchListAdapter);
+//			expandableList.setAdapter(categorySearchListAdapter);
 			
 		}
 		

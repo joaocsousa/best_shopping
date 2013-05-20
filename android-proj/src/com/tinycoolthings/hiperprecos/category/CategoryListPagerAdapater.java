@@ -19,7 +19,7 @@ public class CategoryListPagerAdapater extends FragmentPagerAdapter {
     public Fragment getItem(int selectedPos) {
     	CategoryListFragment categoryListFragment = new CategoryListFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(Constants.Extras.HIPER, selectedPos);
+        bundle.putInt(Constants.Extras.HYPER, selectedPos);
         categoryListFragment.setArguments(bundle);
         return categoryListFragment;
     }
@@ -27,7 +27,7 @@ public class CategoryListPagerAdapater extends FragmentPagerAdapter {
     /** Returns the number of pages */
     @Override
     public int getCount() {
-        return HiperPrecos.getInstance().getNumberOfHipers();
+        return (int) HiperPrecos.getInstance().getNumberOfHypers();
     }
 	
 }

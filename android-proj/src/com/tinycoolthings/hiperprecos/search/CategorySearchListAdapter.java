@@ -42,16 +42,16 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 		this.categorias.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
-		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hyper currHiper = HiperPrecos.getInstance().getHipers().get(i);
+		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHypers(); i++) {
+			Hyper currHiper = HiperPrecos.getInstance().getHypers().get(i);
 			mapHiperGroup.put(currHiper.getId(), i);
 		}
-		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHipers(); i++) {
-			Hyper currentHiper = HiperPrecos.getInstance().getHipers().get(i);
+		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHypers(); i++) {
+			Hyper currentHiper = HiperPrecos.getInstance().getHypers().get(i);
 			ArrayList<Category> currCatsHiper = new ArrayList<Category>();
 			for (int j = 0; j < categorias.size(); j++) {
 				Category currCat = categorias.get(j);
-				Integer catHiper = currCat.getHiper().getId();
+				Integer catHiper = currCat.getHyper().getId();
 				if (catHiper.equals(currentHiper.getId())) {
 					currCatsHiper.add(currCat);
 				}
@@ -90,7 +90,7 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 		}
 		
 		final Category item = categorias.get(groupPosition).get(childPosition);
-		viewHolder.txtNome.setText("   " + item.getNome());
+		viewHolder.txtNome.setText("   " + item.getName());
 		
 		view.clearFocus();
 		
@@ -109,21 +109,21 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 				
 				int selectedCatID = item.getId();
 				Debug.PrintInfo(CategorySearchListAdapter.this, "Selected categoria with id " + selectedCatID);
-				if (item.hasSubCategorias()) {
-					Debug.PrintError(CategorySearchListAdapter.this, "Subcats " + item.getSubCategorias().size());
-				}
-				if (item.hasProdutos()) {
-					Debug.PrintError(CategorySearchListAdapter.this, "Prods " + item.getProdutos().size());
-				}
-				if (item.hasLoaded()) {
-					Intent intent = new Intent(Constants.Actions.DISPLAY_CATEGORIA);
-					intent.putExtra(Constants.Extras.CATEGORY, selectedCatID);
-					HiperPrecos.getInstance().sendBroadcast(intent);
-				} else {
-					CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORY);
-					getCategoria.addParameter(Name.CATEGORIA_ID, selectedCatID);
-					getCategoria.execute();
-				}
+//				if (item.hasSubCategorias()) {
+//					Debug.PrintError(CategorySearchListAdapter.this, "Subcats " + item.getSubCategories().size());
+//				}
+//				if (item.hasProdutos()) {
+//					Debug.PrintError(CategorySearchListAdapter.this, "Prods " + item.getProducts().size());
+//				}
+//				if (item.hasLoaded()) {
+//					Intent intent = new Intent(Constants.Actions.DISPLAY_CATEGORY);
+//					intent.putExtra(Constants.Extras.CATEGORY, selectedCatID);
+//					HiperPrecos.getInstance().sendBroadcast(intent);
+//				} else {
+//					CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, true);
+//					getCategoria.addParameter(Name.CATEGORIA_ID, selectedCatID);
+//					getCategoria.execute();
+//				}
 			}
 		});
 	
@@ -167,9 +167,9 @@ public class CategorySearchListAdapter extends BaseExpandableListAdapter {
 			viewHolder = (GroupViewHolder) view.getTag();
 		}
 	         
-	    Hyper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
-	    
-	    viewHolder.txtNome.setText(hiper.getNome());
+//	    Hyper hiper = HiperPrecos.getInstance().getHipers().get(groupPosition);
+//	    
+//	    viewHolder.txtNome.setText(hiper.getNome());
 	   	    
 	    return view;
 	    
