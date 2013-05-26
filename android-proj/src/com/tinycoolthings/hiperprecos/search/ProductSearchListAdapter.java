@@ -114,10 +114,12 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		viewHolder.txtPeso.setText(item.getWeight());
 		viewHolder.position = childPosition;
 		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
+		Hyper productHyper = item.getHyper();
+		HiperPrecos.getInstance().refreshHyper(productHyper);
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHyper().getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(childPosition, viewHolder, fileName, productHyper.getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(childPosition, viewHolder, fileName, item.getHyper().getName()).execute();
+			new ThumbnailTask(childPosition, viewHolder, fileName, productHyper.getName()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {

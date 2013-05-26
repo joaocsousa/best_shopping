@@ -1,6 +1,8 @@
 package com.tinycoolthings.hiperprecos;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -14,8 +16,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.models.Product;
@@ -24,6 +28,8 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Actions;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
+import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Filter;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class HiperPrecos extends Application {
@@ -110,7 +116,9 @@ public class HiperPrecos extends Application {
 	}
 
 	public void hideWaitingDialog() {
-		this.waitingDialog.cancel();
+		if (this.waitingDialog != null) {
+			this.waitingDialog.cancel();
+		}
 		this.waitingDialog = null;
 	}
 
@@ -158,7 +166,7 @@ public class HiperPrecos extends Application {
 			}
 			category = new Category(categoryJSONObj.getInt("id"),
 					categoryJSONObj.getString("nome"), hyper, parentCategory,
-					Utils.convertStringToDate(latestUpdate));
+					Utils.convertLongToDate(latestUpdate));
 			// parse sub categories
 			try {
 				JSONArray subCategories = categoryJSONObj
@@ -210,8 +218,8 @@ public class HiperPrecos extends Application {
 		try {
 			hyper = new Hyper(hyperJSONObj.getInt("id"),
 					hyperJSONObj.getString("nome"),
-					Utils.convertStringToDate(hyperJSONObj
-							.getLong("latestUpdate")));
+					Utils.convertLongToDate(hyperJSONObj
+							.getLong("latestUpdate") * 1000));
 			databaseHelper.getHyperRuntimeDao().createOrUpdate(hyper);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -247,16 +255,37 @@ public class HiperPrecos extends Application {
 					productJSONObj.getInt("hiper"));
 			Category parentCategory = databaseHelper.getCategoryRuntimeDao()
 					.queryForId(productJSONObj.getInt("categoria_pai"));
+			Double desconto = 0d;
+			try {
+				desconto = productJSONObj.getDouble("desconto");
+			} catch (Exception e) {
+			}
+			String brand = null;
+			Double price = null;
+			Double priceKg = null;
+			String weight = null;
+			try {
+				brand = productJSONObj.getString("marca");
+			} catch (Exception e) {}
+			try {
+				price = productJSONObj.getDouble("preco");
+			} catch (Exception e) {}
+			try {
+				priceKg = productJSONObj.getDouble("preco_kg");
+			} catch (Exception e) {}
+			try {
+				weight = productJSONObj.getString("peso");
+			} catch (Exception e) {}
+			
 			product = new Product(productJSONObj.getInt("id"),
-					productJSONObj.getString("name"),
-					productJSONObj.getString("marca"),
-					productJSONObj.getDouble("preco"),
-					productJSONObj.getDouble("precoKg"),
-					productJSONObj.getString("peso"),
+					productJSONObj.getString("nome"),
+					brand,
+					price,
+					priceKg,
+					weight,
 					productJSONObj.getString("url_pagina"),
-					productJSONObj.getString("url_imagem"),
-					productJSONObj.getDouble("desconto"), parentCategory,
-					Utils.convertStringToDate(productJSONObj
+					productJSONObj.getString("url_imagem"), desconto,
+					parentCategory, Utils.convertLongToDate(productJSONObj
 							.getLong("latest_update")), hyper);
 			databaseHelper.getProductRuntimeDao().createOrUpdate(product);
 		} catch (JSONException e) {
@@ -264,7 +293,7 @@ public class HiperPrecos extends Application {
 		}
 		return product;
 	}
-
+	
 	public Category getCategoryById(int id) {
 		return databaseHelper.getCategoryRuntimeDao().queryForId(id);
 	}
@@ -323,17 +352,23 @@ public class HiperPrecos extends Application {
 				.size() > 0;
 	}
 
-	public List<Category> getSubCategoriesFromHyper(Hyper currHyper,
-			int nameAscending) throws SQLException {
+	public List<Category> getSubCategoriesFromHyper(Hyper currHyper, int sort)
+			throws SQLException {
+		boolean ascending = true;
+		if (sort == Constants.Sort.NAME_DESCENDING) {
+			ascending = false;
+		}
 		QueryBuilder<Category, Integer> queryBuilder = databaseHelper
-				.getCategoryRuntimeDao().queryBuilder();
+				.getCategoryRuntimeDao().queryBuilder()
+				.orderBy(Category.NAME_FIELD_NAME, ascending);
 		queryBuilder.where().isNull(Category.PARENT_CATEGORY_FIELD_NAME).and()
 				.eq(Category.HYPER_FIELD_NAME, currHyper);
 		PreparedQuery<Category> preparedQuery = queryBuilder.prepare();
 		return databaseHelper.getCategoryRuntimeDao().query(preparedQuery);
 	}
 
-	public List<Category> getCategorySiblings(Category category, int sort) throws SQLException {
+	public List<Category> getCategorySiblings(Category category, int sort)
+			throws SQLException {
 		boolean ascending = true;
 		if (sort == Constants.Sort.NAME_DESCENDING) {
 			ascending = false;
@@ -345,7 +380,8 @@ public class HiperPrecos extends Application {
 			queryBuilder.where().eq(Category.PARENT_CATEGORY_FIELD_NAME,
 					category.getParentCat());
 		} else {
-			queryBuilder.where().isNull(Category.PARENT_CATEGORY_FIELD_NAME).and().eq(Category.HYPER_FIELD_NAME, category.getHyper());
+			queryBuilder.where().isNull(Category.PARENT_CATEGORY_FIELD_NAME)
+					.and().eq(Category.HYPER_FIELD_NAME, category.getHyper());
 		}
 
 		PreparedQuery<Category> preparedQuery = queryBuilder.prepare();
@@ -357,33 +393,83 @@ public class HiperPrecos extends Application {
 				|| categoryHasProducts(selectedCat);
 	}
 
-	public List<Product> getProductsFromCategory(Category currCat, int sortType)
-			throws SQLException {
+	public List<Product> getProductsFromCategory(Category currCat,
+			int sortType, Filter filter) throws SQLException {
 		QueryBuilder<Product, Integer> queryBuilder = databaseHelper
 				.getProductRuntimeDao().queryBuilder();
 		switch (sortType) {
-		case Sort.NAME_ASCENDING:
-			queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
-			break;
-		case Sort.NAME_DESCENDING:
-			queryBuilder.orderBy(Product.NAME_FIELD_NAME, false);
-			break;
-		case Sort.BRAND_ASCENDING:
-			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, true);
-			break;
-		case Sort.BRAND_DESCENDING:
-			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, false);
-			break;
-		case Sort.PRICE_ASCENDING:
-			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, true);
-			break;
-		case Sort.PRICE_DESCENDING:
-			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, false);
-			break;
+			case Sort.NAME_ASCENDING:
+				queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
+				break;
+			case Sort.NAME_DESCENDING:
+				queryBuilder.orderBy(Product.NAME_FIELD_NAME, false);
+				break;
+			case Sort.BRAND_ASCENDING:
+				queryBuilder.orderBy(Product.BRAND_FIELD_NAME, true);
+				break;
+			case Sort.BRAND_DESCENDING:
+				queryBuilder.orderBy(Product.BRAND_FIELD_NAME, false);
+				break;
+			case Sort.PRICE_ASCENDING:
+				queryBuilder.orderBy(Product.PRICE_FIELD_NAME, true);
+				break;
+			case Sort.PRICE_DESCENDING:
+				queryBuilder.orderBy(Product.PRICE_FIELD_NAME, false);
+				break;
 		}
-
-		queryBuilder.where().eq(Product.PARENT_CATEGORY_FIELD_NAME, currCat);
+		Where<Product, Integer> where = queryBuilder.where();
+		if (!filter.getProductNameFilter().equals("")) {
+			Debug.PrintWarning(this, "Filter: Product Name -> " + filter.getProductNameFilter());
+			where.like(Product.NAME_FIELD_NAME, "%"+filter.getProductNameFilter()+"%").and();
+		}
+		if (filter.getMinPriceFilter() > 0) {
+			Debug.PrintWarning(this, "Filter: Min Price -> " + filter.getMinPriceFilter());
+			where.gt(Product.PRICE_FIELD_NAME, filter.getMinPriceFilter()).and();
+		}
+		if (filter.getMaxPriceFilter() > 0) {
+			Debug.PrintWarning(this, "Filter: Max Price -> " + filter.getMaxPriceFilter());
+			where.lt(Product.PRICE_FIELD_NAME, filter.getMaxPriceFilter()).and();
+		}
+		where.eq(Product.PARENT_CATEGORY_FIELD_NAME, currCat);
 		PreparedQuery<Product> preparedQuery = queryBuilder.prepare();
 		return databaseHelper.getProductRuntimeDao().query(preparedQuery);
+	}
+
+	public void deleteHypersFromDB() throws SQLException {
+		// delete all products from this hyper
+		DeleteBuilder<Product, Integer> prodDeleteBuilder = databaseHelper
+				.getProductRuntimeDao().deleteBuilder();
+		databaseHelper.getProductRuntimeDao().delete(
+				prodDeleteBuilder.prepare());
+		// delete all categories from this hyper
+		DeleteBuilder<Category, Integer> catDeleteBuilder = databaseHelper
+				.getCategoryRuntimeDao().deleteBuilder();
+		databaseHelper.getCategoryRuntimeDao().delete(
+				catDeleteBuilder.prepare());
+		// delete hyper
+		DeleteBuilder<Hyper, Integer> hyperDeleteBuilder = databaseHelper
+				.getHyperRuntimeDao().deleteBuilder();
+		databaseHelper.getHyperRuntimeDao()
+				.delete(hyperDeleteBuilder.prepare());
+	}
+
+	public Date getLatestDbUpdate() throws SQLException {
+		QueryBuilder<Hyper, Integer> queryBuilder = databaseHelper
+				.getHyperRuntimeDao().queryBuilder();
+		queryBuilder.orderBy(Hyper.LATEST_UPDATE_FIELD_NAME, false);
+		return databaseHelper.getHyperRuntimeDao()
+				.query(queryBuilder.prepare()).get(0).getLatestUpdate();
+	}
+
+	public void refreshCategory(Category category) {
+		databaseHelper.getCategoryRuntimeDao().refresh(category);
+	}
+	
+	public void refreshHyper(Hyper hyper) {
+		databaseHelper.getHyperRuntimeDao().refresh(hyper);
+	}
+	
+	public void refreshProduct(Product product) {
+		databaseHelper.getProductRuntimeDao().refresh(product);
 	}
 }

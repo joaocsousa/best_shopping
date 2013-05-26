@@ -13,6 +13,7 @@
 		android:contentDescription="@string/app_name"
 		android:layout_margin="20dp"
 		android:layout_weight="3"
+		android:background="@android:color/white"
 		android:src="@drawable/img_border" />
     
 	<TextView
@@ -31,7 +32,7 @@
 		android:layout_weight="1" >
           
 		<TextView
-			android:id="@+id/tv_prod_marca"
+			android:id="@+id/tv_prod_brand"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:textSize="16sp"
@@ -40,10 +41,12 @@
 			android:layout_weight="1" />
 		
 		<TextView
-			android:id="@+id/tv_prod_preco"
+			android:id="@+id/tv_prod_price"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:textSize="40sp"
+			android:singleLine="true"
+			android:ellipsize="end"
 			android:gravity="center"
 			android:textIsSelectable="true"
 			android:layout_weight="1" />
@@ -58,7 +61,7 @@
 		android:layout_weight="1" >
                 
 		<TextView
-			android:id="@+id/tv_prod_peso"
+			android:id="@+id/tv_prod_weight"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:textSize="14sp"
@@ -67,7 +70,7 @@
 			android:layout_weight="1" />
 
 		<TextView
-			android:id="@+id/tv_prod_preco_kg"
+			android:id="@+id/tv_prod_price_kg"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:textSize="17sp"

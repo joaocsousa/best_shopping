@@ -12,6 +12,7 @@ public class Product {
 	public static final String NAME_FIELD_NAME = "name";
 	public static final String BRAND_FIELD_NAME = "brand";
 	public static final String PRICE_FIELD_NAME = "price";
+	public static final String HYPER_FIELD_NAME = "hyper";
 
 	@DatabaseField(id = true)
 	private int id;
@@ -35,7 +36,7 @@ public class Product {
 	private Category parentCat;
 	@DatabaseField(canBeNull = true)
 	private Date latestUpdate;
-	@DatabaseField(foreign = true, canBeNull = false)
+	@DatabaseField(foreign = true, canBeNull = false, columnName = HYPER_FIELD_NAME)
 	private Hyper hyper;
 	
 	Product() {

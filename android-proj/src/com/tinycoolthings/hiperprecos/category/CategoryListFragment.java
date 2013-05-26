@@ -66,6 +66,8 @@ public class CategoryListFragment extends SherlockListFragment {
         /** Setting the array adapter to the listview */
         setListAdapter(adapter);
         
+        HiperPrecos.getInstance().hideWaitingDialog();
+        
 		return super.onCreateView(inflater, container, savedInstanceState);
     }
 

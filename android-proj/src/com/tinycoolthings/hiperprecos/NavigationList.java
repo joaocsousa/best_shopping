@@ -16,7 +16,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -36,6 +49,7 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Filter;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class NavigationList extends SherlockFragmentActivity implements OnNavigationListener {
@@ -47,21 +61,22 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	private static boolean viewingProductsList = false;
 	
 	private static int currSelectedSort = Sort.NAME_ASCENDING;
-	
-	private static int currSelectedCat = 0;
 
+	private static int currSelectedCat = 0;
+	
+	private ProductListFragment productListFrag;
+	
+	private Filter filter = new Filter();
+	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.Actions.GET_CATEGORY)) {
 				String result = intent.getStringExtra(Constants.Extras.CATEGORY);
-//				String origin = intent.getStringExtra(Constants.Extras.ORIGIN);
 				try {
 					JSONObject catJson = new JSONObject(result);
 					Category category = HiperPrecos.getInstance().addCategory(catJson);
-//					if (NavigationList.class.getSimpleName().equals(origin)) {
 					enterSubCategory(category);
-//					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
@@ -160,6 +175,9 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	        case R.id.menu_sort:
 	        	showSortMenu();
 	        	break;
+	        case R.id.menu_filter:
+	        	showFilterMenu();
+	        	break;
 	    }
 	    return super.onOptionsItemSelected(item);
 	}
@@ -190,6 +208,132 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		alert.show();
 	}
 	
+	public void showFilterMenu() {
+		final int maxPrice = (int)Math.ceil(productListFrag.getMaximumPrice());
+		final int minPrice = (int)Math.round(productListFrag.getMinimumPrice());
+		LayoutInflater inflater = getLayoutInflater();
+		final View dialoglayout = inflater.inflate(R.layout.filter_layout, null);
+		final SeekBar minSeekBar = (SeekBar)dialoglayout.findViewById(R.id.filter_min_price);
+		final SeekBar maxSeekBar = (SeekBar)dialoglayout.findViewById(R.id.filter_max_price);
+		minSeekBar.setMax(maxPrice-1);
+		maxSeekBar.setMax(maxPrice-1);
+		maxSeekBar.setProgress(maxPrice-1);
+		final TextView tvMinPrice = (TextView)dialoglayout.findViewById(R.id.tv_filter_price_min);
+		final TextView tvMaxPrice = (TextView)dialoglayout.findViewById(R.id.tv_filter_price_max);
+		tvMinPrice.setText(minPrice+" €");
+		tvMaxPrice.setText(maxPrice+" €");
+		minSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if (progress > (seekBar.getMax()-1)) {
+					seekBar.setProgress((seekBar.getMax()-1));
+					return;
+				}
+				int currMinPrice = progress+minPrice;
+				tvMinPrice.setText(currMinPrice+" €");
+				if (progress >= maxSeekBar.getProgress()) {
+					maxSeekBar.setProgress(progress+1);
+				}
+			}
+		});
+		maxSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if (progress < 1) {
+					seekBar.setProgress(1);
+					return;
+				}
+				int currMaxPrice = progress+minPrice;
+				tvMaxPrice.setText(currMaxPrice+" €");
+				if (progress <= minSeekBar.getProgress()) {
+					minSeekBar.setProgress(progress-1);
+				}
+			}
+		});
+		final List<String> brands = productListFrag.getBrands();
+		java.util.Collections.sort(brands);
+		brands.add(0, getResources().getString(R.string.all_brands));
+		final ListView brandsLv = (ListView) dialoglayout.findViewById(R.id.lv_brands);
+		final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, brands);
+		brandsLv.setAdapter(listAdapter);
+		for (int i=0;i<brands.size();i++) {
+			brandsLv.setItemChecked(i, true);
+		}
+		brandsLv.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (position == 0) {
+					if (((CheckedTextView)view).isChecked()) {
+						for (int i=0;i<brands.size();i++) {
+							brandsLv.setItemChecked(i, true);
+						}
+					} else {
+						for (int i=0;i<brands.size();i++) {
+							brandsLv.setItemChecked(i, false);
+						}
+					}
+				} else {
+					if (!((CheckedTextView)view).isChecked()) {
+						brandsLv.setItemChecked(0, false);
+					}
+				}
+			}
+		});
+		Button buttonOK = (Button) dialoglayout.findViewById(R.id.btn_filter_ok);
+		Button buttonCancel = (Button) dialoglayout.findViewById(R.id.btn_filter_cancel);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		final AlertDialog dialog = builder.create();
+		dialog.setTitle(getResources().getString(R.string.filter));
+		dialog.setView(dialoglayout);
+		dialog.show();
+		buttonOK.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//get string for product name
+				String prodNameFilter = ((EditText)dialoglayout.findViewById(R.id.et_filter_product_name)).getText().toString();
+				filter.setProductNameFilter(prodNameFilter);
+				Debug.PrintError(this, "prodNameFilter: " + prodNameFilter);
+				Integer minPriceFilter = ((SeekBar)dialoglayout.findViewById(R.id.filter_min_price)).getProgress()+minPrice;
+				Integer maxPriceFilter = ((SeekBar)dialoglayout.findViewById(R.id.filter_max_price)).getProgress()+minPrice;
+				filter.setMinPriceFilter(minPriceFilter);
+				filter.setMaxPriceFilter(maxPriceFilter);
+				Debug.PrintError(this, "minPriceFilter: " + minPriceFilter);
+				Debug.PrintError(this, "maxPriceFilter: " + maxPriceFilter);
+				SparseBooleanArray selectedItems = ((ListView)dialoglayout.findViewById(R.id.lv_brands)).getCheckedItemPositions();
+				for (int i=0;i<selectedItems.size();i++) {
+					if (selectedItems.get(i)) {
+						filter.addBrandFilter(listAdapter.getItem(i));
+						Debug.PrintError(this, "Position " + i + " ("+listAdapter.getItem(i)+")-> " + selectedItems.get(i));
+					}
+				}
+				dialog.cancel();
+				// FILTER
+				onNavigationItemSelected(currSelectedCat, 0);
+			}
+		});
+		buttonCancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				dialog.cancel();
+			}
+		});
+	}
+
 	private void exitToMainMenu() {
 		// This is called when the Home (Up) button is pressed
         // in the Action Bar.
@@ -217,6 +361,7 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	@Override
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
+		filter.reset();
 		Debug.PrintDebug(this, "onPause");
 		super.onPause();
 	}
@@ -262,6 +407,9 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+		
+		currSelectedCat = itemPosition;
+		
 		Category selectedCat = categoriesListMenu.get(itemPosition);
     	Debug.PrintInfo(NavigationList.class, "Selected category -> " + selectedCat.getName());
     	boolean selectedCatHasProducts = false;
@@ -278,10 +426,12 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 		}
     	if (selectedCatHasProducts) {
     		Debug.PrintWarning(NavigationList.this, selectedCat.getName() + " has produtos.");
-    		ProductListFragment productListFrag = new ProductListFragment();
+    		productListFrag = new ProductListFragment();
+    		productListFrag.getMaximumPrice();
     		Bundle bundle = new Bundle();
             bundle.putInt(Constants.Extras.CATEGORY, selectedCat.getId());
             bundle.putInt(Constants.Extras.PRODUCT_SORT, currSelectedSort);
+            bundle.putParcelable(Constants.Extras.FILTER, filter);
             productListFrag.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
             viewingProductsList = true;
@@ -301,7 +451,7 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
             }
     	} else {
     		Debug.PrintWarning(NavigationList.this, selectedCat.getName() + " has no information.");
-    		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, true);
+    		CallWebServiceTask getCategoria = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, false);
     		getCategoria.addParameter(Name.CATEGORIA_ID, selectedCat.getId());
     		getCategoria.execute();
     	}
@@ -310,15 +460,12 @@ public class NavigationList extends SherlockFragmentActivity implements OnNaviga
 
 	@Override
 	public void onBackPressed() {
-		Category selectedCat = categoriesListMenu.get(getSupportActionBar().getSelectedNavigationIndex());
-	
-		Debug.PrintError(this, "Looking for " + selectedCat.getName());
-		for (int i=0;i<categoriesListMenu.size();i++) {
-			Debug.PrintError(this, "categoriesListMenu["+i+"]="+categoriesListMenu.get(i).getName());
-		}
-		
-		if (selectedCat.getParentCat() != null) {
-			enterSubCategory(selectedCat.getParentCat());
+		filter.reset();
+		Category currCat = categoriesListMenu.get(getSupportActionBar().getSelectedNavigationIndex());
+		Category parentCategory = currCat.getParentCat();
+		HiperPrecos.getInstance().refreshCategory(parentCategory);
+		if (parentCategory != null) {
+			enterSubCategory(parentCategory);
 		} else {
 			exitToMainMenu();
 			return;

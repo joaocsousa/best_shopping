@@ -10,6 +10,7 @@ public class Constants {
 		public static final String DISPLAY_CATEGORY = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_CATEGORIA";
 		public static final String DISPLAY_PRODUCT = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_PRODUTO";
 		public static final String SEARCH = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
+		public static final String GET_LATEST_UPDATE = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_LATEST_UPDATE";
 	}
 
 	public static final class Extras {
@@ -22,6 +23,8 @@ public class Constants {
 		public static final String SEARCH_RESULT = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
 		public static final String PRODUCT_SORT = "COM.TINYCOOLTHINGS.HIPERPRECOS.PRODUTO_SORT";
 		public static final String ORIGIN = "COM.TINYCOOLTHINGS.HIPERPRECOS.ORIGIN";
+		public static final String LATEST_UPDATE = "COM.TINYCOOLTHINGS.HIPERPRECOS.LATEST_UPDATE";
+		public static final String FILTER = "COM.TINYCOOLTHINGS.HIPERPRECOS.FILTER";
 	}
 	public static final class Server {
 		public static final class Definitions {
@@ -33,6 +36,7 @@ public class Constants {
 			public static final String PRODUTOS_URL = API_URL+"/produtos/";
 			public static final String HIPERS_URL = API_URL+"/hipers/";
 			public static final String SEARCH_URL = "http://www."+DOMAIN+"/search";
+			public static final String LATEST_UPDATE_URL = "http://www."+DOMAIN+"/get_latest_update";
 		}
 		public static final class Parameter {
 			public static enum Name {

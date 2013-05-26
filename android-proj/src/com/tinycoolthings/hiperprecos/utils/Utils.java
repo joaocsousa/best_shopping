@@ -1,5 +1,6 @@
 package com.tinycoolthings.hiperprecos.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -9,19 +10,44 @@ import java.util.Random;
 public class Utils {
 	
 	/**
-	 * Converts a cal to "yyyy-MM-dd HH:mm:ss.SSS"
+	 * Converts a Calendar to "yyyy-MM-dd HH:mm:ss.SSS"
 	 * @param cal - Calendar in local TZ
 	 * @return String in format "yyyy-MM-dd HH:mm:ss.SSS"
 	 */
-	public static String convertCalToString(Calendar cal) {
+	public static String calendarToStr(Calendar cal) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
 		return(sdf.format(cal.getTime()));
 	}
 	
-	public static Date convertStringToDate(Long dateTimeStamp) {
+	/**
+	 * Converts a Date to "yyyy-MM-dd HH:mm:ss"
+	 * @param cal - Calendar in local TZ
+	 * @return String in format "yyyy-MM-dd HH:mm:ss.SSS"
+	 */
+	public static String dateToStr(Date date) {
+		if (date==null) {
+			return "";
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		return(sdf.format(date));
+	}
+	
+	/**
+	 * Converts a date string to Calendar
+	 * @param date - Date in format "yyyy-MM-dd HH:mm:ss"
+	 * @return Calendar
+	 * @throws ParseException 
+	 */
+	public static Calendar convertStringToCal(String date) throws ParseException {
 		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(dateTimeStamp);
-		return cal.getTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+	    cal.setTime(sdf.parse(date));// all done
+		return cal;
+	}
+	
+	public static Date convertLongToDate(Long dateTimeStamp) {
+		Date date = new Date(dateTimeStamp);
+		return date;
 	}
 	
 	public static Integer getRandomInt() {

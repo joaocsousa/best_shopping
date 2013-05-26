@@ -8,11 +8,14 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "hypers")
 public class Hyper {
 	
-	@DatabaseField(id = true)
+	public static final String LATEST_UPDATE_FIELD_NAME = "latestUpdate";
+	public static final String ID_FIELD_NAME = "id";
+	
+	@DatabaseField(id = true, columnName = ID_FIELD_NAME)
 	private int id;
 	@DatabaseField(canBeNull = false)
 	private String name;
-	@DatabaseField(canBeNull = true)
+	@DatabaseField(canBeNull = true, columnName = LATEST_UPDATE_FIELD_NAME)
 	private Date latestUpdate;
 	
 	Hyper() {
@@ -30,6 +33,10 @@ public class Hyper {
 	
 	public String getName() {
 		return this.name;
+	}
+	
+	public Date getLatestUpdate() {
+		return this.latestUpdate;
 	}
 
 	@Override

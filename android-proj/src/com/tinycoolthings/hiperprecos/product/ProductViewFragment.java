@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
@@ -47,7 +48,9 @@ public class ProductViewFragment extends SherlockFragment {
 		String fileName = ImageStorage.getFileName(product.getUrlImage(), product.getName(), product.getBrand());
 		Bitmap bm = ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), fileName);
 		if (bm == null) {
-			if (product.getHyper().getName().toLowerCase(Locale.FRENCH).contains("continente")) {
+			Hyper productHyper = product.getHyper();
+			HiperPrecos.getInstance().refreshHyper(productHyper);
+			if (productHyper.getName().toLowerCase(Locale.FRENCH).contains("continente")) {
 				img_prodImg.setBackgroundResource(R.drawable.continente_not_found);
     		}
 		} else {
@@ -64,32 +67,28 @@ public class ProductViewFragment extends SherlockFragment {
 		tv_prodName.setText(product.getName());
 
 		// MARCA
-		TextView tv_prod_marca = ((TextView)view.findViewById(R.id.tv_prod_marca));
-		String marca = "-";
-		if (product.getBrand()!=null) {
-			Debug.PrintError(this, "->"+product.getBrand());
-			marca = product.getBrand();
-		} else {
-
-			Debug.PrintError(this, ":>"+product.getBrand());
+		TextView tv_prod_brand = ((TextView)view.findViewById(R.id.tv_prod_brand));
+		String brand = "-";
+		if (product.getBrand()!=null && !product.getBrand().equals("null")) {
+			brand = product.getBrand();
 		}
-		tv_prod_marca.setText(marca);
+		tv_prod_brand.setText(brand);
 
 		// PESO
-		TextView tv_prod_peso = ((TextView)view.findViewById(R.id.tv_prod_peso));
-		tv_prod_peso.setText(product.getWeight());
+		TextView tv_prod_weight = ((TextView)view.findViewById(R.id.tv_prod_weight));
+		tv_prod_weight.setText(product.getWeight());
 	
 		// PRECO
-		TextView tv_prod_preco = ((TextView)view.findViewById(R.id.tv_prod_preco));
-		tv_prod_preco.setText(product.getWeight() + " €");
+		TextView tv_prod_price = ((TextView)view.findViewById(R.id.tv_prod_price));
+		tv_prod_price.setText(product.getPrice() + " €");
 
 		// PRECO KG
-		TextView tv_prod_preco_kg = ((TextView)view.findViewById(R.id.tv_prod_preco_kg));
-		String precoKg = "-";
+		TextView tv_prod_price_kg = ((TextView)view.findViewById(R.id.tv_prod_price_kg));
+		String priceKg = "-";
 		if (product.getPriceKg()!=null) {
-			precoKg = String.valueOf(product.getPriceKg());
+			priceKg = String.valueOf(product.getPriceKg());
 		}
-		tv_prod_preco_kg.setText(precoKg + " € / Kg");
+		tv_prod_price_kg.setText(priceKg + " € / Kg");
 
 		// LAST UPDATE DATE
 		Calendar now = Calendar.getInstance();
@@ -101,10 +100,10 @@ public class ProductViewFragment extends SherlockFragment {
 		Calendar latestUpdateDate = Calendar.getInstance();
 		latestUpdateDate.setTime(product.getLatestUpdate());
 		if(now.get(Calendar.DATE) == latestUpdateDate.get(Calendar.DATE) ) {
-			dayOfLastUpdate = getString(R.string.hoje) + " - ";
+			dayOfLastUpdate = getString(R.string.today) + " - ";
 			formatString = "HH:mm";
 		} else if (now.get(Calendar.DATE) - latestUpdateDate.get(Calendar.DATE) == 1 ){
-			dayOfLastUpdate = getString(R.string.ontem) + " - ";
+			dayOfLastUpdate = getString(R.string.yesterday) + " - ";
 			formatString = "HH:mm";
 		} else {
 			formatString = "dd-MM-yyyy HH:mm";

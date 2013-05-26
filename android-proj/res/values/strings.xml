@@ -6,8 +6,8 @@
     <string name="hello_world">Hello world!</string>
 	<string name="prod_img_description">Imagem do Produto</string>
 	<string name="prod_img_last_update">Atualizado em</string>
-	<string name="ontem">Ontem</string>
-	<string name="hoje">Hoje</string>
+	<string name="yesterday">Ontem</string>
+	<string name="today">Hoje</string>
 	<string name="sem_resultados">Sem Resultados</string>
 	<string name="filter">Filtrar</string>
 	<string name="loading">A Carregar</string>
@@ -20,6 +20,11 @@
 	<string name="preco_asc">Preço Ascendente</string>
 	<string name="preco_desc">Preço Descendente</string>
 	<string name="short_search_term">Pesquisa curta!\n\nMínimo - 3 letras.</string>
-	
+	<string name="minimum_price">Preço Mínimo:</string>
+	<string name="maximum_price">Preço Máximo:</string>
+	<string name="product_filter">Produto:</string>
+	<string name="non_available">n/d</string>
+	<string name="brands">Marcas</string>
+	<string name="all_brands">Todas</string>
 	
 </resources>

@@ -5,6 +5,7 @@ import java.util.Date;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 
 @DatabaseTable(tableName = "categories")
 public class Category {
@@ -63,6 +64,17 @@ public class Category {
 			return false;
 		}
 		return (name.equals(((Category) other).name) && (id == ((Category) other).id));
+	}
+	
+	@Override
+	public String toString() {
+		String msg = "";
+		try {
+			msg += "Category:\n\tID: "+this.id+"\n\tName: "+this.name+"\n\tLast Update: "+Utils.dateToStr(this.latestUpdate)+"\n\tHyper: "+this.hyper.getName()+"\n\tParent: "+this.parentCat.getId();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return msg;
 	}
 
 }

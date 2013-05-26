@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
@@ -75,23 +76,24 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 		Product item = getItem(position);
 		viewHolder.txtNome.setText(item.getName());
 		String marca = "-";
-		if (item.getBrand()!=null && !item.getBrand().equals("")) {
+		if (item.getBrand()!=null && !item.getBrand().equals("") && !item.getBrand().equals("null")) {
 			marca = item.getBrand();
 		}
 		viewHolder.txtMarca.setText(marca);
 		viewHolder.txtPreco.setText(String.valueOf(item.getPrice()) + " €");
 		String peso = "-";
-		if (item.getWeight()!=null && !item.getWeight().equals("")) {
+		if (item.getWeight()!=null && !item.getWeight().equals("") && !item.getWeight().equals("null")) {
 			peso = item.getWeight();
 		}
-		Debug.PrintError(this, "|"+peso+"|");
 		viewHolder.txtPeso.setText(peso);
 		viewHolder.position = position;
 		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
+		Hyper productHyper = item.getHyper();
+		HiperPrecos.getInstance().refreshHyper(productHyper);
 		if (android.os.Build.VERSION.SDK_INT > 11) {
-			new ThumbnailTask(position, viewHolder, fileName, item.getHyper().getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+			new ThumbnailTask(position, viewHolder, fileName, productHyper.getName()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 		} else {
-			new ThumbnailTask(position, viewHolder, fileName, item.getHyper().getName()).execute();
+			new ThumbnailTask(position, viewHolder, fileName, productHyper.getName()).execute();
 		}
 	
 		view.setOnClickListener(new OnClickListener() {
@@ -100,17 +102,10 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 				Product selectedProd = getItem(position);
 				int selectedProdID = selectedProd.getId();
 				Debug.PrintInfo(ProductListAdapter.this, "Selected produto with id " + selectedProdID);
-//				boolean productHasLoaded = HiperPrecos.getInstance().productHasLoaded(selectedProd);
-//				if (productHasLoaded) {
-					Intent intent = new Intent();
-					intent.setAction(Constants.Actions.DISPLAY_PRODUCT);
-					intent.putExtra(Constants.Extras.PRODUCT, selectedProdID);
-					HiperPrecos.getInstance().sendBroadcast(intent);
-//				} else {
-//					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUCT, true);
-//					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
-//					getProduto.execute();
-//				}
+				Intent intent = new Intent();
+				intent.setAction(Constants.Actions.DISPLAY_PRODUCT);
+				intent.putExtra(Constants.Extras.PRODUCT, selectedProdID);
+				HiperPrecos.getInstance().sendBroadcast(intent);
 			}
 		});
 	

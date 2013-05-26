@@ -52,11 +52,11 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	protected String doInBackground(Void... params) {
 		try {
 			String URL = "";
-			if (this.action == Constants.Actions.GET_HYPERS) {
+			if (this.action.equals(Constants.Actions.GET_HYPERS)) {
 				URL = Constants.Server.Definitions.HIPERS_URL;
-			} else if (this.action == Constants.Actions.GET_PRODUTOS) {
+			} else if (this.action.equals(Constants.Actions.GET_PRODUTOS)) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
-			} else if (this.action == Constants.Actions.GET_PRODUCT) {
+			} else if (this.action.equals(Constants.Actions.GET_PRODUCT)) {
 				URL = Constants.Server.Definitions.PRODUTOS_URL;
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.PRODUTO_ID)) {
 					Debug.PrintError(this, "No produto ID! Did you specify it?");
@@ -64,9 +64,9 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 					int prodID = (Integer) this.params.get(Constants.Server.Parameter.Name.PRODUTO_ID);
 					URL += prodID;
 				}
-			} else if (this.action == Constants.Actions.GET_CATEGORIES) {
+			} else if (this.action.equals(Constants.Actions.GET_CATEGORIES)) {
 				URL = Constants.Server.Definitions.CATEGORIES_URL;
-			} else if (this.action == Constants.Actions.GET_CATEGORY) {
+			} else if (this.action.equals(Constants.Actions.GET_CATEGORY)) {
 				URL = Constants.Server.Definitions.CATEGORIES_URL;
 				if (!this.params.containsKey(Constants.Server.Parameter.Name.CATEGORIA_ID)) {
 					Debug.PrintError(this, "No categoria ID! Did you specify it?");
@@ -74,8 +74,10 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 					int catID = (Integer) this.params.get(Constants.Server.Parameter.Name.CATEGORIA_ID);
 					URL += catID;
 				}
-			} else if (this.action == Constants.Actions.SEARCH) {
+			} else if (this.action.equals(Constants.Actions.SEARCH)) {
 				URL = Constants.Server.Definitions.SEARCH_URL;
+			} else if (this.action.equals(Constants.Actions.GET_LATEST_UPDATE)) {
+				URL = Constants.Server.Definitions.LATEST_UPDATE_URL;
 			}
 			
 			RestClient client = new RestClient(URL);
@@ -182,6 +184,8 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 			intent.putExtra(Constants.Extras.CATEGORY, result);
 		} else if (this.action == Constants.Actions.SEARCH) {
 			intent.putExtra(Constants.Extras.SEARCH_RESULT, result);
+		} else if (this.action == Constants.Actions.GET_LATEST_UPDATE) {
+			intent.putExtra(Constants.Extras.LATEST_UPDATE, result);
 		}
 		HiperPrecos.getInstance().sendBroadcast(intent);
 	}
