@@ -21,6 +21,13 @@ import com.tinycoolthings.hiperprecos.utils.Filter;
 public class ProductListFragment extends SherlockListFragment {
 
 	private List<Product> products = new ArrayList<Product>();
+	private Category category = null;
+	private int sort = 0;
+	private Filter filter = null;
+	private ProductListAdapter adapter;
+	private Double filterMinPrice = 0.0;
+	private Double filterMaxPrice = 0.0;
+	private List<String> brands = new ArrayList<String>();
 	
 	@Override
 	public void onResume() {
@@ -33,16 +40,23 @@ public class ProductListFragment extends SherlockListFragment {
 		
 		Bundle args = getArguments();
 
-		Category currCat = HiperPrecos.getInstance().getCategoryById(args.getInt(Constants.Extras.CATEGORY));
+		category = HiperPrecos.getInstance().getCategoryById(args.getInt(Constants.Extras.CATEGORY));
+		
+		sort = args.getInt(Constants.Extras.PRODUCT_SORT);
+		
+		filter = (Filter) args.getParcelable(Constants.Extras.FILTER);
 		
 		try {
-			products = HiperPrecos.getInstance().getProductsFromCategory(currCat, args.getInt(Constants.Extras.PRODUCT_SORT), (Filter) args.getParcelable(Constants.Extras.FILTER));
+			products = HiperPrecos.getInstance().getProductsFromCategory(category, sort, filter);
+			this.setMinimumPrice();
+			this.setMaximumPrice();
+			this.setBrands();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 		/** Creating array adapter to set data in listview */
-        ProductListAdapter adapter = new ProductListAdapter(getActivity().getBaseContext());
+        adapter = new ProductListAdapter(getActivity().getBaseContext());
         adapter.setData(products);
         
         /** Setting the array adapter to the listview */
@@ -54,9 +68,31 @@ public class ProductListFragment extends SherlockListFragment {
 		
     }
 	
-	public Double getMinimumPrice() {
+	public void setSort(int newSort) {
+		this.sort = newSort;
+		try {
+			products = HiperPrecos.getInstance().getProductsFromCategory(category, newSort, filter);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		adapter.setData(products);
+		adapter.notifyDataSetChanged();
+	}
+	
+	public void setFilter(Filter filter) {
+		this.filter = filter;
+		try {
+			products = HiperPrecos.getInstance().getProductsFromCategory(category, this.sort, filter);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		adapter.setData(products);
+		adapter.notifyDataSetChanged();
+	}
+	
+	public void setMinimumPrice() {
 		if (products.size()==0) {
-			return 0.0;
+			this.filterMinPrice = 0.0;
 		}
 		Double minPrice = products.get(0).getPrice();
 		for (int i=1; i < products.size(); i++) {
@@ -64,28 +100,40 @@ public class ProductListFragment extends SherlockListFragment {
 				minPrice = products.get(i).getPrice();
 			}
 		}
-		return minPrice;
+		this.filterMinPrice = minPrice;
 	}
 	
-	public Double getMaximumPrice() {
+	public void setMaximumPrice() {
 		Double maxPrice = 0.0;
+		if (products.size()==0) {
+			this.filterMaxPrice = 0.0;
+		}
 		for (int i=0; i < products.size(); i++) {
 			if (products.get(i).getPrice() > maxPrice) {
 				maxPrice = products.get(i).getPrice();
 			}
 		}
-		return maxPrice;
+		this.filterMaxPrice = maxPrice;
 	}
 	
-	public List<String> getBrands() {
-		List<String> brands = new ArrayList<String>();
+	public void setBrands() {
 		for (int i=0; i < products.size(); i++) {
 			String currBrand = products.get(i).getBrand().equals("null") ? getResources().getString(R.string.non_available) : products.get(i).getBrand();
 			if (!brands.contains(currBrand)) {
 				brands.add(currBrand);
 			}
 		}
-		return brands;
 	}
 	
+	public Double getMinPriceFilter() {
+		return this.filterMinPrice;
+	}
+	
+	public Double getMaxPriceFilter() {
+		return this.filterMaxPrice;
+	}
+	
+	public List<String> getBransFilter() {
+		return this.brands;
+	}
 }

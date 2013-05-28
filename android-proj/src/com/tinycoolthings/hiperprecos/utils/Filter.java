@@ -47,6 +47,10 @@ public class Filter implements Parcelable {
 	public void addBrandFilter(String brand) {
 		brands.add(brand);
 	}
+	
+	public void removeBrandFilter(String brand) {
+		brands.remove(brand);
+	}
 
 	public List<String> getBrandsFilter() {
 		return brands;

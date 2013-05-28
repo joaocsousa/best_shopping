@@ -31,6 +31,7 @@
         <activity android:name=".NavigationList"></activity>
         <activity android:name=".product.ProductView"></activity>
         <activity android:name=".search.SearchResults"></activity>
+        <activity android:name=".product.ProductList"></activity>
     </application>
 
 </manifest>
