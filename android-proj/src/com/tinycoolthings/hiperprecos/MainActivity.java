@@ -97,20 +97,27 @@ public class MainActivity extends SherlockFragmentActivity {
 				Date latestUpdateDate = null;
 				boolean error = false;
 				try {
-					latestUpdateDate = Utils
-							.convertStringToCal(lastestUpdateStr).getTime();
+					latestUpdateDate = Utils.convertStringToCal(
+							lastestUpdateStr).getTime();
 					if (latestUpdateDate == null) {
 						throw new Exception("Error parsing latest update date");
 					}
-					Debug.PrintInfo(MainActivity.this, "Latest Server Update date: " + Utils.dateToStr(latestUpdateDate));
-					Date latestUpdateDbDate = HiperPrecos.getInstance().getLatestDbUpdate();
-					Debug.PrintInfo(MainActivity.this, "Latest DB Update date: " + Utils.dateToStr(latestUpdateDate));
+					Debug.PrintInfo(
+							MainActivity.this,
+							"Latest Server Update date: "
+									+ Utils.dateToStr(latestUpdateDate));
+					Date latestUpdateDbDate = HiperPrecos.getInstance()
+							.getLatestDbUpdate();
+					Debug.PrintInfo(
+							MainActivity.this,
+							"Latest DB Update date: "
+									+ Utils.dateToStr(latestUpdateDate));
 					if (latestUpdateDbDate.before(latestUpdateDate)) {
 						Debug.PrintInfo(
 								MainActivity.this,
 								"\n\tLatestDbUpdateDate: "
-										+ Utils.dateToStr(latestUpdateDbDate) + "\n"
-										+ "\n\tlatestUpdateCal: "
+										+ Utils.dateToStr(latestUpdateDbDate)
+										+ "\n" + "\n\tlatestUpdateCal: "
 										+ Utils.dateToStr(latestUpdateDate));
 						Debug.PrintInfo(MainActivity.this,
 								"New database available. Clean old database.");
@@ -182,7 +189,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (mPager != null) {
 			mPager.removeAllViews();
 		}
-		
+
 		// check for update
 		CallWebServiceTask getLatestUpdate = new CallWebServiceTask(
 				Constants.Actions.GET_LATEST_UPDATE, false);

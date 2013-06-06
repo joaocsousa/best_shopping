@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +16,6 @@ import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.models.Hyper;
-import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
-import com.tinycoolthings.hiperprecos.utils.Constants;
-import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
 public class CategorySearchListAdapter extends BaseExpandableListAdapter {

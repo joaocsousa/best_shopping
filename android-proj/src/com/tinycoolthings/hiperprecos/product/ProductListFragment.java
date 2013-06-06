@@ -96,7 +96,7 @@ public class ProductListFragment extends SherlockListFragment {
 		}
 		Double minPrice = products.get(0).getPrice();
 		for (int i=1; i < products.size(); i++) {
-			if (products.get(i).getPrice() <minPrice) {
+			if (products.get(i).getPrice() < minPrice) {
 				minPrice = products.get(i).getPrice();
 			}
 		}
@@ -116,9 +116,9 @@ public class ProductListFragment extends SherlockListFragment {
 		this.filterMaxPrice = maxPrice;
 	}
 	
-	public void setBrands() {
+	private void setBrands() {
 		for (int i=0; i < products.size(); i++) {
-			String currBrand = products.get(i).getBrand().equals("null") ? getResources().getString(R.string.non_available) : products.get(i).getBrand();
+			String currBrand = products.get(i).getBrand().equals("null") || products.get(i).getBrand().equals("") ? getResources().getString(R.string.non_available) : products.get(i).getBrand();
 			if (!brands.contains(currBrand)) {
 				brands.add(currBrand);
 			}
@@ -133,7 +133,7 @@ public class ProductListFragment extends SherlockListFragment {
 		return this.filterMaxPrice;
 	}
 	
-	public List<String> getBransFilter() {
+	public List<String> getBrandsFilter() {
 		return this.brands;
 	}
 }

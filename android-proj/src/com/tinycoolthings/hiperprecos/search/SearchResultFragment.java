@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;

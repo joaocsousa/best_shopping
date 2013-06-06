@@ -1,5 +1,6 @@
 package com.tinycoolthings.hiperprecos.product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -9,8 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -20,15 +19,13 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.tinycoolthings.double_seekbar.DoubleSeekBar;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Category;
@@ -39,9 +36,13 @@ import com.tinycoolthings.hiperprecos.utils.Filter;
 
 public class ProductList  extends SherlockFragmentActivity {
 
-	private Filter filter = new Filter();
+	private Filter currFilter = new Filter();
+	private Filter originalFilter = null;
 	private int currSelectedSort = Constants.Sort.NAME_ASCENDING;
 	private ProductListFragment productListFrag;
+	
+	private int origMinPrice = 0;
+	private int origMaxPrice = 0;
 	
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
@@ -74,7 +75,7 @@ public class ProductList  extends SherlockFragmentActivity {
 			title+=category.getName();
 			mActionBar.setTitle(title);
 			bundle.putInt(Constants.Extras.PRODUCT_SORT, Constants.Sort.NAME_ASCENDING);
-			bundle.putParcelable(Constants.Extras.FILTER, filter);
+			bundle.putParcelable(Constants.Extras.FILTER, currFilter);
 			productListFrag.setArguments(bundle);
 			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
         }
@@ -152,97 +153,53 @@ public class ProductList  extends SherlockFragmentActivity {
 	}
 	
 	public void showFilterMenu() {
-		final int maxPrice = (int)Math.ceil(productListFrag.getMaxPriceFilter());
-		final int minPrice = (int)Math.round(productListFrag.getMinPriceFilter());
-		LayoutInflater inflater = getLayoutInflater();
-		final View dialoglayout = inflater.inflate(R.layout.filter_layout, null);
-		((EditText)dialoglayout.findViewById(R.id.et_filter_product_name)).setText(filter.getProductNameFilter());
-		final SeekBar minSeekBar = (SeekBar)dialoglayout.findViewById(R.id.filter_min_price);
-		final SeekBar maxSeekBar = (SeekBar)dialoglayout.findViewById(R.id.filter_max_price);
-		minSeekBar.setMax(maxPrice-1);
-		maxSeekBar.setMax(maxPrice-1);
-		final TextView tvMinPrice = (TextView)dialoglayout.findViewById(R.id.tv_filter_price_min);
-		final TextView tvMaxPrice = (TextView)dialoglayout.findViewById(R.id.tv_filter_price_max);
-		minSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if (progress > (seekBar.getMax()-1)) {
-					seekBar.setProgress((seekBar.getMax()-1));
-					return;
-				}
-				int currMinPrice = progress+minPrice;
-				tvMinPrice.setText(currMinPrice+" €");
-				if (progress >= maxSeekBar.getProgress()) {
-					maxSeekBar.setProgress(progress+1);
-				}
-			}
-		});
-		maxSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {}
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {}
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if (progress < 1) {
-					seekBar.setProgress(1);
-					return;
-				}
-				int currMaxPrice = progress+minPrice;
-				tvMaxPrice.setText(currMaxPrice+" €");
-				if (progress <= minSeekBar.getProgress()) {
-					minSeekBar.setProgress(progress-1);
-				}
-			}
-		});
-		if (filter.getMinPriceFilter()>0) {
-			minSeekBar.setProgress(filter.getMinPriceFilter()-1);
+		List<String> brandsList = new ArrayList<String>();
+		brandsList.addAll(productListFrag.getBrandsFilter());
+		java.util.Collections.sort(brandsList);
+		brandsList.add(0, getResources().getString(R.string.all_brands));
+		if(!currFilter.initialized()) {
+			origMinPrice = (int)Math.floor(productListFrag.getMinPriceFilter());
+			origMaxPrice = (int)Math.ceil(productListFrag.getMaxPriceFilter());
+			currFilter.initialize(origMinPrice, origMaxPrice, "", brandsList);
 		}
-		if (filter.getMaxPriceFilter()>0.0) {
-			maxSeekBar.setProgress(filter.getMaxPriceFilter()-1);
-		} else {
-			maxSeekBar.setProgress(maxPrice-1);
-		}
-		final List<String> brands = productListFrag.getBransFilter();
-		java.util.Collections.sort(brands);
-		brands.add(0, getResources().getString(R.string.all_brands));
+		final View dialoglayout = getLayoutInflater().inflate(R.layout.filter_layout, null);
+		((EditText)dialoglayout.findViewById(R.id.et_filter_product_name)).setText(currFilter.getProductNameFilter());
+		final DoubleSeekBar doubleSeekBar = (DoubleSeekBar)dialoglayout.findViewById(R.id.filter_price_double_sb);
+		doubleSeekBar.setMinValue(origMinPrice);
+		doubleSeekBar.setMaxValue(origMaxPrice);
+		doubleSeekBar.setCurrentMinValue(currFilter.getMinPriceFilter());
+		doubleSeekBar.setCurrentMaxValue(currFilter.getMaxPriceFilter());
 		final ListView brandsLv = (ListView) dialoglayout.findViewById(R.id.lv_brands);
-		final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, brands);
+		final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, R.layout.simple_list_item_multiple_choice, brandsList);
 		brandsLv.setAdapter(listAdapter);
-		for (int i=0;i<brands.size();i++) {
-			brandsLv.setItemChecked(i, filter.getBrandsFilter().indexOf(brands.get(i)) == -1);
+		// set if brand was previously checked or not
+		for (int i=0;i<listAdapter.getCount();i++) {
+			brandsLv.setItemChecked(i, currFilter.getBrandsFilter().contains(listAdapter.getItem(i)));
 		}
 		brandsLv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (position == 0) {
+					// All brands
 					if (((CheckedTextView)view).isChecked()) {
-						for (int i=0;i<brands.size();i++) {
-							filter.removeBrandFilter(listAdapter.getItem(i));
+						//add all brands to filter and check them
+						for (int i=0;i<listAdapter.getCount();i++) {
 							brandsLv.setItemChecked(i, true);
 						}
 					} else {
-						for (int i=0;i<brands.size();i++) {
+						//remove all brands from filter and uncheck them
+						for (int i=0;i<listAdapter.getCount();i++) {
 							brandsLv.setItemChecked(i, false);
-							filter.addBrandFilter(listAdapter.getItem(i));
 						}
-					}
+					}	
 				} else {
 					if (!((CheckedTextView)view).isChecked()) {
+						// Deselected one brand, uncheck "all brands"
 						brandsLv.setItemChecked(0, false);
-						filter.addBrandFilter(listAdapter.getItem(0));
-					} else {
-						filter.removeBrandFilter(listAdapter.getItem(0));
 					}
 				}
-			}
+			}	
 		});
 		Button buttonOK = (Button) dialoglayout.findViewById(R.id.btn_filter_ok);
 		Button buttonCancel = (Button) dialoglayout.findViewById(R.id.btn_filter_cancel);
@@ -256,16 +213,29 @@ public class ProductList  extends SherlockFragmentActivity {
 			public void onClick(View v) {
 				//get string for product name
 				String prodNameFilter = ((EditText)dialoglayout.findViewById(R.id.et_filter_product_name)).getText().toString().trim();
-				filter.setProductNameFilter(prodNameFilter);
-				Debug.PrintError(this, "prodNameFilter: " + prodNameFilter);
-				Integer minPriceFilter = ((SeekBar)dialoglayout.findViewById(R.id.filter_min_price)).getProgress()+minPrice;
-				Integer maxPriceFilter = ((SeekBar)dialoglayout.findViewById(R.id.filter_max_price)).getProgress()+minPrice;
-				filter.setMinPriceFilter(minPriceFilter);
-				filter.setMaxPriceFilter(maxPriceFilter);
-				Debug.PrintError(this, "minPriceFilter: " + minPriceFilter);
-				Debug.PrintError(this, "maxPriceFilter: " + maxPriceFilter);
+				currFilter.setProductNameFilter(prodNameFilter);
+				Integer minPriceFilter = doubleSeekBar.getCurrentMinValue();
+				Integer maxPriceFilter = doubleSeekBar.getCurrentMaxValue();
+				currFilter.setMinPriceFilter(minPriceFilter);
+				currFilter.setMaxPriceFilter(maxPriceFilter);
 				dialog.cancel();
-				productListFrag.setFilter(filter);
+				if (originalFilter == null) {
+					originalFilter = new Filter();
+					originalFilter.clone(currFilter);
+				}
+				for (int i=0;i<brandsLv.getCount();i++) {
+					if (brandsLv.isItemChecked(i) ) {
+						currFilter.addBrandFilter(listAdapter.getItem(i));
+					} else {
+						currFilter.removeBrandFilter(listAdapter.getItem(i));
+					}
+				}
+				productListFrag.setFilter(currFilter);
+				if (productListFrag.getListAdapter().getCount() == 0) {
+					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new NoResultsFragment()).commit();
+				} else {
+					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
+				}
 			}
 		});
 		buttonCancel.setOnClickListener(new OnClickListener() {

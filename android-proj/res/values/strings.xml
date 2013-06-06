@@ -20,11 +20,12 @@
 	<string name="preco_asc">Preço Ascendente</string>
 	<string name="preco_desc">Preço Descendente</string>
 	<string name="short_search_term">Pesquisa curta!\n\nMínimo - 3 letras.</string>
-	<string name="minimum_price">Preço Mínimo:</string>
-	<string name="maximum_price">Preço Máximo:</string>
+	<string name="minimum_price">Preço Mínimo</string>
+	<string name="maximum_price">Preço Máximo</string>
 	<string name="product_filter">Produto:</string>
 	<string name="non_available">n/d</string>
 	<string name="brands">Marcas</string>
 	<string name="all_brands">Todas</string>
+	<string name="reset">Repôr</string>
 	
 </resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -27,10 +26,10 @@
 	    </EditText>
         
     </LinearLayout>
-    
-	<com.tinycoolthings.double_seekbar.DoubleSeekBar
-	    android:id="@+id/filter_price_double_sb"
+
+    <com.tinycoolthings.double_seekbar.DoubleSeekBar
     	xmlns:app="http://schemas.android.com/apk/res/com.tinycoolthings.hiperprecos"
+	    android:id="@+id/filter_price_double_sb"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_marginTop="5dp"
@@ -63,23 +62,17 @@
 	    android:gravity="center">
 	    
 	    <Button
-	        android:id="@+id/btn_filter_ok"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@android:string/ok"
-		    style="?android:attr/buttonStyleSmall" />
-	    
-	    <Button
 	        android:id="@+id/btn_filter_cancel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@android:string/cancel"
 		    style="?android:attr/buttonStyleSmall" />
+	    
 	    <Button
-	        android:id="@+id/btn_filter_reset"
+	        android:id="@+id/btn_filter_ok"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/reset"
+	        android:text="@android:string/ok"
 		    style="?android:attr/buttonStyleSmall" />
 	    
 	</LinearLayout>

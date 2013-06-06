@@ -12,7 +12,9 @@ public class Filter implements Parcelable {
 	private Integer minPrice = 0;
 	private Integer maxPrice = 0;
 	private List<String> brands = new ArrayList<String>();
-
+	
+	private boolean initialized = false;
+	
 	public Filter() {
 	}
 
@@ -45,7 +47,9 @@ public class Filter implements Parcelable {
 	}
 
 	public void addBrandFilter(String brand) {
-		brands.add(brand);
+		if (!brands.contains(brand)) {
+			brands.add(brand);
+		}
 	}
 	
 	public void removeBrandFilter(String brand) {
@@ -61,14 +65,20 @@ public class Filter implements Parcelable {
 		minPrice = 0;
 		maxPrice = 0;
 		brands.clear();
+		this.initialized = false;
 	}
 
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
+	
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(productName);
 		dest.writeInt(minPrice);
 		dest.writeInt(maxPrice);
 		dest.writeStringList(brands);
+		dest.writeInt(initialized == true ? 1 : 0);
 	}
 
 	private void readFromParcel(Parcel in) {
@@ -76,6 +86,7 @@ public class Filter implements Parcelable {
 		minPrice = in.readInt();
 		maxPrice = in.readInt();
 		in.readStringList(brands);
+		initialized = in.readInt() == 0 ? false : true;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -92,6 +103,33 @@ public class Filter implements Parcelable {
 	@Override
 	public int describeContents() {
 		return 0;
+	}
+
+	public void clone(Filter currFilter) {
+		this.brands.addAll(currFilter.getBrandsFilter());
+		this.maxPrice = currFilter.getMaxPriceFilter();
+		this.minPrice = currFilter.getMinPriceFilter();
+		this.productName = currFilter.getProductNameFilter();
+		this.initialized = currFilter.initialized();
+	}
+
+	public void initialize(int minPriceFilter, int maxPriceFilter, String productNameFilter, List<String> allBrands) {
+		if (this.initialized) {
+			return;
+		}
+		this.minPrice = minPriceFilter;
+		this.maxPrice = maxPriceFilter;
+		this.productName = productNameFilter;
+		this.brands.addAll(allBrands);
+		this.initialized = true;
+	}
+	
+	public boolean initialized() {
+		return initialized;
+	}
+
+	public void clearBrandFilter() {
+		this.brands.clear();
 	}
 	
 }

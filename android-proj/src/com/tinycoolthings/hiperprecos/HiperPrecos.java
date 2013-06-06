@@ -264,6 +264,7 @@ public class HiperPrecos extends Application {
 			Double price = null;
 			Double priceKg = null;
 			String weight = null;
+			Long latestUpdate = null;
 			try {
 				brand = productJSONObj.getString("marca");
 			} catch (Exception e) {}
@@ -276,7 +277,13 @@ public class HiperPrecos extends Application {
 			try {
 				weight = productJSONObj.getString("peso");
 			} catch (Exception e) {}
-			
+			try {
+				latestUpdate = productJSONObj.getLong("latest_update");
+			} catch (Exception e) {
+				try {
+					latestUpdate = productJSONObj.getLong("latestUpdate");
+				} catch (Exception e1) {}
+			}
 			product = new Product(productJSONObj.getInt("id"),
 					productJSONObj.getString("nome"),
 					brand,
@@ -285,8 +292,7 @@ public class HiperPrecos extends Application {
 					weight,
 					productJSONObj.getString("url_pagina"),
 					productJSONObj.getString("url_imagem"), desconto,
-					parentCategory, Utils.convertLongToDate(productJSONObj
-							.getLong("latest_update")), hyper);
+					parentCategory, Utils.convertLongToDate(latestUpdate), hyper);
 			databaseHelper.getProductRuntimeDao().createOrUpdate(product);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -429,6 +435,14 @@ public class HiperPrecos extends Application {
 		if (filter.getMaxPriceFilter() > 0) {
 			Debug.PrintWarning(this, "Filter: Max Price -> " + filter.getMaxPriceFilter());
 			where.lt(Product.PRICE_FIELD_NAME, filter.getMaxPriceFilter()).and();
+		}
+		List<String> brandsToShow = new ArrayList<String>();
+		brandsToShow.addAll(filter.getBrandsFilter());
+		try {
+			brandsToShow.set(brandsToShow.indexOf(getResources().getString(R.string.non_available)), "");
+		} catch (Exception e) {}
+		if (brandsToShow.size()>0) {
+			where.in(Product.BRAND_FIELD_NAME, brandsToShow).and();
 		}
 		where.eq(Product.PARENT_CATEGORY_FIELD_NAME, currCat);
 		PreparedQuery<Product> preparedQuery = queryBuilder.prepare();
