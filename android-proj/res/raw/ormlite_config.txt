@@ -1,5 +1,5 @@
 #
-# generated on 2013/05/19 11:35:58
+# generated on 2013/06/10 06:49:41
 #
 # --table-start--
 dataClass=com.tinycoolthings.hiperprecos.models.Hyper
@@ -7,6 +7,7 @@ tableName=hypers
 # --table-fields-start--
 # --field-start--
 fieldName=id
+columnName=id
 id=true
 # --field-end--
 # --field-start--
@@ -15,6 +16,7 @@ canBeNull=false
 # --field-end--
 # --field-start--
 fieldName=latestUpdate
+columnName=latestUpdate
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -88,7 +90,6 @@ fieldName=discount
 # --field-start--
 fieldName=parentCat
 columnName=parentCat
-canBeNull=false
 foreign=true
 # --field-end--
 # --field-start--
@@ -96,6 +97,7 @@ fieldName=latestUpdate
 # --field-end--
 # --field-start--
 fieldName=hyper
+columnName=hyper
 canBeNull=false
 foreign=true
 # --field-end--

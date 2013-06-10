@@ -96,7 +96,7 @@ public class HiperPrecos extends Application {
 		} else {
 			latestSearchTerm = text;
 			CallWebServiceTask search = new CallWebServiceTask(Actions.SEARCH,
-					false);
+					true);
 			search.addParameter(Name.SEARCH_QUERY, text);
 			search.execute();
 		}
@@ -248,6 +248,10 @@ public class HiperPrecos extends Application {
 		return product;
 	}
 
+	// public Product addSearchResult(JSONObject producJSONObj) {
+	//
+	// }
+
 	public Product addProduct(JSONObject productJSONObj) {
 		Product product = null;
 		try {
@@ -267,39 +271,41 @@ public class HiperPrecos extends Application {
 			Long latestUpdate = null;
 			try {
 				brand = productJSONObj.getString("marca");
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			}
 			try {
 				price = productJSONObj.getDouble("preco");
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			}
 			try {
 				priceKg = productJSONObj.getDouble("preco_kg");
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			}
 			try {
 				weight = productJSONObj.getString("peso");
-			} catch (Exception e) {}
+			} catch (Exception e) {
+			}
 			try {
 				latestUpdate = productJSONObj.getLong("latest_update");
 			} catch (Exception e) {
 				try {
 					latestUpdate = productJSONObj.getLong("latestUpdate");
-				} catch (Exception e1) {}
+				} catch (Exception e1) {
+				}
 			}
 			product = new Product(productJSONObj.getInt("id"),
-					productJSONObj.getString("nome"),
-					brand,
-					price,
-					priceKg,
-					weight,
-					productJSONObj.getString("url_pagina"),
+					productJSONObj.getString("nome"), brand, price, priceKg,
+					weight, productJSONObj.getString("url_pagina"),
 					productJSONObj.getString("url_imagem"), desconto,
-					parentCategory, Utils.convertLongToDate(latestUpdate), hyper);
+					parentCategory, Utils.convertLongToDate(latestUpdate),
+					hyper);
 			databaseHelper.getProductRuntimeDao().createOrUpdate(product);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return product;
 	}
-	
+
 	public Category getCategoryById(int id) {
 		return databaseHelper.getCategoryRuntimeDao().queryForId(id);
 	}
@@ -399,10 +405,71 @@ public class HiperPrecos extends Application {
 				|| categoryHasProducts(selectedCat);
 	}
 
-	public List<Product> getProductsFromCategory(Category currCat,
+	public List<Product> getProductsFromIDsList(List<Integer> productsIDs,
 			int sortType, Filter filter) throws SQLException {
 		QueryBuilder<Product, Integer> queryBuilder = databaseHelper
 				.getProductRuntimeDao().queryBuilder();
+		switch (sortType) {
+		case Sort.NAME_ASCENDING:
+			queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
+			break;
+		case Sort.NAME_DESCENDING:
+			queryBuilder.orderBy(Product.NAME_FIELD_NAME, false);
+			break;
+		case Sort.BRAND_ASCENDING:
+			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, true);
+			break;
+		case Sort.BRAND_DESCENDING:
+			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, false);
+			break;
+		case Sort.PRICE_ASCENDING:
+			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, true);
+			break;
+		case Sort.PRICE_DESCENDING:
+			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, false);
+			break;
+		}
+		Where<Product, Integer> where = queryBuilder.where();
+		if (!filter.getProductNameFilter().equals("")) {
+			Debug.PrintWarning(this,
+					"Filter: Product Name -> " + filter.getProductNameFilter());
+			where.like(Product.NAME_FIELD_NAME,
+					"%" + filter.getProductNameFilter() + "%").and();
+		}
+		if (filter.getMinPriceFilter() > 0) {
+			Debug.PrintWarning(this,
+					"Filter: Min Price -> " + filter.getMinPriceFilter());
+			where.gt(Product.PRICE_FIELD_NAME, filter.getMinPriceFilter())
+					.and();
+		}
+		if (filter.getMaxPriceFilter() > 0) {
+			Debug.PrintWarning(this,
+					"Filter: Max Price -> " + filter.getMaxPriceFilter());
+			where.lt(Product.PRICE_FIELD_NAME, filter.getMaxPriceFilter())
+					.and();
+		}
+		List<String> brandsToShow = new ArrayList<String>();
+		brandsToShow.addAll(filter.getBrandsFilter());
+		try {
+			if (brandsToShow.indexOf(getResources().getString(
+					R.string.non_available)) != -1) {
+				brandsToShow.add("");
+				brandsToShow.add("null");
+			}
+		} catch (Exception e) {
+		}
+		if (brandsToShow.size() > 0) {
+			where.in(Product.BRAND_FIELD_NAME, brandsToShow).and();
+		}
+		where.in(Product.ID_FIELD_NAME, productsIDs);
+		PreparedQuery<Product> preparedQuery = queryBuilder.prepare();
+		return databaseHelper.getProductRuntimeDao().query(preparedQuery);
+	}
+	
+	public List<Category> getCategoriesFromIDsList(List<Integer> categoriesIDs,
+			int sortType) throws SQLException {
+		QueryBuilder<Category, Integer> queryBuilder = databaseHelper
+				.getCategoryRuntimeDao().queryBuilder();
 		switch (sortType) {
 			case Sort.NAME_ASCENDING:
 				queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
@@ -410,38 +477,67 @@ public class HiperPrecos extends Application {
 			case Sort.NAME_DESCENDING:
 				queryBuilder.orderBy(Product.NAME_FIELD_NAME, false);
 				break;
-			case Sort.BRAND_ASCENDING:
-				queryBuilder.orderBy(Product.BRAND_FIELD_NAME, true);
-				break;
-			case Sort.BRAND_DESCENDING:
-				queryBuilder.orderBy(Product.BRAND_FIELD_NAME, false);
-				break;
-			case Sort.PRICE_ASCENDING:
-				queryBuilder.orderBy(Product.PRICE_FIELD_NAME, true);
-				break;
-			case Sort.PRICE_DESCENDING:
-				queryBuilder.orderBy(Product.PRICE_FIELD_NAME, false);
-				break;
+		}
+		Where<Category, Integer> where = queryBuilder.where();
+		where.in(Category.ID_FIELD_NAME, categoriesIDs);
+		PreparedQuery<Category> preparedQuery = queryBuilder.prepare();
+		return databaseHelper.getCategoryRuntimeDao().query(preparedQuery);
+	}
+
+	public List<Product> getProductsFromCategory(Category currCat,
+			int sortType, Filter filter) throws SQLException {
+		QueryBuilder<Product, Integer> queryBuilder = databaseHelper
+				.getProductRuntimeDao().queryBuilder();
+		switch (sortType) {
+		case Sort.NAME_ASCENDING:
+			queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
+			break;
+		case Sort.NAME_DESCENDING:
+			queryBuilder.orderBy(Product.NAME_FIELD_NAME, false);
+			break;
+		case Sort.BRAND_ASCENDING:
+			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, true);
+			break;
+		case Sort.BRAND_DESCENDING:
+			queryBuilder.orderBy(Product.BRAND_FIELD_NAME, false);
+			break;
+		case Sort.PRICE_ASCENDING:
+			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, true);
+			break;
+		case Sort.PRICE_DESCENDING:
+			queryBuilder.orderBy(Product.PRICE_FIELD_NAME, false);
+			break;
 		}
 		Where<Product, Integer> where = queryBuilder.where();
 		if (!filter.getProductNameFilter().equals("")) {
-			Debug.PrintWarning(this, "Filter: Product Name -> " + filter.getProductNameFilter());
-			where.like(Product.NAME_FIELD_NAME, "%"+filter.getProductNameFilter()+"%").and();
+			Debug.PrintWarning(this,
+					"Filter: Product Name -> " + filter.getProductNameFilter());
+			where.like(Product.NAME_FIELD_NAME,
+					"%" + filter.getProductNameFilter() + "%").and();
 		}
 		if (filter.getMinPriceFilter() > 0) {
-			Debug.PrintWarning(this, "Filter: Min Price -> " + filter.getMinPriceFilter());
-			where.gt(Product.PRICE_FIELD_NAME, filter.getMinPriceFilter()).and();
+			Debug.PrintWarning(this,
+					"Filter: Min Price -> " + filter.getMinPriceFilter());
+			where.gt(Product.PRICE_FIELD_NAME, filter.getMinPriceFilter())
+					.and();
 		}
 		if (filter.getMaxPriceFilter() > 0) {
-			Debug.PrintWarning(this, "Filter: Max Price -> " + filter.getMaxPriceFilter());
-			where.lt(Product.PRICE_FIELD_NAME, filter.getMaxPriceFilter()).and();
+			Debug.PrintWarning(this,
+					"Filter: Max Price -> " + filter.getMaxPriceFilter());
+			where.lt(Product.PRICE_FIELD_NAME, filter.getMaxPriceFilter())
+					.and();
 		}
 		List<String> brandsToShow = new ArrayList<String>();
 		brandsToShow.addAll(filter.getBrandsFilter());
 		try {
-			brandsToShow.set(brandsToShow.indexOf(getResources().getString(R.string.non_available)), "");
-		} catch (Exception e) {}
-		if (brandsToShow.size()>0) {
+			if (brandsToShow.indexOf(getResources().getString(
+					R.string.non_available)) != -1) {
+				brandsToShow.add("");
+				brandsToShow.add("null");
+			}
+		} catch (Exception e) {
+		}
+		if (brandsToShow.size() > 0) {
 			where.in(Product.BRAND_FIELD_NAME, brandsToShow).and();
 		}
 		where.eq(Product.PARENT_CATEGORY_FIELD_NAME, currCat);
@@ -478,11 +574,11 @@ public class HiperPrecos extends Application {
 	public void refreshCategory(Category category) {
 		databaseHelper.getCategoryRuntimeDao().refresh(category);
 	}
-	
+
 	public void refreshHyper(Hyper hyper) {
 		databaseHelper.getHyperRuntimeDao().refresh(hyper);
 	}
-	
+
 	public void refreshProduct(Product product) {
 		databaseHelper.getProductRuntimeDao().refresh(product);
 	}

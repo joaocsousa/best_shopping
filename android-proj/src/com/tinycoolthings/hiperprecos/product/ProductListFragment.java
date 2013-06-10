@@ -70,19 +70,26 @@ public class ProductListFragment extends SherlockListFragment {
 	
 	public void setSort(int newSort) {
 		this.sort = newSort;
-		try {
-			products = HiperPrecos.getInstance().getProductsFromCategory(category, newSort, filter);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		adapter.setData(products);
-		adapter.notifyDataSetChanged();
+		this.updateProductsList();
 	}
 	
 	public void setFilter(Filter filter) {
 		this.filter = filter;
+		this.updateProductsList();
+	}
+	
+	public int getResultCount() {
 		try {
-			products = HiperPrecos.getInstance().getProductsFromCategory(category, this.sort, filter);
+			return HiperPrecos.getInstance().getProductsFromCategory(category, this.sort, this.filter).size();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	private void updateProductsList() {
+		try {
+			products = HiperPrecos.getInstance().getProductsFromCategory(category, this.sort, this.filter);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

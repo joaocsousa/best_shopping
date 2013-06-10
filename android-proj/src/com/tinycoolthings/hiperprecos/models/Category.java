@@ -4,7 +4,6 @@ import java.util.Date;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
 @DatabaseTable(tableName = "categories")
@@ -13,6 +12,7 @@ public class Category {
 	public static final String PARENT_CATEGORY_FIELD_NAME = "parentCat";
 	public static final String HYPER_FIELD_NAME = "hyper";
 	public static final String NAME_FIELD_NAME = "name";
+	public static final String ID_FIELD_NAME = "id";
 
 	@DatabaseField(id = true)
 	private int id;

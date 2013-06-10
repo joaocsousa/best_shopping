@@ -7,13 +7,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
-import android.support.v4.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -32,6 +32,7 @@ import com.tinycoolthings.hiperprecos.product.ProductView;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Filter;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class SearchResults extends SherlockFragmentActivity {
@@ -39,7 +40,13 @@ public class SearchResults extends SherlockFragmentActivity {
 	ArrayList<Product> products = new ArrayList<Product>();
 	ArrayList<Category> categories = new ArrayList<Category>();
 	
-	private static int[] currSelectedSort = new int[] {Sort.NAME_ASCENDING, Sort.NAME_ASCENDING};
+	private Filter currFilter = new Filter();
+	private Filter originalFilter = null;
+	
+	private int origMinPrice = 0;
+	private int origMaxPrice = 0;
+	
+	private int currSelectedSort = Constants.Sort.NAME_ASCENDING;
 	
 	private static boolean viewingProductsList = true;
 	
@@ -114,6 +121,7 @@ public class SearchResults extends SherlockFragmentActivity {
 		setContentView(R.layout.search_layout);
 		
 		String searchRes = getIntent().getStringExtra(Constants.Extras.SEARCH_RESULT);
+		Debug.PrintDebug(this, searchRes);
 		try {
 			JSONObject searchJSON = new JSONObject(searchRes);
 			JSONArray prodMarcaJSON = searchJSON.getJSONArray("prodPorMarca");
@@ -131,6 +139,7 @@ public class SearchResults extends SherlockFragmentActivity {
 			for (int i=0;i<prodNomeJSON.length();i++) {
 				products.add(HiperPrecos.getInstance().addProduct(prodNomeJSON.getJSONObject(i)));
 			}
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -148,7 +157,7 @@ public class SearchResults extends SherlockFragmentActivity {
         HiperPrecos.getInstance().setAppContext(this);
         
         /** Creating an instance of FragmentPagerAdapter */
-        fragmentPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager());
+        fragmentPagerAdapter = new SearchPagerAdapter(getSupportFragmentManager(), products, categories);
         
         /** Getting a reference to ViewPager from the layout */
         mPager = (ViewPager)findViewById(R.id.search_results_pager);
@@ -170,12 +179,14 @@ public class SearchResults extends SherlockFragmentActivity {
         
         /** Defining tab listener */
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			
+        	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 				mPager.setCurrentItem(tab.getPosition());
 			}
+        	
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
+			
 			@Override
 			public void onTabReselected(Tab tab, FragmentTransaction ft) {}
         };
@@ -210,7 +221,7 @@ public class SearchResults extends SherlockFragmentActivity {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.menu_search, menu);
-		final MenuItem searchMenuItem = menu.findItem( R.id.menu_search); // get my MenuItem with placeholder submenu
+		final MenuItem searchMenuItem = menu.findItem(R.id.menu_search); // get my MenuItem with placeholder submenu
 		// Get the SearchView and set the searchable configuration
 	    SearchView searchView = (SearchView) searchMenuItem.getActionView();
 		
@@ -256,7 +267,7 @@ public class SearchResults extends SherlockFragmentActivity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(getResources().getString(R.string.order));
 		final int sortType = viewingProductsList ? 0 : 1;
-		int selected = currSelectedSort[sortType];
+		int selected = currSelectedSort;
 		String[] options = null;
 		if (viewingProductsList) {
 			options = new String[] {
@@ -269,24 +280,16 @@ public class SearchResults extends SherlockFragmentActivity {
 			};
 		} else {
 			options = new String[] {
-					getResources().getString(R.string.nome_asc),
-					getResources().getString(R.string.nome_desc)
+				getResources().getString(R.string.nome_asc),
+				getResources().getString(R.string.nome_desc)
 			};
 		}
 		builder.setSingleChoiceItems( options, selected, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog,int which) {
-				if (currSelectedSort[sortType] != which) {
-					currSelectedSort[sortType] = which;
-					
-					if (viewingProductsList) {
-//						currSelectedSort[sortType]
-//						HiperPrecos.getInstance().setLatestProdSearch(products);
-					} else {
-//						(currSelectedSort[sortType] == 1)
-//						HiperPrecos.getInstance().setLatestCatSearch(categories);
-					}
-					fragmentPagerAdapter.notifyDataSetChanged();
+				if (currSelectedSort != which) {
+					currSelectedSort = which;
+					fragmentPagerAdapter.setSort(currSelectedSort);
 				}
 				dialog.dismiss();
 			    mPager.requestFocus();
@@ -295,5 +298,5 @@ public class SearchResults extends SherlockFragmentActivity {
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
-	
+
 }

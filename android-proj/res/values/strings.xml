@@ -27,5 +27,5 @@
 	<string name="brands">Marcas</string>
 	<string name="all_brands">Todas</string>
 	<string name="reset">Repôr</string>
-	
+	<string name="server_down">Erro de ligação. Por favor tente mais tarde.</string>
 </resources>

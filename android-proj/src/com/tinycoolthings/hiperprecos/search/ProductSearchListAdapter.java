@@ -1,6 +1,7 @@
 package com.tinycoolthings.hiperprecos.search;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -214,12 +215,13 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	        return ImageStorage.getFileFromStorage(HiperPrecos.getInstance(), mFileName);
 	    }
 	
-	    @SuppressLint("NewApi")
+	    @SuppressWarnings("deprecation")
+		@SuppressLint("NewApi")
 		@Override
 	    protected void onPostExecute(Bitmap bitmap) {
 	    	if (mHolder.position == mPosition) {
 	        	if (bitmap == null) {
-	        		if (mHiper.toLowerCase().contains("continente")) {
+	        		if (mHiper.toLowerCase(Locale.FRENCH).contains("continente")) {
 	        			mHolder.img.setBackgroundResource(R.drawable.continente_not_found);
 	        		}
 	        	} else {
@@ -232,6 +234,6 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	        }
 	    }
 	}
-	
+
 }
 

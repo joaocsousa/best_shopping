@@ -230,12 +230,13 @@ public class ProductList  extends SherlockFragmentActivity {
 						currFilter.removeBrandFilter(listAdapter.getItem(i));
 					}
 				}
-				productListFrag.setFilter(currFilter);
-				if (productListFrag.getListAdapter().getCount() == 0) {
-					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new NoResultsFragment()).commit();
-				} else {
-					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
-				}
+//				int resCount = productListFrag.getResultCount();
+//				if (resCount == 0) {
+//					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new NoResultsFragment()).commit();
+//				} else {
+					productListFrag.setFilter(currFilter);
+//					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
+//				}
 			}
 		});
 		buttonCancel.setOnClickListener(new OnClickListener() {

@@ -5,8 +5,10 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -77,11 +79,7 @@ public class MainActivity extends SherlockFragmentActivity {
 						intent.getStringExtra(Constants.Extras.CATEGORY));
 				enterSubCategory(category);
 			} else if (action.equals(Constants.Actions.SEARCH)) {
-				String result = intent
-						.getStringExtra(Constants.Extras.SEARCH_RESULT);
-				Debug.PrintDebug(this, result);
-				Intent searchResultsIntent = new Intent(MainActivity.this,
-						SearchResults.class);
+				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
 				searchResultsIntent.putExtras(intent);
 				startActivity(searchResultsIntent);
 			} else if (intent.getAction().equals(
@@ -92,8 +90,23 @@ public class MainActivity extends SherlockFragmentActivity {
 						intent.getIntExtra(Constants.Extras.CATEGORY, -1)));
 			} else if (intent.getAction().equals(
 					Constants.Actions.GET_LATEST_UPDATE)) {
-				String lastestUpdateStr = intent.getStringExtra(
-						Constants.Extras.LATEST_UPDATE).trim();
+				String lastestUpdateStr = "";
+				try {
+					lastestUpdateStr = intent.getStringExtra(Constants.Extras.LATEST_UPDATE).trim();
+				} catch (Exception e) {
+					HiperPrecos.getInstance().hideWaitingDialog();
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setMessage(getResources().getString(R.string.server_down))
+					       .setCancelable(false)
+					       .setNegativeButton(getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                finish();
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+					return;
+				}
 				Date latestUpdateDate = null;
 				boolean error = false;
 				try {

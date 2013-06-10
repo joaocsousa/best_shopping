@@ -69,7 +69,7 @@ public class ProductViewFragment extends SherlockFragment {
 		// MARCA
 		TextView tv_prod_brand = ((TextView)view.findViewById(R.id.tv_prod_brand));
 		String brand = "-";
-		if (product.getBrand()!=null && !product.getBrand().equals("null")) {
+		if (product.getBrand()!=null && !product.getBrand().equals("null") && !product.getBrand().equals("")) {
 			brand = product.getBrand();
 		}
 		tv_prod_brand.setText(brand);

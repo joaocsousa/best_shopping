@@ -1,5 +1,8 @@
 package com.tinycoolthings.hiperprecos.search;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
+import com.tinycoolthings.hiperprecos.models.Category;
+import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
+import com.tinycoolthings.hiperprecos.utils.Constants.Extras;
+import com.tinycoolthings.hiperprecos.utils.Filter;
+
 
 public class SearchResultFragment extends SherlockFragment {
 	
@@ -28,20 +37,35 @@ public class SearchResultFragment extends SherlockFragment {
 		
 		if (args.containsKey(Constants.Extras.PRODUCT)) {
 			
-//			ProductSearchListAdapter productSearchListAdapter = new ProductSearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestProdSearch());
+			ArrayList<Product> products = new ArrayList<Product>();
+			ArrayList<Integer> productsIDs = getArguments().getIntegerArrayList(Extras.PRODUCTS);
+			int sort = getArguments().getInt(Extras.PRODUCT_SORT);
+			Filter filter = getArguments().getParcelable(Extras.FILTER);
+			try {
+				products.addAll(HiperPrecos.getInstance().getProductsFromIDsList(productsIDs, sort, filter));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		
+			ProductSearchListAdapter productSearchListAdapter = new ProductSearchListAdapter(HiperPrecos.getInstance().getAppContext(), products);
 			
-//			expandableList.setAdapter(productSearchListAdapter);
+			expandableList.setAdapter(productSearchListAdapter);
 			
 		} else if (args.containsKey(Constants.Extras.CATEGORY)) {
 			
+			ArrayList<Category> categories = new ArrayList<Category>();
+			ArrayList<Integer> categoriesIDs = getArguments().getIntegerArrayList(Extras.CATEGORIES);
+			for (int i=0;i<categoriesIDs.size();i++) {
+				categories.add(HiperPrecos.getInstance().getCategoryById(categoriesIDs.get(i)));
+			}
+			
 			Debug.PrintError(this, "Displaying categorias!");
 			
-//			CategorySearchListAdapter categorySearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), HiperPrecos.getInstance().getLatestCatSearch());
+			CategorySearchListAdapter categorySearchListAdapter = new CategorySearchListAdapter(HiperPrecos.getInstance().getAppContext(), categories);
 			
-//			expandableList.setAdapter(categorySearchListAdapter);
+			expandableList.setAdapter(categorySearchListAdapter);
 			
 		}
-		
 		
 	}
 }

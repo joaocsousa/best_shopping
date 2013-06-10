@@ -29,7 +29,7 @@ public class ProductResultsFragment extends SherlockListFragment {
 		
 		Bundle args = getArguments();
 
-		ArrayList<Integer> prodsIDs = args.getIntegerArrayList(Constants.Extras.PRODUTOS);
+		ArrayList<Integer> prodsIDs = args.getIntegerArrayList(Constants.Extras.PRODUCTS);
 
 		Debug.PrintInfo(this, "Showing " + prodsIDs.size() + " products");
 		for (int i=0; i < prodsIDs.size(); i++) {

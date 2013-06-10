@@ -175,7 +175,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		if (this.action == Constants.Actions.GET_HYPERS) {
 			intent.putExtra(Constants.Extras.HIPERS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTOS) {
-			intent.putExtra(Constants.Extras.PRODUTOS, result);
+			intent.putExtra(Constants.Extras.PRODUCTS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUCT) {
 			intent.putExtra(Constants.Extras.PRODUCT, result);
 		} else if (this.action == Constants.Actions.GET_CATEGORIES) {

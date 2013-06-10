@@ -13,8 +13,9 @@ public class Product {
 	public static final String BRAND_FIELD_NAME = "brand";
 	public static final String PRICE_FIELD_NAME = "price";
 	public static final String HYPER_FIELD_NAME = "hyper";
+	public static final String ID_FIELD_NAME = "id";
 
-	@DatabaseField(id = true)
+	@DatabaseField(id = true, columnName = ID_FIELD_NAME)
 	private int id;
 	@DatabaseField(canBeNull = false, columnName = NAME_FIELD_NAME)
 	private String name;
@@ -32,7 +33,7 @@ public class Product {
 	private String ulrImage;
 	@DatabaseField(canBeNull = true)
 	private Double discount;
-	@DatabaseField(foreign = true, canBeNull = false, columnName = PARENT_CATEGORY_FIELD_NAME)
+	@DatabaseField(foreign = true, canBeNull = true, columnName = PARENT_CATEGORY_FIELD_NAME)
 	private Category parentCat;
 	@DatabaseField(canBeNull = true)
 	private Date latestUpdate;
@@ -41,7 +42,7 @@ public class Product {
 	
 	Product() {
 	}
-	
+
 	public Product(int id, String name, String brand, Double price,
 			Double priceKg, String weight, String ulrPage, String ulrImage,
 			Double discount, Category parentCat, Date latestUpdate,
