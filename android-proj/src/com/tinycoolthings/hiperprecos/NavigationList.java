@@ -56,11 +56,11 @@ public class NavigationList extends SherlockFragmentActivity {
 				Debug.PrintInfo(NavigationList.this, "Displaying category...");
 				enterSubCategory(HiperPrecos.getInstance().getCategoryById(intent.getIntExtra(Constants.Extras.CATEGORY, -1)));
 			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
-				String result = intent.getStringExtra(Constants.Extras.SEARCH_RESULT);
-				Debug.PrintDebug(this, result);
+				Debug.PrintInfo(NavigationList.this, "Received search result.");
 				Intent searchResultsIntent = new Intent(NavigationList.this, SearchResults.class);
 				searchResultsIntent.putExtras(intent);
 				startActivity(searchResultsIntent);
+				HiperPrecos.getInstance().hideWaitingDialog();
 			}
 		}
 	};
@@ -234,6 +234,8 @@ public class NavigationList extends SherlockFragmentActivity {
 		});
         
         mActionBar.setSelectedNavigationItem(preSelectedPosition);
+        
+        HiperPrecos.getInstance().hideWaitingDialog();
 	}
 
 	@Override

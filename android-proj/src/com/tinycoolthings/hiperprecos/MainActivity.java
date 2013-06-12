@@ -79,9 +79,11 @@ public class MainActivity extends SherlockFragmentActivity {
 						intent.getStringExtra(Constants.Extras.CATEGORY));
 				enterSubCategory(category);
 			} else if (action.equals(Constants.Actions.SEARCH)) {
+		        Debug.PrintInfo(MainActivity.this, "Received search result.");
 				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
 				searchResultsIntent.putExtras(intent);
 				startActivity(searchResultsIntent);
+				HiperPrecos.getInstance().hideWaitingDialog();
 			} else if (intent.getAction().equals(
 					Constants.Actions.DISPLAY_CATEGORY)) {
 				Debug.PrintInfo(MainActivity.this,
@@ -141,7 +143,6 @@ public class MainActivity extends SherlockFragmentActivity {
 					} else {
 						Debug.PrintInfo(MainActivity.this,
 								"Database up to date.");
-						HiperPrecos.getInstance().hideWaitingDialog();
 						populateHipers();
 					}
 				} catch (SQLException e) {
@@ -177,6 +178,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		mActionBar.setDisplayShowTitleEnabled(true);
+		
+		HiperPrecos.getInstance().setAppContext(this);
 
 	}
 
@@ -211,10 +214,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	}
 
 	protected void enterSubCategory(Category category) {
-
 		Debug.PrintInfo(MainActivity.this,
 				"Selected categoria -> " + category.getName());
-
 		Intent intent = new Intent(MainActivity.this, NavigationList.class);
 		Bundle bundle = new Bundle();
 		bundle.putInt(Constants.Extras.CATEGORY, category.getId());

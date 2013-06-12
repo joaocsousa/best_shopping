@@ -1,5 +1,5 @@
 #
-# generated on 2013/06/10 06:49:41
+# generated on 2013/06/12 01:25:01
 #
 # --table-start--
 dataClass=com.tinycoolthings.hiperprecos.models.Hyper
@@ -57,6 +57,7 @@ tableName=products
 # --table-fields-start--
 # --field-start--
 fieldName=id
+columnName=id
 id=true
 # --field-end--
 # --field-start--

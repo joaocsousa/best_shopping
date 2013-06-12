@@ -90,7 +90,7 @@ public class CategoryListFragment extends SherlockListFragment {
 			HiperPrecos.getInstance().sendBroadcast(intent);
 		} else {
 			Debug.PrintInfo(this, "Category has not loaded. Get info from web.");
-			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, true);
+			CallWebServiceTask getCategorias = new CallWebServiceTask(Constants.Actions.GET_CATEGORY, false);
 			getCategorias.addParameter(Name.CATEGORIA_ID, selectedCatID);
 			getCategorias.execute();
 		}

@@ -29,18 +29,18 @@ import com.tinycoolthings.hiperprecos.utils.ImageStorage;
 public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
 	private Context context;
-	private ArrayList<ArrayList<Product>> produtos = new ArrayList<ArrayList<Product>>();
+	private ArrayList<ArrayList<Product>> products = new ArrayList<ArrayList<Product>>();
 	private final LayoutInflater mInflater;
 	
 	private static class GroupViewHolder {
-		public TextView txtNome;
+		public TextView txtName;
 	}
 	
 	private static class ChildViewHolder {
-		public TextView txtNome;
-		public TextView txtMarca;
-		public TextView txtPreco;
-		public TextView txtPeso;
+		public TextView txtName;
+		public TextView txtBrand;
+		public TextView txtPrice;
+		public TextView txtWeight;
 		public ImageView img;
 		public int position;
 	}
@@ -48,7 +48,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	public ProductSearchListAdapter(Context context, ArrayList<Product> produtos) {
 		this.context = context;
 		
-		this.produtos.clear();
+		this.products.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
 		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHypers(); i++) {
@@ -65,7 +65,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 					currProdsHiper.add(currProd);
 				}
 			}
-			this.produtos.add(currProdsHiper);
+			this.products.add(currProdsHiper);
 		}
 		
 		this.mInflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -73,7 +73,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
-		return this.produtos.get(groupPosition).get(childPosition);
+		return this.products.get(groupPosition).get(childPosition);
 	}
 
 	@Override
@@ -92,25 +92,25 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		if (view == null) {
 			view = mInflater.inflate(R.layout.product_list_item, parent, false);
 			viewHolder = new ChildViewHolder();
-			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_item_prod_nome);
-			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_item_prod_marca);
-			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_item_prod_preco);
-			viewHolder.txtPeso = (TextView) view.findViewById(R.id.tv_item_prod_peso);
+			viewHolder.txtName = (TextView) view.findViewById(R.id.tv_item_prod_nome);
+			viewHolder.txtBrand = (TextView) view.findViewById(R.id.tv_item_prod_marca);
+			viewHolder.txtPrice = (TextView) view.findViewById(R.id.tv_item_prod_preco);
+			viewHolder.txtWeight = (TextView) view.findViewById(R.id.tv_item_prod_peso);
 			viewHolder.img = (ImageView) view.findViewById(R.id.iv_item_prod_img);
 			view.setTag(viewHolder);
 		} else {
 			viewHolder = (ChildViewHolder) view.getTag();
 		}
 		
-		final Product item = produtos.get(groupPosition).get(childPosition);
-		viewHolder.txtNome.setText(item.getName());
+		final Product item = products.get(groupPosition).get(childPosition);
+		viewHolder.txtName.setText(item.getName());
 		String marca = "-";
 		if (item.getBrand()!=null ) {
 			marca = item.getBrand();
 		}
-		viewHolder.txtMarca.setText(marca);
-		viewHolder.txtPreco.setText(String.valueOf(item.getPrice()) + "€");
-		viewHolder.txtPeso.setText(item.getWeight());
+		viewHolder.txtBrand.setText(marca);
+		viewHolder.txtPrice.setText(String.valueOf(item.getPrice()) + "€");
+		viewHolder.txtWeight.setText(item.getWeight());
 		viewHolder.position = childPosition;
 		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
 		Hyper productHyper = item.getHyper();
@@ -126,16 +126,10 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 			public void onClick(View v) {
 				int selectedProdID = item.getId();
 				Debug.PrintInfo(ProductSearchListAdapter.this, "Selected product with id " + selectedProdID);
-//				if (item.hasLoaded()) {
 				Intent intent = new Intent();
 				intent.setAction(Constants.Actions.DISPLAY_PRODUCT);
 				intent.putExtra(Constants.Extras.PRODUCT, selectedProdID);
 				HiperPrecos.getInstance().sendBroadcast(intent);
-//				} else {
-//					CallWebServiceTask getProduto = new CallWebServiceTask(Constants.Actions.GET_PRODUCT, true);
-//					getProduto.addParameter(Name.PRODUTO_ID, selectedProdID);
-//					getProduto.execute();
-//				}
 			}
 		});
 	
@@ -145,17 +139,17 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public int getChildrenCount(int groupPosition) {
-		return this.produtos.get(groupPosition).size();
+		return this.products.get(groupPosition).size();
 	}
 
 	@Override
 	public Object getGroup(int groupPosition) {
-		return this.produtos.get(groupPosition);
+		return this.products.get(groupPosition);
 	}
 
 	@Override
 	public int getGroupCount() {
-		return this.produtos.size();
+		return this.products.size();
 	}
 
 	@Override
@@ -173,7 +167,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		if (view == null) {
 			view = mInflater.inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
 			viewHolder = new GroupViewHolder();
-			viewHolder.txtNome = (TextView) view.findViewById(android.R.id.text1);
+			viewHolder.txtName = (TextView) view.findViewById(android.R.id.text1);
 			view.setTag(viewHolder);
 		} else {
 			viewHolder = (GroupViewHolder) view.getTag();
@@ -181,7 +175,7 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	         
 	    Hyper hiper = HiperPrecos.getInstance().getHypers().get(groupPosition);
 	    
-	    viewHolder.txtNome.setText(hiper.getName());
+	    viewHolder.txtName.setText(hiper.getName());
 	     
 	    return view;
 	    

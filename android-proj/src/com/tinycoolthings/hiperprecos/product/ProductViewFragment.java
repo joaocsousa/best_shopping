@@ -76,7 +76,11 @@ public class ProductViewFragment extends SherlockFragment {
 
 		// PESO
 		TextView tv_prod_weight = ((TextView)view.findViewById(R.id.tv_prod_weight));
-		tv_prod_weight.setText(product.getWeight());
+		String weight = "-";
+		if (product.getWeight()!=null && !product.getWeight().equals("null") && !product.getWeight().equals("")) {
+			weight = product.getWeight();
+		}
+		tv_prod_weight.setText(weight);
 	
 		// PRECO
 		TextView tv_prod_price = ((TextView)view.findViewById(R.id.tv_prod_price));

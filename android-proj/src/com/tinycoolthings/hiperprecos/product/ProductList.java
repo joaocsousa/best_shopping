@@ -25,14 +25,17 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.tinycoolthings.double_seekbar.DoubleSeekBar;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.models.Product;
+import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Filter;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 
 public class ProductList  extends SherlockFragmentActivity {
 
@@ -51,6 +54,12 @@ public class ProductList  extends SherlockFragmentActivity {
 				Debug.PrintInfo(this, "Displaying product...");
 				Product selectedProd = HiperPrecos.getInstance().getProductById(intent.getIntExtra(Constants.Extras.PRODUCT, -1));
 				showProduct(selectedProd);
+			} else if (intent.getAction().equals(Constants.Actions.SEARCH)) {
+				Debug.PrintInfo(ProductList.this, "Received search result.");
+				Intent searchResultsIntent = new Intent(ProductList.this, SearchResults.class);
+				searchResultsIntent.putExtras(intent);
+				startActivity(searchResultsIntent);
+				HiperPrecos.getInstance().hideWaitingDialog();
 			}
 		}
 	};
@@ -65,13 +74,6 @@ public class ProductList  extends SherlockFragmentActivity {
 			Bundle bundle = getIntent().getExtras();
 			Category category = HiperPrecos.getInstance().getCategoryById(bundle.getInt(Constants.Extras.CATEGORY));
 			String title = "";
-			Category parentCategory = category.getParentCat();
-			if (parentCategory!=null) {
-				HiperPrecos.getInstance().refreshCategory(parentCategory);
-				if (!parentCategory.getName().equals("") && !parentCategory.getName().equals("null")) {
-					title+=parentCategory.getName()+" > ";
-				}
-			}
 			title+=category.getName();
 			mActionBar.setTitle(title);
 			bundle.putInt(Constants.Extras.PRODUCT_SORT, Constants.Sort.NAME_ASCENDING);
@@ -88,7 +90,9 @@ public class ProductList  extends SherlockFragmentActivity {
 		Debug.PrintDebug(this, "onResume");
 		IntentFilter filterServerResp = new IntentFilter();
 		filterServerResp.addAction(Constants.Actions.DISPLAY_PRODUCT);
+		filterServerResp.addAction(Constants.Actions.SEARCH);
 		registerReceiver(broadcastReceiver, filterServerResp);
+		HiperPrecos.getInstance().setAppContext(this);
 	}
 	
 	@Override
@@ -99,10 +103,31 @@ public class ProductList  extends SherlockFragmentActivity {
 	}
 	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-	   MenuInflater inflater = getSupportMenuInflater();
-	   inflater.inflate(R.menu.product_list_menu, menu);
-	   return true;
+	public boolean onPrepareOptionsMenu(final Menu menu) {
+		menu.clear();
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.product_list_menu, menu);
+		// Get the SearchView and set the searchable configuration
+	    final MenuItem menuItem = menu.findItem(R.id.menu_search);
+		
+		SearchView searchView = (SearchView) menuItem.getActionView();
+		
+	    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+	    	@Override
+	    	public boolean onQueryTextSubmit(String query) {
+	    		if (Utils.validSearch(query)) {
+	    			menuItem.collapseActionView();
+	    		}
+	    		HiperPrecos.getInstance().search(query);
+	            return false;
+	        }
+	        @Override
+	        public boolean onQueryTextChange(String newText) {
+	            return false;
+	        }
+	    });
+		return super.onPrepareOptionsMenu(menu);
 	}
 	
 	@Override
@@ -230,13 +255,7 @@ public class ProductList  extends SherlockFragmentActivity {
 						currFilter.removeBrandFilter(listAdapter.getItem(i));
 					}
 				}
-//				int resCount = productListFrag.getResultCount();
-//				if (resCount == 0) {
-//					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new NoResultsFragment()).commit();
-//				} else {
-					productListFrag.setFilter(currFilter);
-//					getSupportFragmentManager().beginTransaction().replace(android.R.id.content, productListFrag).commit();
-//				}
+				productListFrag.setFilter(currFilter);
 			}
 		});
 		buttonCancel.setOnClickListener(new OnClickListener() {
