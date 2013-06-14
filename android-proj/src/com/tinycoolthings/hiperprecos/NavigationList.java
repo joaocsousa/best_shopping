@@ -143,6 +143,8 @@ public class NavigationList extends SherlockFragmentActivity {
 		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORY);
 		filterServerResp.addAction(Constants.Actions.SEARCH);
 		registerReceiver(broadcastReceiver, filterServerResp);
+		
+		HiperPrecos.getInstance().setAppContext(this);
 	}
 	
 	@Override

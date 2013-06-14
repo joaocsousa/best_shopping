@@ -99,6 +99,7 @@ public class ProductList  extends SherlockFragmentActivity {
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
 		Debug.PrintDebug(this, "onPause");
+		HiperPrecos.getInstance().hideWaitingDialog();
 		super.onPause();
 	}
 	
