@@ -1,8 +1,5 @@
 package com.tinycoolthings.hiperprecos.search;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +22,10 @@ import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
@@ -109,7 +110,8 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 			marca = item.getBrand();
 		}
 		viewHolder.txtBrand.setText(marca);
-		viewHolder.txtPrice.setText(String.valueOf(item.getPrice()) + "€");
+        DecimalFormat formatter = new DecimalFormat("#.##");
+		viewHolder.txtPrice.setText(formatter.format(item.getPrice()) + "€");
 		viewHolder.txtWeight.setText(item.getWeight());
 		viewHolder.position = childPosition;
 		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));

@@ -4,8 +4,20 @@
 	<item
         android:id="@+id/menu_search"
         android:actionViewClass="com.actionbarsherlock.widget.SearchView"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="?img_search"
         android:showAsAction="always|withText|collapseActionView"
-        android:title="@string/abs__searchview_description_search" />
+        android:title="@string/search" />
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="?img_refresh"
+        android:showAsAction="always|withText|collapseActionView"
+        android:title="@string/refresh" />
+
+    <item
+        android:id="@+id/shopping_list"
+        android:icon="?img_basket"
+        android:showAsAction="always|withText|collapseActionView"
+        android:title="@string/shopping_list" />
 
 </menu>

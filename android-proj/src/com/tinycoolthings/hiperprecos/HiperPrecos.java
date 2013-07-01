@@ -1,14 +1,5 @@
 package com.tinycoolthings.hiperprecos;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
@@ -31,6 +22,15 @@ import com.tinycoolthings.hiperprecos.utils.Constants.Sort;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Filter;
 import com.tinycoolthings.hiperprecos.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class HiperPrecos extends Application {
 
@@ -532,4 +532,32 @@ public class HiperPrecos extends Application {
 	public void refreshProduct(Product product) {
 		databaseHelper.getProductRuntimeDao().refresh(product);
 	}
+
+    public void updateProduct(Product product) {
+        databaseHelper.getProductRuntimeDao().update(product);
+    }
+
+    public void saveProductInList(Product product) {
+//        ProductList productList = null;
+//        try {
+//            productList = new ProductList(hyperJSONObj.getInt("id"),
+//                    hyperJSONObj.getString("nome"),
+//                    Utils.convertLongToDate(hyperJSONObj
+//                            .getLong("latestUpdate") * 1000));
+//            databaseHelper.getHyperRuntimeDao().createOrUpdate(hyper);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return hyper;
+    }
+
+    public List<Product> getProductsFromHyperList(Hyper hyper) throws SQLException {
+        QueryBuilder<Product, Integer> queryBuilder = databaseHelper
+                .getProductRuntimeDao().queryBuilder();
+        queryBuilder.orderBy(Product.NAME_FIELD_NAME, true);
+        queryBuilder.where().eq(Product.HYPER_FIELD_NAME, hyper).and().eq(Product.IS_IN_LIST_FIELD_NAME, Boolean.TRUE);
+        PreparedQuery<Product> preparedQuery = queryBuilder.prepare();
+        return databaseHelper.getProductRuntimeDao().query(preparedQuery);
+    }
+
 }

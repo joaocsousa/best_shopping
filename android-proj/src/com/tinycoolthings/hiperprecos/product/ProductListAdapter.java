@@ -1,8 +1,5 @@
 package com.tinycoolthings.hiperprecos.product;
 
-import java.util.List;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +21,10 @@ import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
+
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Locale;
 
 @SuppressLint("NewApi")
 public class ProductListAdapter extends ArrayAdapter<Product> {
@@ -80,7 +81,8 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 			marca = item.getBrand();
 		}
 		viewHolder.txtMarca.setText(marca);
-		viewHolder.txtPreco.setText(String.valueOf(item.getPrice()) + " €");
+        DecimalFormat formatter = new DecimalFormat("#.##");
+		viewHolder.txtPreco.setText(formatter.format(item.getPrice()) + " €");
 		String peso = "-";
 		if (item.getWeight()!=null && !item.getWeight().equals("") && !item.getWeight().equals("null")) {
 			peso = item.getWeight();

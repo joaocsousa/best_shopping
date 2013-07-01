@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="img_basket" format="reference"/>
+    <attr name="img_in_basket" format="reference"/>
+    <attr name="img_out_basket" format="reference"/>
+    <attr name="img_filter" format="reference"/>
+    <attr name="img_browser" format="reference"/>
+    <attr name="img_refresh" format="reference"/>
+    <attr name="img_search" format="reference"/>
+    <attr name="img_sort" format="reference"/>
+</resources>

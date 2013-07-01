@@ -1,9 +1,5 @@
 package com.tinycoolthings.hiperprecos.product;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +13,10 @@ import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Filter;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductListFragment extends SherlockListFragment {
 
@@ -54,7 +54,7 @@ public class ProductListFragment extends SherlockListFragment {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		/** Creating array adapter to set data in listview */
         adapter = new ProductListAdapter(getActivity().getBaseContext());
         adapter.setData(products);
@@ -143,4 +143,5 @@ public class ProductListFragment extends SherlockListFragment {
 	public List<String> getBrandsFilter() {
 		return this.brands;
 	}
+
 }

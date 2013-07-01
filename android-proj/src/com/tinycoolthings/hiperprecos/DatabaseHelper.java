@@ -1,7 +1,5 @@
 package com.tinycoolthings.hiperprecos;
 
-import java.sql.SQLException;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -16,6 +14,8 @@ import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 
+import java.sql.SQLException;
+
 /**
  * Database helper class used to manage the creation and upgrading of your database. This class also usually provides
  * the DAOs used by the other classes.
@@ -27,7 +27,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	// any time you make changes to your database objects, you may have to increase the database version
 	private static final int DATABASE_VERSION = 1;
 
-	// the DAO object we use to access the SimpleData table
 	// the DAO object we use to access the SimpleData table
 	private Dao<Hyper, Integer> hyperDao = null;
 	private Dao<Category, Integer> categoryDao = null;

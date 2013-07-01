@@ -1,18 +1,5 @@
 package com.tinycoolthings.hiperprecos.serverComm;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 
@@ -22,6 +9,19 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 	private String action;
@@ -173,7 +173,7 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		Intent intent = new Intent();
 		intent.setAction(this.action);
 		if (this.action == Constants.Actions.GET_HYPERS) {
-			intent.putExtra(Constants.Extras.HIPERS, result);
+			intent.putExtra(Constants.Extras.HYPERS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUTOS) {
 			intent.putExtra(Constants.Extras.PRODUCTS, result);
 		} else if (this.action == Constants.Actions.GET_PRODUCT) {

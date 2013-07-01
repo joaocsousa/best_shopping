@@ -1,10 +1,5 @@
 package com.tinycoolthings.hiperprecos;
 
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,306 +20,329 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
-import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapater;
+import com.tinycoolthings.hiperprecos.category.CategoryListPagerAdapter;
 import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.models.Hyper;
 import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
+import com.tinycoolthings.hiperprecos.shoppingList.ShoppingList;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Utils;
 
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
 public class MainActivity extends SherlockFragmentActivity {
 
-	private ActionBar mActionBar;
-	private ViewPager mPager;
-	private ActionBar.TabListener tabListener;
+    private ActionBar mActionBar;
+    private ViewPager mPager;
+    private ActionBar.TabListener tabListener;
+    private Integer nrCatsListsReceived = 0;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Constants.Actions.GET_HYPERS)) {
+                // Received hypers
+                HiperPrecos.getInstance().addHypers(
+                        intent.getStringExtra(Constants.Extras.HYPERS));
+                // get categories for each hyper
+                List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
+                for (int i = 0; i < hypers.size(); i++) {
+                    CallWebServiceTask getCategories = new CallWebServiceTask(
+                            Constants.Actions.GET_CATEGORIES, false);
+                    getCategories
+                            .addParameter(
+                                    Constants.Server.Parameter.Name.PARENT_CATEGORY,
+                                    -1);
+                    getCategories.addParameter(
+                            Constants.Server.Parameter.Name.HYPER, hypers
+                            .get(i).getId());
+                    getCategories.execute();
+                }
+            } else if (action.equals(Constants.Actions.GET_CATEGORIES)) {
+                nrCatsListsReceived++;
+                HiperPrecos.getInstance().addCategories(
+                        intent.getStringExtra(Constants.Extras.CATEGORIES));
+                if (nrCatsListsReceived == HiperPrecos.getInstance()
+                        .getNumberOfHypers()) {
+                    populateHipers();
+                }
+            } else if (action.equals(Constants.Actions.GET_CATEGORY)) {
+                Debug.PrintInfo(MainActivity.this,
+                        "GET_CATEGORY -> Displaying category...");
+                Category category = HiperPrecos.getInstance().addCategory(
+                        intent.getStringExtra(Constants.Extras.CATEGORY));
+                enterSubCategory(category);
+            } else if (action.equals(Constants.Actions.SEARCH)) {
+                Debug.PrintInfo(MainActivity.this, "Received search result.");
+                Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
+                searchResultsIntent.putExtras(intent);
+                startActivity(searchResultsIntent);
+                HiperPrecos.getInstance().hideWaitingDialog();
+            } else if (intent.getAction().equals(
+                    Constants.Actions.DISPLAY_CATEGORY)) {
+                Debug.PrintInfo(MainActivity.this,
+                        "DISPLAY_CATEGORY -> Displaying category...");
+                enterSubCategory(HiperPrecos.getInstance().getCategoryById(
+                        intent.getIntExtra(Constants.Extras.CATEGORY, -1)));
+            } else if (intent.getAction().equals(
+                    Constants.Actions.GET_LATEST_UPDATE)) {
+                String lastestUpdateStr = "";
+                try {
+                    lastestUpdateStr = intent.getStringExtra(Constants.Extras.LATEST_UPDATE).trim();
+                } catch (Exception e) {
+                    HiperPrecos.getInstance().hideWaitingDialog();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(getResources().getString(R.string.server_down))
+                            .setCancelable(false)
+                            .setNegativeButton(getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    finish();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    return;
+                }
+                Date latestUpdateDate = null;
+                boolean error = false;
+                try {
+                    latestUpdateDate = Utils.convertStringToCal(
+                            lastestUpdateStr).getTime();
+                    if (latestUpdateDate == null) {
+                        throw new Exception("Error parsing latest update date");
+                    }
+                    Debug.PrintInfo(
+                            MainActivity.this,
+                            "Latest Server Update date: "
+                                    + Utils.dateToStr(latestUpdateDate));
+                    Date latestUpdateDbDate = HiperPrecos.getInstance()
+                            .getLatestDbUpdate();
+                    Debug.PrintInfo(
+                            MainActivity.this,
+                            "Latest DB Update date: "
+                                    + Utils.dateToStr(latestUpdateDate));
+                    if (latestUpdateDbDate.before(latestUpdateDate)) {
+                        Debug.PrintInfo(
+                                MainActivity.this,
+                                "\n\tLatestDbUpdateDate: "
+                                        + Utils.dateToStr(latestUpdateDbDate)
+                                        + "\n" + "\n\tlatestUpdateCal: "
+                                        + Utils.dateToStr(latestUpdateDate));
+                        Debug.PrintInfo(MainActivity.this,
+                                "New database available. Clean old database.");
+                        HiperPrecos.getInstance().deleteHypersFromDB();
+                        CallWebServiceTask getHypers = new CallWebServiceTask(
+                                Constants.Actions.GET_HYPERS, false);
+                        getHypers.execute();
+                    } else {
+                        Debug.PrintInfo(MainActivity.this,
+                                "Database up to date.");
+                        populateHipers();
+                    }
+                } catch (SQLException e) {
+                    error = true;
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    error = true;
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    error = true;
+                    e.printStackTrace();
+                }
+                if (error) {
+                    // error fetching date, get all hypers just in case
+                    CallWebServiceTask getHypers = new CallWebServiceTask(
+                            Constants.Actions.GET_HYPERS, false);
+                    getHypers.execute();
+                }
+            }
+        }
+    };
 
-	private Integer nrCatsListsReceived = 0;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			if (action.equals(Constants.Actions.GET_HYPERS)) {
-				// Received hypers
-				HiperPrecos.getInstance().addHypers(
-						intent.getStringExtra(Constants.Extras.HIPERS));
-				// get categories for each hyper
-				List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
-				for (int i = 0; i < hypers.size(); i++) {
-					CallWebServiceTask getCategories = new CallWebServiceTask(
-							Constants.Actions.GET_CATEGORIES, false);
-					getCategories
-							.addParameter(
-									Constants.Server.Parameter.Name.PARENT_CATEGORY,
-									-1);
-					getCategories.addParameter(
-							Constants.Server.Parameter.Name.HYPER, hypers
-									.get(i).getId());
-					getCategories.execute();
-				}
-			} else if (action.equals(Constants.Actions.GET_CATEGORIES)) {
-				nrCatsListsReceived++;
-				HiperPrecos.getInstance().addCategories(
-						intent.getStringExtra(Constants.Extras.CATEGORIES));
-				if (nrCatsListsReceived == HiperPrecos.getInstance()
-						.getNumberOfHypers()) {
-					populateHipers();
-				}
-			} else if (action.equals(Constants.Actions.GET_CATEGORY)) {
-				Debug.PrintInfo(MainActivity.this,
-						"GET_CATEGORY -> Displaying category...");
-				Category category = HiperPrecos.getInstance().addCategory(
-						intent.getStringExtra(Constants.Extras.CATEGORY));
-				enterSubCategory(category);
-			} else if (action.equals(Constants.Actions.SEARCH)) {
-		        Debug.PrintInfo(MainActivity.this, "Received search result.");
-				Intent searchResultsIntent = new Intent(MainActivity.this, SearchResults.class);
-				searchResultsIntent.putExtras(intent);
-				startActivity(searchResultsIntent);
-				HiperPrecos.getInstance().hideWaitingDialog();
-			} else if (intent.getAction().equals(
-					Constants.Actions.DISPLAY_CATEGORY)) {
-				Debug.PrintInfo(MainActivity.this,
-						"DISPLAY_CATEGORY -> Displaying category...");
-				enterSubCategory(HiperPrecos.getInstance().getCategoryById(
-						intent.getIntExtra(Constants.Extras.CATEGORY, -1)));
-			} else if (intent.getAction().equals(
-					Constants.Actions.GET_LATEST_UPDATE)) {
-				String lastestUpdateStr = "";
-				try {
-					lastestUpdateStr = intent.getStringExtra(Constants.Extras.LATEST_UPDATE).trim();
-				} catch (Exception e) {
-					HiperPrecos.getInstance().hideWaitingDialog();
-					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-					builder.setMessage(getResources().getString(R.string.server_down))
-					       .setCancelable(false)
-					       .setNegativeButton(getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-					           public void onClick(DialogInterface dialog, int id) {
-					                finish();
-					           }
-					       });
-					AlertDialog alert = builder.create();
-					alert.show();
-					return;
-				}
-				Date latestUpdateDate = null;
-				boolean error = false;
-				try {
-					latestUpdateDate = Utils.convertStringToCal(
-							lastestUpdateStr).getTime();
-					if (latestUpdateDate == null) {
-						throw new Exception("Error parsing latest update date");
-					}
-					Debug.PrintInfo(
-							MainActivity.this,
-							"Latest Server Update date: "
-									+ Utils.dateToStr(latestUpdateDate));
-					Date latestUpdateDbDate = HiperPrecos.getInstance()
-							.getLatestDbUpdate();
-					Debug.PrintInfo(
-							MainActivity.this,
-							"Latest DB Update date: "
-									+ Utils.dateToStr(latestUpdateDate));
-					if (latestUpdateDbDate.before(latestUpdateDate)) {
-						Debug.PrintInfo(
-								MainActivity.this,
-								"\n\tLatestDbUpdateDate: "
-										+ Utils.dateToStr(latestUpdateDbDate)
-										+ "\n" + "\n\tlatestUpdateCal: "
-										+ Utils.dateToStr(latestUpdateDate));
-						Debug.PrintInfo(MainActivity.this,
-								"New database available. Clean old database.");
-						HiperPrecos.getInstance().deleteHypersFromDB();
-						CallWebServiceTask getHypers = new CallWebServiceTask(
-								Constants.Actions.GET_HYPERS, false);
-						getHypers.execute();
-					} else {
-						Debug.PrintInfo(MainActivity.this,
-								"Database up to date.");
-						populateHipers();
-					}
-				} catch (SQLException e) {
-					error = true;
-					e.printStackTrace();
-				} catch (ParseException e) {
-					error = true;
-					e.printStackTrace();
-				} catch (Exception e) {
-					error = true;
-					e.printStackTrace();
-				}
-				if (error) {
-					// error fetching date, get all hypers just in case
-					CallWebServiceTask getHypers = new CallWebServiceTask(
-							Constants.Actions.GET_HYPERS, false);
-					getHypers.execute();
-				}
-			}
-		}
-	};
+        Debug.PrintDebug(this, "onCreate");
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		setContentView(R.layout.activity_main);
+        HiperPrecos.getInstance().setAppContext(this);
 
-		/** Getting a reference to action bar of this activity */
-		mActionBar = getSupportActionBar();
+        /** Getting a reference to action bar of this activity */
+        mActionBar = getSupportActionBar();
 
-		/** Set tab navigation mode */
-		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        /** Set tab navigation mode */
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-		mActionBar.setDisplayShowTitleEnabled(true);
-		
-		HiperPrecos.getInstance().setAppContext(this);
+        mActionBar.setDisplayShowTitleEnabled(true);
 
-	}
+        checkForUpdates();
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+    }
 
-		HiperPrecos.getInstance().setAppContext(this);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-		Debug.PrintDebug(this, "onResume");
+        HiperPrecos.getInstance().setAppContext(this);
 
-		IntentFilter filterServerResp = new IntentFilter();
-		filterServerResp.addAction(Constants.Actions.GET_HYPERS);
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORIES);
-		filterServerResp.addAction(Constants.Actions.GET_CATEGORY);
-		filterServerResp.addAction(Constants.Actions.SEARCH);
-		filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORY);
-		filterServerResp.addAction(Constants.Actions.GET_LATEST_UPDATE);
-		registerReceiver(broadcastReceiver, filterServerResp);
+        Debug.PrintDebug(this, "onResume");
 
-		mActionBar.removeAllTabs();
+        IntentFilter filterServerResp = new IntentFilter();
+        filterServerResp.addAction(Constants.Actions.GET_HYPERS);
+        filterServerResp.addAction(Constants.Actions.GET_CATEGORIES);
+        filterServerResp.addAction(Constants.Actions.GET_CATEGORY);
+        filterServerResp.addAction(Constants.Actions.SEARCH);
+        filterServerResp.addAction(Constants.Actions.DISPLAY_CATEGORY);
+        filterServerResp.addAction(Constants.Actions.GET_LATEST_UPDATE);
+        registerReceiver(broadcastReceiver, filterServerResp);
 
-		if (mPager != null) {
-			mPager.removeAllViews();
-		}
+    }
 
-		// check for update
-		CallWebServiceTask getLatestUpdate = new CallWebServiceTask(
-				Constants.Actions.GET_LATEST_UPDATE, false);
-		getLatestUpdate.execute();
+    protected void enterSubCategory(Category category) {
+        Debug.PrintInfo(MainActivity.this,
+                "Selected categoria -> " + category.getName());
+        Intent intent = new Intent(MainActivity.this, NavigationList.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(Constants.Extras.CATEGORY, category.getId());
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
 
-	}
+    private void populateHipers() {
 
-	protected void enterSubCategory(Category category) {
-		Debug.PrintInfo(MainActivity.this,
-				"Selected categoria -> " + category.getName());
-		Intent intent = new Intent(MainActivity.this, NavigationList.class);
-		Bundle bundle = new Bundle();
-		bundle.putInt(Constants.Extras.CATEGORY, category.getId());
-		intent.putExtras(bundle);
-		startActivity(intent);
+        nrCatsListsReceived = 0;
 
-	}
+        /** Getting a reference to ViewPager from the layout */
+        mPager = new ViewPager(this);
+        mPager.setId(Utils.getRandomInt());
+        LayoutParams pagerParams = new LayoutParams();
+        pagerParams.width = LayoutParams.MATCH_PARENT;
+        pagerParams.height = LayoutParams.MATCH_PARENT;
+        mPager.setLayoutParams(pagerParams);
 
-	private void populateHipers() {
+        ((RelativeLayout) findViewById(R.id.MainLayout)).addView(mPager);
 
-		nrCatsListsReceived = 0;
+        /** Getting a reference to FragmentManager */
+        FragmentManager fm = getSupportFragmentManager();
 
-		/** Getting a reference to ViewPager from the layout */
-		mPager = new ViewPager(this);
-		mPager.setId(Utils.getRandomInt());
-		LayoutParams pagerParams = new LayoutParams();
-		pagerParams.width = LayoutParams.MATCH_PARENT;
-		pagerParams.height = LayoutParams.MATCH_PARENT;
-		mPager.setLayoutParams(pagerParams);
+        /** Defining a listener for pageChange */
+        ViewPager.SimpleOnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                mActionBar.setSelectedNavigationItem(position);
+                super.onPageSelected(position);
+            }
+        };
 
-		((RelativeLayout) findViewById(R.id.MainLayout)).addView(mPager);
+        mPager.setOnPageChangeListener(pageChangeListener);
 
-		/** Getting a reference to FragmentManager */
-		FragmentManager fm = getSupportFragmentManager();
+        /** Creating an instance of FragmentPagerAdapter */
+        CategoryListPagerAdapter fragmentPagerAdapter = new CategoryListPagerAdapter(
+                fm);
 
-		/** Defining a listener for pageChange */
-		ViewPager.SimpleOnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
-			@Override
-			public void onPageSelected(int position) {
-				mActionBar.setSelectedNavigationItem(position);
-				super.onPageSelected(position);
-			}
-		};
+        /** Setting the FragmentPagerAdapter object to the viewPager object */
+        mPager.setAdapter(fragmentPagerAdapter);
 
-		mPager.setOnPageChangeListener(pageChangeListener);
+        /** Defining tab listener */
+        tabListener = new
 
-		/** Creating an instance of FragmentPagerAdapter */
-		CategoryListPagerAdapater fragmentPagerAdapter = new CategoryListPagerAdapater(
-				fm);
+                ActionBar.TabListener() {
+                    @Override
+                    public void onTabSelected(Tab tab, FragmentTransaction ft) {
+                        mPager.setCurrentItem(tab.getPosition());
+                    }
 
-		/** Setting the FragmentPagerAdapter object to the viewPager object */
-		mPager.setAdapter(fragmentPagerAdapter);
+                    @Override
+                    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+                    }
 
-		/** Defining tab listener */
-		tabListener = new ActionBar.TabListener() {
-			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {
-				mPager.setCurrentItem(tab.getPosition());
-			}
+                    @Override
+                    public void onTabReselected(Tab tab, FragmentTransaction ft) {
+                    }
+                };
 
-			@Override
-			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-			}
+        /** Create Tabs */
+        List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
+        for (int i = 0; i < hypers.size(); i++) {
+            Hyper currHyper = hypers.get(i);
+            String currHyperName = currHyper.getName();
+            /** Creating Tab */
+            Tab tab = mActionBar.newTab().setText(currHyperName).setTabListener(tabListener);
 
-			@Override
-			public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			}
-		};
+            mActionBar.addTab(tab);
+        }
 
-		/** Create Tabs */
-		List<Hyper> hipers = HiperPrecos.getInstance().getHypers();
-		for (int i = 0; i < hipers.size(); i++) {
-			Hyper currHiper = hipers.get(i);
-			String currHiperName = currHiper.getName();
-			/** Creating Tab */
-			Tab tab = mActionBar.newTab().setText(currHiperName)
-					.setTabListener(tabListener);
+        HiperPrecos.getInstance().hideWaitingDialog();
 
-			mActionBar.addTab(tab);
-		}
+    }
 
-		HiperPrecos.getInstance().hideWaitingDialog();
+    @Override
+    protected void onPause() {
+        unregisterReceiver(broadcastReceiver);
+        Debug.PrintDebug(this, "onPause");
+        super.onPause();
+    }
 
-	}
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.category_list_menu, menu);
+        // Get the SearchView and set the searchable configuration
+        final MenuItem menuItem = menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView) menuItem.getActionView();
 
-	@Override
-	protected void onPause() {
-		unregisterReceiver(broadcastReceiver);
-		Debug.PrintDebug(this, "onPause");
-		super.onPause();
-	}
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.category_list_menu, menu);
-		// Get the SearchView and set the searchable configuration
-		final MenuItem menuItem = menu.findItem(R.id.menu_search);
-		SearchView searchView = (SearchView) menuItem.getActionView();
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (Utils.validSearch(query)) {
+                    menuItem.collapseActionView();
+                }
+                HiperPrecos.getInstance().search(query);
+                return false;
+            }
 
-		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // suggestions go here
+                return false;
+            }
+        });
 
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-				if (Utils.validSearch(query)) {
-					menuItem.collapseActionView();
-				}
-				HiperPrecos.getInstance().search(query);
-				return false;
-			}
+        return super.onCreateOptionsMenu(menu);
+    }
 
-			@Override
-			public boolean onQueryTextChange(String newText) {
-				// suggestions go here
-				return false;
-			}
-		});
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.shopping_list:
+                startActivity(new Intent(this, ShoppingList.class));
+                break;
+            case R.id.menu_refresh:
+                // check for update
+                checkForUpdates();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-		return super.onCreateOptionsMenu(menu);
-	}
+    private void checkForUpdates() {
+        mActionBar.removeAllTabs();
+
+        if (mPager != null) {
+            mPager.removeAllViews();
+        }
+
+        CallWebServiceTask getLatestUpdate = new CallWebServiceTask(Constants.Actions.GET_LATEST_UPDATE, false);
+        getLatestUpdate.execute();
+
+    }
 
 }

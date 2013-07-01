@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!--
@@ -10,6 +11,14 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <item name="img_basket">@drawable/ic_holo_light_action_basket</item>
+        <item name="img_in_basket">@drawable/ic_holo_light_action_drop</item>
+        <item name="img_out_basket">@drawable/ic_holo_light_action_extract</item>
+        <item name="img_filter">@drawable/ic_holo_light_action_filter</item>
+        <item name="img_browser">@drawable/ic_holo_light_action_globe</item>
+        <item name="img_refresh">@drawable/ic_holo_light_action_reload</item>
+        <item name="img_search">@drawable/ic_holo_light_action_search</item>
+        <item name="img_sort">@drawable/ic_holo_light_action_sort</item>
     </style>
 
     <!-- Application theme. -->

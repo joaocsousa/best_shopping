@@ -1,87 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="7dp" >
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="7dp" >
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
         <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/product_filter"
-	        android:textSize="15sp" />
-	    <EditText
-	        android:id="@+id/et_filter_product_name"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="5dp"
-	        android:textSize="15sp"
-	        android:inputType="text"
-	        android:imeOptions="actionDone" >
-	        <requestFocus />
-	    </EditText>
-        
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/product_filter"
+                android:textSize="15sp"/>
+
+        <EditText
+                android:id="@+id/et_filter_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:textSize="15sp"
+                android:inputType="text"
+                android:imeOptions="actionDone">
+
+            <requestFocus/>
+        </EditText>
+
     </LinearLayout>
-    
-	<com.tinycoolthings.double_seekbar.DoubleSeekBar
-	    android:id="@+id/filter_price_double_sb"
-    	xmlns:app="http://schemas.android.com/apk/res/com.tinycoolthings.hiperprecos"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_marginTop="5dp"
-	    app:hasMaxSeekBar="true"
-	    app:minTitle="@string/minimum_price"
-	    app:maxTitle="@string/maximum_price"
-	    app:units="€"
-	    app:textSize="15sp"/>
 
-	<TextView
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="@string/brands"
-	    android:textSize="15sp"
-	    android:layout_marginTop="5dp" />
-    
-	<ListView
-	    android:id="@+id/lv_brands"
-	    android:layout_width="match_parent"
-	    android:layout_height="0dp"
-	    android:layout_weight="1"
-	    android:choiceMode="multipleChoice" >
-	</ListView>
+    <com.tinycoolthings.double_seekbar.DoubleSeekBar
+            xmlns:app="http://schemas.android.com/apk/res/com.tinycoolthings.hiperprecos"
+            android:id="@+id/filter_price_double_sb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:dsb_hasMaxSeekBar="true"
+            app:dsb_minTitle="@string/minimum_price"
+            app:dsb_maxTitle="@string/maximum_price"
+            app:dsb_units="€"
+            app:dsb_textSize="15sp"/>
 
-	<LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    android:layout_gravity="bottom"
-	    android:gravity="center">
-	    
-	    <Button
-	        android:id="@+id/btn_filter_ok"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@android:string/ok"
-		    style="?android:attr/buttonStyleSmall" />
-	    
-	    <Button
-	        android:id="@+id/btn_filter_cancel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@android:string/cancel"
-		    style="?android:attr/buttonStyleSmall" />
-	    <Button
-	        android:id="@+id/btn_filter_reset"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/reset"
-		    style="?android:attr/buttonStyleSmall" />
-	    
-	</LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/brands"
+            android:textSize="15sp"
+            android:layout_marginTop="5dp"/>
+
+    <ListView
+            android:id="@+id/lv_brands"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:choiceMode="multipleChoice" >
+    </ListView>
 
 </LinearLayout>

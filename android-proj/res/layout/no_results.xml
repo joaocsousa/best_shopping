@@ -10,6 +10,6 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textSize="30sp"
-        android:text="@string/sem_resultados" />
+        android:text="@string/no_results" />
     
 </RelativeLayout>

@@ -32,6 +32,7 @@
         <activity android:name=".product.ProductView"></activity>
         <activity android:name=".search.SearchResults"></activity>
         <activity android:name=".product.ProductList"></activity>
+        <activity android:name=".shoppingList.ShoppingList"></activity>
     </application>
 
 </manifest>

@@ -1,9 +1,5 @@
 package com.tinycoolthings.hiperprecos.search;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +10,10 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.tinycoolthings.hiperprecos.HiperPrecos;
 import com.tinycoolthings.hiperprecos.R;
 import com.tinycoolthings.hiperprecos.models.Product;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class SearchResultFragment extends SherlockFragment {

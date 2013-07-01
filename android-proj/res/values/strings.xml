@@ -8,7 +8,8 @@
 	<string name="prod_img_last_update">Atualizado em</string>
 	<string name="yesterday">Ontem</string>
 	<string name="today">Hoje</string>
-	<string name="sem_resultados">Sem Resultados</string>
+	<string name="no_results">Sem Resultados</string>
+    <string name="no_products">Sem Produtos</string>
 	<string name="filter">Filtrar</string>
 	<string name="loading">A Carregar</string>
 	<string name="wait">Espere por favor&#8230;</string>
@@ -22,10 +23,22 @@
 	<string name="short_search_term">Pesquisa curta!\n\nMínimo - 3 letras.</string>
 	<string name="minimum_price">Preço Mínimo</string>
 	<string name="maximum_price">Preço Máximo</string>
-	<string name="product_filter">Produto:</string>
+	<string name="product_filter">Nome:</string>
 	<string name="non_available">n/d</string>
 	<string name="brands">Marcas</string>
 	<string name="all_brands">Todas</string>
 	<string name="reset">Repôr</string>
 	<string name="server_down">Erro de ligação. Por favor tente mais tarde.</string>
+    <string name="shopping_list">Compras</string>
+    <string name="save_in_list">Adicionar</string>
+    <string name="remove_from_list">Adicionar</string>
+    <string name="product_added">Produto guardado na lista de compras.</string>
+    <string name="product_removed">Produto removido da lista de compras.</string>
+    <string name="total">Total:</string>
+    <string name="quantity">Quantidade</string>
+    <string name="choose_quantity">Quantidade a comprar:</string>
+    <string name="change">Alterar</string>
+    <string name="sort">Ordenar</string>
+    <string name="search">Procurar</string>
+    <string name="refresh">Atualizar</string>
 </resources>

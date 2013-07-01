@@ -11,10 +11,12 @@ public class Constants {
 		public static final String DISPLAY_PRODUCT = "COM.TINYCOOLTHINGS.HIPERPRECOS.DISPLAY_PRODUTO";
 		public static final String SEARCH = "COM.TINYCOOLTHINGS.HIPERPRECOS.SEARCH";
 		public static final String GET_LATEST_UPDATE = "COM.TINYCOOLTHINGS.HIPERPRECOS.GET_LATEST_UPDATE";
-	}
+        public static final String SET_NEW_SHOPPING_LIST_TOTAL = "COM.TINYCOOLTHINGS.HIPERPRECOS.SET_NEW_SHOPPING_LIST_TOTAL";
+        public static final String SHOPPING_LIST_CHANGED = "COM.TINYCOOLTHINGS.HIPERPRECOS.SHOPPING_LIST_CHANGED";
+    }
 
 	public static final class Extras {
-		public static final String HIPERS = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPERS";
+		public static final String HYPERS = "COM.TINYCOOLTHINGS.HIPERPRECOS.HYPERS";
 		public static final String HYPER = "COM.TINYCOOLTHINGS.HIPERPRECOS.HIPER";
 		public static final String CATEGORIES = "COM.TINYCOOLTHINGS.HIPERPRECOS.CATEGORIAS";
 		public static final String CATEGORY = "COM.TINYCOOLTHINGS.HIPERPRECOS.CATEGORIA";
@@ -25,7 +27,8 @@ public class Constants {
 		public static final String ORIGIN = "COM.TINYCOOLTHINGS.HIPERPRECOS.ORIGIN";
 		public static final String LATEST_UPDATE = "COM.TINYCOOLTHINGS.HIPERPRECOS.LATEST_UPDATE";
 		public static final String FILTER = "COM.TINYCOOLTHINGS.HIPERPRECOS.FILTER";
-	}
+        public static final String SHOPPING_LIST_TOTAL = "COM.TINYCOOLTHINGS.HIPERPRECOS.SHOPPING_LIST_TOTAL";
+    }
 	public static final class Server {
 		public static final class Definitions {
 			public static final Double VERSION = 0.7;

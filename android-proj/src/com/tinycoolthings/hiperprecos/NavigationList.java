@@ -1,13 +1,5 @@
 package com.tinycoolthings.hiperprecos;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +23,14 @@ import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class NavigationList extends SherlockFragmentActivity {
 
@@ -91,6 +91,7 @@ public class NavigationList extends SherlockFragmentActivity {
 		menu.clear();
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.category_list_menu, menu);
+        menu.findItem(R.id.menu_refresh).setVisible(false);
 		// Get the SearchView and set the searchable configuration
 	    final MenuItem menuItem = menu.findItem(R.id.menu_search);
 		

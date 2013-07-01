@@ -1,10 +1,10 @@
 package com.tinycoolthings.hiperprecos.models;
 
-import java.util.Date;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.tinycoolthings.hiperprecos.utils.Utils;
+
+import java.util.Date;
 
 @DatabaseTable(tableName = "categories")
 public class Category {

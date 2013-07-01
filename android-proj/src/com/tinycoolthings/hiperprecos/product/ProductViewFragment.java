@@ -1,9 +1,5 @@
 package com.tinycoolthings.hiperprecos.product;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,6 +18,11 @@ import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class ProductViewFragment extends SherlockFragment {
 	
@@ -84,13 +85,14 @@ public class ProductViewFragment extends SherlockFragment {
 	
 		// PRECO
 		TextView tv_prod_price = ((TextView)view.findViewById(R.id.tv_prod_price));
-		tv_prod_price.setText(product.getPrice() + " €");
+        DecimalFormat formatter = new DecimalFormat("#.##");
+		tv_prod_price.setText(formatter.format(product.getPrice()) + " €");
 
 		// PRECO KG
 		TextView tv_prod_price_kg = ((TextView)view.findViewById(R.id.tv_prod_price_kg));
 		String priceKg = "-";
 		if (product.getPriceKg()!=null) {
-			priceKg = String.valueOf(product.getPriceKg());
+			priceKg = formatter.format(product.getPriceKg());
 		}
 		tv_prod_price_kg.setText(priceKg + " € / Kg");
 
