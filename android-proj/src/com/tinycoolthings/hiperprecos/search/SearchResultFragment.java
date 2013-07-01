@@ -13,12 +13,11 @@ import com.tinycoolthings.hiperprecos.models.Product;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 
 public class SearchResultFragment extends SherlockFragment {
 	
-	private ArrayList<Integer> productsIDs = new ArrayList<Integer>();
+	private final ArrayList<Integer> productsIDs = new ArrayList<Integer>();
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,10 +46,9 @@ public class SearchResultFragment extends SherlockFragment {
 	
 	public void setContents(ArrayList<Product> products) {
 		this.productsIDs.clear();
-    	Iterator<Product> prodIterator = products.iterator();
-    	while (prodIterator.hasNext()) {
-    		this.productsIDs.add(prodIterator.next().getId());
-    	}
+        for (Product product : products) {
+            this.productsIDs.add(product.getId());
+        }
 	}
 	
 }

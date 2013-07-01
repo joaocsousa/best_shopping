@@ -39,9 +39,8 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private ActionBar mActionBar;
     private ViewPager mPager;
-    private ActionBar.TabListener tabListener;
     private Integer nrCatsListsReceived = 0;
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -51,7 +50,7 @@ public class MainActivity extends SherlockFragmentActivity {
                         intent.getStringExtra(Constants.Extras.HYPERS));
                 // get categories for each hyper
                 List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
-                for (int i = 0; i < hypers.size(); i++) {
+                for (Hyper hyper : hypers) {
                     CallWebServiceTask getCategories = new CallWebServiceTask(
                             Constants.Actions.GET_CATEGORIES, false);
                     getCategories
@@ -59,8 +58,7 @@ public class MainActivity extends SherlockFragmentActivity {
                                     Constants.Server.Parameter.Name.PARENT_CATEGORY,
                                     -1);
                     getCategories.addParameter(
-                            Constants.Server.Parameter.Name.HYPER, hypers
-                            .get(i).getId());
+                            Constants.Server.Parameter.Name.HYPER, hyper.getId());
                     getCategories.execute();
                 }
             } else if (action.equals(Constants.Actions.GET_CATEGORIES)) {
@@ -251,7 +249,7 @@ public class MainActivity extends SherlockFragmentActivity {
         mPager.setAdapter(fragmentPagerAdapter);
 
         /** Defining tab listener */
-        tabListener = new
+        ActionBar.TabListener tabListener = new
 
                 ActionBar.TabListener() {
                     @Override
@@ -270,8 +268,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
         /** Create Tabs */
         List<Hyper> hypers = HiperPrecos.getInstance().getHypers();
-        for (int i = 0; i < hypers.size(); i++) {
-            Hyper currHyper = hypers.get(i);
+        for (Hyper currHyper : hypers) {
             String currHyperName = currHyper.getName();
             /** Creating Tab */
             Tab tab = mActionBar.newTab().setText(currHyperName).setTabListener(tabListener);

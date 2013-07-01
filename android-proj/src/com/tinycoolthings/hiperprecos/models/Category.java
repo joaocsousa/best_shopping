@@ -60,10 +60,7 @@ public class Category {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other == null || other.getClass() != getClass()) {
-			return false;
-		}
-		return (name.equals(((Category) other).name) && (id == ((Category) other).id));
+        return !(other == null || other.getClass() != getClass()) && (name.equals(((Category) other).name) && (id == ((Category) other).id));
 	}
 	
 	@Override

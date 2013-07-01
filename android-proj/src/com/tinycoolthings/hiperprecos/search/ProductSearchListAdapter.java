@@ -29,8 +29,7 @@ import java.util.Locale;
 
 public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 
-	private Context context;
-	private ArrayList<ArrayList<Product>> products = new ArrayList<ArrayList<Product>>();
+	private final ArrayList<ArrayList<Product>> products = new ArrayList<ArrayList<Product>>();
 	private final LayoutInflater mInflater;
 	
 	private static class GroupViewHolder {
@@ -47,9 +46,8 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	}
 	
 	public ProductSearchListAdapter(Context context, ArrayList<Product> produtos) {
-		this.context = context;
-		
-		this.products.clear();
+
+        this.products.clear();
 		
 		SparseIntArray mapHiperGroup = new SparseIntArray();
 		for (int i = 0; i<HiperPrecos.getInstance().getNumberOfHypers(); i++) {
@@ -59,17 +57,16 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 		for (int i = 0; i < HiperPrecos.getInstance().getNumberOfHypers(); i++) {
 			Hyper currentHiper = HiperPrecos.getInstance().getHypers().get(i);
 			ArrayList<Product> currProdsHiper = new ArrayList<Product>();
-			for (int j = 0; j < produtos.size(); j++) {
-				Product currProd = produtos.get(j);
-				Integer prodHiper = currProd.getHyper().getId();
-				if (prodHiper.equals(currentHiper.getId())) {
-					currProdsHiper.add(currProd);
-				}
-			}
+            for (Product currProd : produtos) {
+                Integer prodHiper = currProd.getHyper().getId();
+                if (prodHiper.equals(currentHiper.getId())) {
+                    currProdsHiper.add(currProd);
+                }
+            }
 			this.products.add(currProdsHiper);
 		}
 		
-		this.mInflater = (LayoutInflater)this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
@@ -194,10 +191,10 @@ public class ProductSearchListAdapter extends BaseExpandableListAdapter {
 	}
 
 	private class ThumbnailTask extends AsyncTask <Void, Void, Bitmap> {
-	    private int mPosition;
-	    private ChildViewHolder mHolder;
-	    private String mFileName;
-	    private String mHiper;
+	    private final int mPosition;
+	    private final ChildViewHolder mHolder;
+	    private final String mFileName;
+	    private final String mHiper;
 	
 	    public ThumbnailTask(int position, ChildViewHolder holder, String fileName, String hiper) {
 	        mPosition = position;

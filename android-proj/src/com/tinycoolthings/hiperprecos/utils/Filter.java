@@ -11,7 +11,7 @@ public class Filter implements Parcelable {
 	private String productName = "";
 	private Integer minPrice = 0;
 	private Integer maxPrice = 0;
-	private List<String> brands = new ArrayList<String>();
+	private final List<String> brands = new ArrayList<String>();
 	
 	private boolean initialized = false;
 	
@@ -78,7 +78,7 @@ public class Filter implements Parcelable {
 		dest.writeInt(minPrice);
 		dest.writeInt(maxPrice);
 		dest.writeStringList(brands);
-		dest.writeInt(initialized == true ? 1 : 0);
+		dest.writeInt(initialized ? 1 : 0);
 	}
 
 	private void readFromParcel(Parcel in) {
@@ -86,7 +86,7 @@ public class Filter implements Parcelable {
 		minPrice = in.readInt();
 		maxPrice = in.readInt();
 		in.readStringList(brands);
-		initialized = in.readInt() == 0 ? false : true;
+		initialized = in.readInt() == 0;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -113,13 +113,13 @@ public class Filter implements Parcelable {
 		this.initialized = currFilter.initialized();
 	}
 
-	public void initialize(int minPriceFilter, int maxPriceFilter, String productNameFilter, List<String> allBrands) {
+	public void initialize(int minPriceFilter, int maxPriceFilter, List<String> allBrands) {
 		if (this.initialized) {
 			return;
 		}
 		this.minPrice = minPriceFilter;
 		this.maxPrice = maxPriceFilter;
-		this.productName = productNameFilter;
+		this.productName = "";
 		this.brands.addAll(allBrands);
 		this.initialized = true;
 	}

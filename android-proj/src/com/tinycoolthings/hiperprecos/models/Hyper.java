@@ -46,10 +46,7 @@ public class Hyper {
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other == null || other.getClass() != getClass()) {
-			return false;
-		}
-		return (name.equals(((Hyper) other).name) && (id == ((Hyper) other).id));
+        return !(other == null || other.getClass() != getClass()) && (name.equals(((Hyper) other).name) && (id == ((Hyper) other).id));
 	}
 
 }

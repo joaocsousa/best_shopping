@@ -29,8 +29,7 @@ public class ImageStorage {
 	public static String getFileNameCompressed(String fileName) {
 		Integer lastDotPos = fileName.lastIndexOf(".");
 		String extension = fileName.substring(lastDotPos);
-		String nameCmp = fileName.substring(0, lastDotPos) + ".cmp" + extension;
-		return nameCmp;
+        return fileName.substring(0, lastDotPos) + ".cmp" + extension;
 	}
 	
 	/**

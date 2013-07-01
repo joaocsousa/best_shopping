@@ -21,7 +21,6 @@ import com.tinycoolthings.hiperprecos.utils.Debug;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class CategoryListFragment extends SherlockListFragment {
@@ -53,12 +52,10 @@ public class CategoryListFragment extends SherlockListFragment {
 		}
 		
 		ArrayList<String> catsToShow = new ArrayList<String>();
-		
-		Iterator<Category> iterator = categories.iterator();
-		while (iterator.hasNext()) {
-			Category currCat = iterator.next();
-			catsToShow.add(currCat.getName());
-		}
+
+        for (Category currCat : categories) {
+            catsToShow.add(currCat.getName());
+        }
 		
 		/** Creating array adapter to set data in listview */
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getBaseContext(), R.layout.sherlock_spinner_dropdown_item, catsToShow);

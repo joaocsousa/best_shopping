@@ -27,14 +27,14 @@ public class ProductListFragment extends SherlockListFragment {
 	private ProductListAdapter adapter;
 	private Double filterMinPrice = 0.0;
 	private Double filterMaxPrice = 0.0;
-	private List<String> brands = new ArrayList<String>();
+	private final List<String> brands = new ArrayList<String>();
 	
 	@Override
 	public void onResume() {
 		Debug.PrintDebug(this, "onResume");
 		super.onResume();
 	}
-	
+
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
@@ -44,7 +44,7 @@ public class ProductListFragment extends SherlockListFragment {
 		
 		sort = args.getInt(Constants.Extras.PRODUCT_SORT);
 		
-		filter = (Filter) args.getParcelable(Constants.Extras.FILTER);
+		filter = args.getParcelable(Constants.Extras.FILTER);
 		
 		try {
 			products = HiperPrecos.getInstance().getProductsFromCategory(category, sort, filter);
@@ -115,21 +115,21 @@ public class ProductListFragment extends SherlockListFragment {
 		if (products.size()==0) {
 			this.filterMaxPrice = 0.0;
 		}
-		for (int i=0; i < products.size(); i++) {
-			if (products.get(i).getPrice() > maxPrice) {
-				maxPrice = products.get(i).getPrice();
-			}
-		}
+        for (Product product : products) {
+            if (product.getPrice() > maxPrice) {
+                maxPrice = product.getPrice();
+            }
+        }
 		this.filterMaxPrice = maxPrice;
 	}
 	
 	private void setBrands() {
-		for (int i=0; i < products.size(); i++) {
-			String currBrand = products.get(i).getBrand().equals("null") || products.get(i).getBrand().equals("") ? getResources().getString(R.string.non_available) : products.get(i).getBrand();
-			if (!brands.contains(currBrand)) {
-				brands.add(currBrand);
-			}
-		}
+        for (Product product : products) {
+            String currBrand = product.getBrand().equals("null") || product.getBrand().equals("") ? getResources().getString(R.string.non_available) : product.getBrand();
+            if (!brands.contains(currBrand)) {
+                brands.add(currBrand);
+            }
+        }
 	}
 	
 	public Double getMinPriceFilter() {

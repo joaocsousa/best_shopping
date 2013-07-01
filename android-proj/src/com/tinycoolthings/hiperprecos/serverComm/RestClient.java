@@ -22,15 +22,15 @@ import java.util.ArrayList;
 
 public class RestClient {
 
-    private ArrayList <NameValuePair> params;
-    private ArrayList <NameValuePair> headers;
+    private final ArrayList<NameValuePair> params;
+    private final ArrayList<NameValuePair> headers;
     
     public enum RequestMethod {
     	GET,
     	POST
     }
     
-    private String url;
+    private final String url;
 
     private int responseCode;
     private String message;
@@ -97,7 +97,7 @@ public class RestClient {
                     request.addHeader(h.getName(), h.getValue());
                 }
 
-                executeRequest(request, url);
+                executeRequest(request);
                 break;
             }
             case POST:
@@ -114,13 +114,13 @@ public class RestClient {
                     request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
                 }
 
-                executeRequest(request, url);
+                executeRequest(request);
                 break;
             }
         }
     }
 
-    private void executeRequest(HttpUriRequest request, String url)
+    private void executeRequest(HttpUriRequest request)
     {
         HttpClient client = new DefaultHttpClient();
 
@@ -159,7 +159,7 @@ public class RestClient {
         String line = null;
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();

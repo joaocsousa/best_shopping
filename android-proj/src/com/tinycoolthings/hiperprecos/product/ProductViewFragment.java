@@ -18,9 +18,9 @@ import com.tinycoolthings.hiperprecos.models.Product;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Debug;
 import com.tinycoolthings.hiperprecos.utils.ImageStorage;
+import com.tinycoolthings.hiperprecos.utils.Utils;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -103,23 +103,23 @@ public class ProductViewFragment extends SherlockFragment {
 		
 		String dayOfLastUpdate = "";
 		String formatString = "";
-		Calendar latestUpdateDate = Calendar.getInstance();
-		latestUpdateDate.setTime(product.getLatestUpdate());
-		if(now.get(Calendar.DATE) == latestUpdateDate.get(Calendar.DATE) ) {
-			dayOfLastUpdate = getString(R.string.today) + " - ";
-			formatString = "HH:mm";
-		} else if (now.get(Calendar.DATE) - latestUpdateDate.get(Calendar.DATE) == 1 ){
-			dayOfLastUpdate = getString(R.string.yesterday) + " - ";
-			formatString = "HH:mm";
-		} else {
-			formatString = "dd-MM-yyyy HH:mm";
-		}
+//		Calendar latestUpdateDate = Calendar.getInstance();
+//		latestUpdateDate.setTime(product.getLatestUpdate());
+//		if(now.get(Calendar.DATE) == latestUpdateDate.get(Calendar.DATE) ) {
+//			dayOfLastUpdate = getString(R.string.today) + " - ";
+//			formatString = "HH:mm";
+//		} else if (now.get(Calendar.DATE) - latestUpdateDate.get(Calendar.DATE) == 1 ){
+//			dayOfLastUpdate = getString(R.string.yesterday) + " - ";
+//			formatString = "HH:mm";
+//		} else {
+//			formatString = "dd-MM-yyyy HH:mm";
+//		}
+//
+//		SimpleDateFormat sdf = new SimpleDateFormat(formatString, Locale.getDefault());
+//
+//		String lastUpdateDate = sdf.format(product.getLatestUpdate().getTime());
 		
-		SimpleDateFormat sdf = new SimpleDateFormat(formatString, Locale.getDefault());
-		
-		String lastUpdateDate = sdf.format(product.getLatestUpdate().getTime());
-		
-		tv_lastUpdate.setText(tv_lastUpdate.getText() + ": " + dayOfLastUpdate + lastUpdateDate);
+		tv_lastUpdate.setText(tv_lastUpdate.getText() + ": " + dayOfLastUpdate + Utils.dateToStr(product.getLatestUpdate()));
 		
 		return view;
 		

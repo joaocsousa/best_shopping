@@ -25,10 +25,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class SearchResults extends SherlockFragmentActivity {
+
+    private final ArrayList<Product> products = new ArrayList<Product>();
 	
-	ArrayList<Product> products = new ArrayList<Product>();
-	
-	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.Actions.GET_PRODUCT)) {

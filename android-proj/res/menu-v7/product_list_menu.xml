@@ -5,19 +5,25 @@
         android:id="@+id/menu_search"
         android:actionViewClass="com.actionbarsherlock.widget.SearchView"
         android:icon="?img_search"
-        android:showAsAction="always|withText|collapseActionView"
+        android:showAsAction="withText|collapseActionView"
         android:title="@string/search" />
-	
+
+    <item
+        android:id="@+id/shopping_list"
+        android:icon="?img_basket"
+        android:showAsAction="withText|collapseActionView"
+        android:title="@string/shopping_list" />
+
 	<item
         android:id="@+id/menu_filter"
         android:icon="?img_filter"
-        android:showAsAction="always|withText|collapseActionView"
+        android:showAsAction="withText|collapseActionView"
         android:title="@string/filter" />
     
 	<item
         android:id="@+id/menu_sort"
         android:icon="?img_sort"
-        android:showAsAction="always|withText|collapseActionView"
+        android:showAsAction="withText|collapseActionView"
         android:title="@string/sort" />
 	
 </menu>

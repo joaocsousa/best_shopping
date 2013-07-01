@@ -16,7 +16,6 @@ public class Product {
     public static final String ID_FIELD_NAME = "id";
     public static final String IS_IN_LIST_FIELD_NAME = "is_in_list";
     public static final String QUANTITY_IN_LIST_FIELD_NAME = "quantity_in_list";
-
     @DatabaseField(id = true, columnName = ID_FIELD_NAME)
     private int id;
     @DatabaseField(canBeNull = false, columnName = NAME_FIELD_NAME)
@@ -138,12 +137,7 @@ public class Product {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null || other.getClass() != getClass()) {
-            return false;
-        }
-        return (name.equals(((Product) other).name)
-                && (id == ((Product) other).id) && hyper
-                .equals(((Product) other).hyper));
+        return !(other == null || other.getClass() != getClass()) && (name.equals(((Product) other).name) && (id == ((Product) other).id) && hyper.equals(((Product) other).hyper));
     }
 
 }

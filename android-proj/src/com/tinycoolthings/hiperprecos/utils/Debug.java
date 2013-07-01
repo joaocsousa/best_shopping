@@ -73,7 +73,7 @@ public class Debug {
 		        File log = new File(root, Constants.Debug.GENERAL_TAG+".txt");
 		    	BufferedWriter writer = new BufferedWriter(new FileWriter(log, true));
 
-		        String time = Utils.calendarToStr(Calendar.getInstance());
+		        String time = Utils.dateToStr(Calendar.getInstance().getTime());
 		        String msgType = "";
 		        switch (error) {
 			        case DEBUG:

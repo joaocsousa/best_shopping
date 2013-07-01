@@ -112,7 +112,6 @@ public class ShoppingListItem extends ArrayAdapter<Product> {
                         HiperPrecos.getInstance().refreshProduct(item);
                         Intent i = new Intent(Constants.Actions.SHOPPING_LIST_CHANGED);
                         HiperPrecos.getInstance().sendBroadcast(i);
-//                        notifyDataSetChanged();
                     }
                 });
                 dialog.show();
@@ -145,10 +144,10 @@ public class ShoppingListItem extends ArrayAdapter<Product> {
     }
 
     private class ThumbnailTask extends AsyncTask <Void, Void, Bitmap> {
-        private int mPosition;
-        private ViewHolder mHolder;
-        private String mFileName;
-        private String mHyper;
+        private final int mPosition;
+        private final ViewHolder mHolder;
+        private final String mFileName;
+        private final String mHyper;
 
         public ThumbnailTask(int position, ViewHolder holder, String fileName, String hiper) {
             mPosition = position;

@@ -28,11 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NavigationList"></activity>
-        <activity android:name=".product.ProductView"></activity>
-        <activity android:name=".search.SearchResults"></activity>
-        <activity android:name=".product.ProductList"></activity>
-        <activity android:name=".shoppingList.ShoppingList"></activity>
+        <activity android:name=".NavigationList"/>
+        <activity android:name=".product.ProductView"/>
+        <activity android:name=".search.SearchResults"/>
+        <activity android:name=".product.ProductList"/>
+        <activity android:name=".shoppingList.ShoppingList"/>
     </application>
 
 </manifest>

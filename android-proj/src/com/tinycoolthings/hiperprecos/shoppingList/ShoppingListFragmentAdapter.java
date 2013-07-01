@@ -1,9 +1,5 @@
 package com.tinycoolthings.hiperprecos.shoppingList;
 
-/**
- * Created by joaosousa on 6/26/13.
- */
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

@@ -166,9 +166,10 @@ public class HiperPrecos extends Application {
 				} catch (Exception e1) {
 				}
 			}
+            latestUpdate*=1000;
 			category = new Category(categoryJSONObj.getInt("id"),
 					categoryJSONObj.getString("nome"), hyper, parentCategory,
-					Utils.convertLongToDate(latestUpdate));
+					new Date(latestUpdate));
 			// parse sub categories
 			try {
 				JSONArray subCategories = categoryJSONObj
@@ -220,7 +221,7 @@ public class HiperPrecos extends Application {
 		try {
 			hyper = new Hyper(hyperJSONObj.getInt("id"),
 					hyperJSONObj.getString("nome"),
-					Utils.convertLongToDate(hyperJSONObj
+                    new Date(hyperJSONObj
 							.getLong("latestUpdate") * 1000));
 			databaseHelper.getHyperRuntimeDao().createOrUpdate(hyper);
 		} catch (JSONException e) {
@@ -249,10 +250,6 @@ public class HiperPrecos extends Application {
 		}
 		return product;
 	}
-
-	// public Product addSearchResult(JSONObject producJSONObj) {
-	//
-	// }
 
 	public Product addProduct(JSONObject productJSONObj) {
 		Product product = null;
@@ -295,11 +292,12 @@ public class HiperPrecos extends Application {
 				} catch (Exception e1) {
 				}
 			}
+            latestUpdate*=1000;
 			product = new Product(productJSONObj.getInt("id"),
 					productJSONObj.getString("nome"), brand, price, priceKg,
 					weight, productJSONObj.getString("url_pagina"),
 					productJSONObj.getString("url_imagem"), desconto,
-					parentCategory, Utils.convertLongToDate(latestUpdate),
+					parentCategory, new Date(latestUpdate),
 					hyper);
 			databaseHelper.getProductRuntimeDao().createOrUpdate(product);
 		} catch (JSONException e) {
@@ -535,20 +533,6 @@ public class HiperPrecos extends Application {
 
     public void updateProduct(Product product) {
         databaseHelper.getProductRuntimeDao().update(product);
-    }
-
-    public void saveProductInList(Product product) {
-//        ProductList productList = null;
-//        try {
-//            productList = new ProductList(hyperJSONObj.getInt("id"),
-//                    hyperJSONObj.getString("nome"),
-//                    Utils.convertLongToDate(hyperJSONObj
-//                            .getLong("latestUpdate") * 1000));
-//            databaseHelper.getHyperRuntimeDao().createOrUpdate(hyper);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return hyper;
     }
 
     public List<Product> getProductsFromHyperList(Hyper hyper) throws SQLException {

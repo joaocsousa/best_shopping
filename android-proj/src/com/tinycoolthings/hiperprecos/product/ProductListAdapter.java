@@ -32,10 +32,10 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 	private final LayoutInflater mInflater;
 
 	static class ViewHolder {
-		public TextView txtNome;
-		public TextView txtMarca;
-		public TextView txtPreco;
-		public TextView txtPeso;
+		public TextView txtName;
+		public TextView txtBrand;
+		public TextView txtPrice;
+		public TextView txtPesoWeight;
 		public ImageView img;
 		public Integer position;
 	}
@@ -64,10 +64,10 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 		if (view == null) {
 			view = mInflater.inflate(R.layout.product_list_item, parent, false);
 			viewHolder = new ViewHolder();
-			viewHolder.txtNome = (TextView) view.findViewById(R.id.tv_item_prod_nome);
-			viewHolder.txtMarca = (TextView) view.findViewById(R.id.tv_item_prod_marca);
-			viewHolder.txtPreco = (TextView) view.findViewById(R.id.tv_item_prod_preco);
-			viewHolder.txtPeso = (TextView) view.findViewById(R.id.tv_item_prod_peso);
+			viewHolder.txtName = (TextView) view.findViewById(R.id.tv_item_prod_nome);
+			viewHolder.txtBrand = (TextView) view.findViewById(R.id.tv_item_prod_marca);
+			viewHolder.txtPrice = (TextView) view.findViewById(R.id.tv_item_prod_preco);
+			viewHolder.txtPesoWeight = (TextView) view.findViewById(R.id.tv_item_prod_peso);
 			viewHolder.img = (ImageView) view.findViewById(R.id.iv_item_prod_img);
 			view.setTag(viewHolder);
 		} else {
@@ -75,19 +75,19 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 		}
 		
 		Product item = getItem(position);
-		viewHolder.txtNome.setText(item.getName());
-		String marca = "-";
+		viewHolder.txtName.setText(item.getName());
+		String brand = "-";
 		if (item.getBrand()!=null && !item.getBrand().equals("") && !item.getBrand().equals("null")) {
-			marca = item.getBrand();
+			brand = item.getBrand();
 		}
-		viewHolder.txtMarca.setText(marca);
+		viewHolder.txtBrand.setText(brand);
         DecimalFormat formatter = new DecimalFormat("#.##");
-		viewHolder.txtPreco.setText(formatter.format(item.getPrice()) + " €");
+		viewHolder.txtPrice.setText(formatter.format(item.getPrice()) + " €");
 		String peso = "-";
 		if (item.getWeight()!=null && !item.getWeight().equals("") && !item.getWeight().equals("null")) {
 			peso = item.getWeight();
 		}
-		viewHolder.txtPeso.setText(peso);
+		viewHolder.txtPesoWeight.setText(peso);
 		viewHolder.position = position;
 		String fileName = ImageStorage.getFileNameCompressed(ImageStorage.getFileName(item.getUrlImage(), item.getName(), item.getBrand()));
 		Hyper productHyper = item.getHyper();
@@ -115,10 +115,10 @@ public class ProductListAdapter extends ArrayAdapter<Product> {
 	}
 
 	private class ThumbnailTask extends AsyncTask <Void, Void, Bitmap> {
-	    private int mPosition;
-	    private ViewHolder mHolder;
-	    private String mFileName;
-	    private String mHiper;
+	    private final int mPosition;
+	    private final ViewHolder mHolder;
+	    private final String mFileName;
+	    private final String mHiper;
 	
 	    public ThumbnailTask(int position, ViewHolder holder, String fileName, String hiper) {
 	        mPosition = position;

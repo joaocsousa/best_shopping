@@ -1,5 +1,6 @@
 package com.tinycoolthings.hiperprecos.utils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,28 +9,17 @@ import java.util.Locale;
 import java.util.Random;
 
 public class Utils {
-	
-	/**
-	 * Converts a Calendar to "yyyy-MM-dd HH:mm:ss.SSS"
-	 * @param cal - Calendar in local TZ
-	 * @return String in format "yyyy-MM-dd HH:mm:ss.SSS"
-	 */
-	public static String calendarToStr(Calendar cal) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-		return(sdf.format(cal.getTime()));
-	}
-	
-	/**
+
+    /**
 	 * Converts a Date to "yyyy-MM-dd HH:mm:ss"
-	 * @param cal - Calendar in local TZ
+	 * @param date - Calendar in local TZ
 	 * @return String in format "yyyy-MM-dd HH:mm:ss.SSS"
 	 */
 	public static String dateToStr(Date date) {
 		if (date==null) {
 			return "";
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-		return(sdf.format(date));
+        return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date);
 	}
 	
 	/**
@@ -45,11 +35,6 @@ public class Utils {
 		return cal;
 	}
 	
-	public static Date convertLongToDate(Long dateTimeStamp) {
-		Date date = new Date(dateTimeStamp);
-		return date;
-	}
-	
 	public static Integer getRandomInt() {
 		int maxValue = 100000;
 		Random random = new Random();
@@ -62,10 +47,7 @@ public class Utils {
 	}
 	
 	public static boolean validSearch(String text) {
-		if (text.length()<3) {
-			return false;
-		}
-		return true;
+		return text.length()>=3;
 	}
 	
 	public static String capitalizeFirstLetter(String input) {

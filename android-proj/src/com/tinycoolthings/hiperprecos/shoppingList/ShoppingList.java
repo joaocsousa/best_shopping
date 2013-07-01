@@ -29,13 +29,12 @@ public class ShoppingList extends SherlockFragmentActivity {
 
     private ActionBar mActionBar;
     private ViewPager mPager;
-    private ActionBar.TabListener tabListener;
     private ShoppingListFragmentAdapter shoppingListFragmentAdapter;
-    private SparseArray<Double> shoppingSums = new SparseArray<Double>();
+    private final SparseArray<Double> shoppingSums = new SparseArray<Double>();
     private List<Hyper> hypers;
     private int currSelectedPos = 0;
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Constants.Actions.DISPLAY_PRODUCT)) {
@@ -102,7 +101,7 @@ public class ShoppingList extends SherlockFragmentActivity {
         mPager.setAdapter(shoppingListFragmentAdapter);
 
         /** Defining tab listener */
-        tabListener = new
+        ActionBar.TabListener tabListener = new
 
                 ActionBar.TabListener() {
                     @Override
@@ -123,8 +122,7 @@ public class ShoppingList extends SherlockFragmentActivity {
 
         /** Create Tabs */
         hypers = HiperPrecos.getInstance().getHypers();
-        for (int i = 0; i < hypers.size(); i++) {
-            Hyper currHyper = hypers.get(i);
+        for (Hyper currHyper : hypers) {
             shoppingSums.put(currHyper.getId(), 0.0);
             String currHyperName = currHyper.getName();
             /** Creating Tab */
@@ -136,8 +134,7 @@ public class ShoppingList extends SherlockFragmentActivity {
     }
 
     private void resetTotalShoppingSum() {
-        for (int i = 0; i < hypers.size(); i++) {
-            Hyper currHyper = hypers.get(i);
+        for (Hyper currHyper : hypers) {
             shoppingSums.put(currHyper.getId(), 0.0);
         }
         updateTotalShoppingSum();

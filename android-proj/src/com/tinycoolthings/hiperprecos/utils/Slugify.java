@@ -38,8 +38,7 @@ public class Slugify {
 		if (ret.equals("")) {
 			return "";
 		}
-		String resultString = ret.replaceAll("[^\\p{L}\\p{N}]", "");
-		return resultString;
+        return ret.replaceAll("[^\\p{L}\\p{N}]", "");
 	}
 
 	private static String removeDuplicateWhiteSpaces(String input) {

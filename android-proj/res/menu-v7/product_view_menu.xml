@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+	<item
+        android:id="@+id/menu_icon_browser"
+        android:showAsAction="withText|collapseActionView"
+        android:icon="?img_browser"
+        android:title="@string/menu_open_in_browser" >
+    </item>
+
+    <item
+        android:id="@+id/menu_icon_save_in_list"
+        android:showAsAction="withText|collapseActionView"
+        android:icon="?img_in_basket"
+        android:title="@string/save_in_list" >
+    </item>
+
+    <item
+        android:id="@+id/menu_icon_remove_from_list"
+        android:showAsAction="withText|collapseActionView"
+        android:icon="?img_out_basket"
+        android:title="@string/remove_from_list" >
+    </item>
+
+</menu>

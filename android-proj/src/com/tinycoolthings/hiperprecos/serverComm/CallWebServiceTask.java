@@ -24,9 +24,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
-	private String action;
-	private Map<Name, Object> params;
-	private Boolean hideDialogOnFinish;
+	private final String action;
+	private final Map<Name, Object> params;
+	private final Boolean hideDialogOnFinish;
 	
 	/**
 	 * Starts a request to the web services
@@ -132,28 +132,31 @@ public class CallWebServiceTask extends AsyncTask <Void, Void, String> {
 		    	} else if (jsonObj.has("prodPorMarca")) {
 		    		prodJsonNames.add("prodPorMarca");
 		    	}
-		    	for (int j=0;j<prodJsonNames.size();j++) {
-		    		JSONArray produtos = jsonObj.getJSONArray(prodJsonNames.get(j));
-		    		if (produtos.length()>0) {
-		    			ExecutorService executor = Executors.newFixedThreadPool(produtos.length());
-			    		for (int i=0;i<produtos.length();i++) {
-			    			JSONObject currProdJson = produtos.getJSONObject(i);
-			    			try {
-			    				String currProdUrl = currProdJson.getString("url_imagem");
-			    				// test url
-			    				URL u = new URL(currProdUrl);
-				    			u.toURI();
-				    			//////////////
-				    			String fileName = ImageStorage.getFileName(currProdUrl, currProdJson.getString("nome"), currProdJson.getString("marca"));
-				    			Runnable worker = new CallWebServiceTask.FetchImage(currProdUrl, fileName);
-				    			executor.execute(worker);
-			    			} catch (Exception e) { e.printStackTrace(); }
-			    		}
-			    		executor.shutdown();
-			    		// Wait until all threads are finish
-			    	    while (!executor.isTerminated()) {}
-		    		}
-		    	}
+                for (String prodJsonName : prodJsonNames) {
+                    JSONArray produtos = jsonObj.getJSONArray(prodJsonName);
+                    if (produtos.length() > 0) {
+                        ExecutorService executor = Executors.newFixedThreadPool(produtos.length());
+                        for (int i = 0; i < produtos.length(); i++) {
+                            JSONObject currProdJson = produtos.getJSONObject(i);
+                            try {
+                                String currProdUrl = currProdJson.getString("url_imagem");
+                                // test url
+                                URL u = new URL(currProdUrl);
+                                u.toURI();
+                                //////////////
+                                String fileName = ImageStorage.getFileName(currProdUrl, currProdJson.getString("nome"), currProdJson.getString("marca"));
+                                Runnable worker = new FetchImage(currProdUrl, fileName);
+                                executor.execute(worker);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        executor.shutdown();
+                        // Wait until all threads are finish
+                        while (!executor.isTerminated()) {
+                        }
+                    }
+                }
 		    }
 		    
 		    return response;

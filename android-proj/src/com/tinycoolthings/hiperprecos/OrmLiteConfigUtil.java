@@ -67,7 +67,7 @@ public class OrmLiteConfigUtil {
     /**
      * Maximum recursion level while we are looking for source files.
      */
-    protected static int maxFindSourceLevel = 20;
+    protected static final int maxFindSourceLevel = 20;
 
     private static final DatabaseType databaseType = new SqliteAndroidDatabaseType();
 

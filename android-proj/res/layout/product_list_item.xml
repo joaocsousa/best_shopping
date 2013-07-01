@@ -29,7 +29,7 @@
 	        android:layout_height="0dp"
 	        android:singleLine="true"
 	        android:gravity="center_vertical"
-	        android:textSize="@dimen/prod_item_name_txt_size"
+	        android:textSize="17sp"
 	        android:layout_weight="1" />
 	
 	    <TextView

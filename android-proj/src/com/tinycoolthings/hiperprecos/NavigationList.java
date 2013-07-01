@@ -19,6 +19,7 @@ import com.tinycoolthings.hiperprecos.models.Category;
 import com.tinycoolthings.hiperprecos.product.ProductList;
 import com.tinycoolthings.hiperprecos.search.SearchResults;
 import com.tinycoolthings.hiperprecos.serverComm.CallWebServiceTask;
+import com.tinycoolthings.hiperprecos.shoppingList.ShoppingList;
 import com.tinycoolthings.hiperprecos.utils.Constants;
 import com.tinycoolthings.hiperprecos.utils.Constants.Server.Parameter.Name;
 import com.tinycoolthings.hiperprecos.utils.Debug;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class NavigationList extends SherlockFragmentActivity {
@@ -38,7 +38,7 @@ public class NavigationList extends SherlockFragmentActivity {
 
 	private List<Category> categoriesListMenu = new ArrayList<Category>();
 	
-	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Constants.Actions.GET_CATEGORY)) {
@@ -120,6 +120,10 @@ public class NavigationList extends SherlockFragmentActivity {
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
 	        	exitToMainMenu();
+                break;
+            case R.id.shopping_list:
+                startActivity(new Intent(this, ShoppingList.class));
+                break;
 	    }
 	    return super.onOptionsItemSelected(item);
 	}
@@ -189,12 +193,10 @@ public class NavigationList extends SherlockFragmentActivity {
 		}
 		
 		preSelectedPosition = categoriesListMenu.indexOf(category);
-		
-		Iterator<Category> iterator = categoriesListMenu.iterator();
-		while (iterator.hasNext()) {
-			Category currCat = iterator.next();
-			categoriesList.add(currCat.getName());
-		}
+
+        for (Category currCat : categoriesListMenu) {
+            categoriesList.add(currCat.getName());
+        }
 	
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActionBar.getThemedContext(), R.layout.sherlock_spinner_dropdown_item, categoriesList);
 		
@@ -250,7 +252,6 @@ public class NavigationList extends SherlockFragmentActivity {
 			enterSubCategory(parentCategory);
 		} else {
 			exitToMainMenu();
-			return;
 		}
 	}
 	
