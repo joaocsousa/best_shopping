@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="menu_open_in_browser">Abrir no Browser</string>
-    <string name="app_name">HiperPrecos</string>
+    <string name="app_name">SuperCompras</string>
 	<string name="prod_img_description">Imagem do Produto</string>
 	<string name="prod_img_last_update">Atualizado em</string>
 	<string name="yesterday">Ontem</string>

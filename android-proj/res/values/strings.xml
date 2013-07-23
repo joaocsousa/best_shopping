@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="menu_open_in_browser">Open in Browser</string>
-    <string name="app_name">HiperPrecos</string>
+    <string name="app_name">BestShopping</string>
 	<string name="prod_img_description">Product Image</string>
 	<string name="prod_img_last_update">Updated in</string>
 	<string name="yesterday">Yesterday</string>
