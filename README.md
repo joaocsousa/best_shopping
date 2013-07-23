@@ -1,6 +1,6 @@
 # BestShopping
 
-<img src="http://www.tinycoolthings.com/best_shopping_big_logo.png" style="width: 100px;"/>
+<img src="http://www.tinycoolthings.com/best_shopping_xhdpi_logo.png" />
 
 ## Description
 
