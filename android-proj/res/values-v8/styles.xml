@@ -1,0 +1,18 @@
+<resources>
+
+    <!--
+        Base application theme for API 8. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    -->
+    <style name="AppBaseTheme" parent="Theme.Sherlock.Light">
+        <item name="img_basket">@drawable/ic_holo_light_action_basket</item>
+        <item name="img_in_basket">@drawable/ic_holo_light_action_drop</item>
+        <item name="img_out_basket">@drawable/ic_holo_light_action_extract</item>
+        <item name="img_filter">@drawable/ic_holo_light_action_filter</item>
+        <item name="img_browser">@drawable/ic_holo_light_action_globe</item>
+        <item name="img_refresh">@drawable/ic_holo_light_action_reload</item>
+        <item name="img_search">@drawable/ic_holo_light_action_search</item>
+        <item name="img_sort">@drawable/ic_holo_light_action_sort</item>
+    </style>
+
+</resources>

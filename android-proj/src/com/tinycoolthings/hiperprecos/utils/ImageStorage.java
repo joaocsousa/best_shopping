@@ -135,7 +135,9 @@ public class ImageStorage {
 			        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, outScaled);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
-				}
+				} catch (Exception e) {
+                    e.printStackTrace();
+                }
 			} else {
 				//Use internal Storage instead
 				FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);

@@ -92,7 +92,7 @@ class Continente(hiper.Hiper):
             #         pass
             # soupCat = BeautifulSoup(catRequest)
 
-            # # Categoria - Nome
+            # Categoria - Nome
             # try:
             #     catName = Utils.strip(soupCat.find("a", {"class": "navmainOpcoesMenu"}).text)
             # except Exception, e:
@@ -198,7 +198,7 @@ class Continente(hiper.Hiper):
             #         self._failedProxies.append(proxy)
             #         pass
 
-            Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
+            # Utils.printMsg(self._name, 'Finished fetching products of: ' + Utils.toStr(catName), Utils.getLineNo())
 
         Utils.printMsg(self._name, "-" + "Finished - Elapsed: " + str(time.time()-start_time) + " seconds", Utils.getLineNo())
 
