@@ -19,4 +19,8 @@ The Android application was built in accordance to Google’s latest design patt
 
 ### Screenshots
 
+<img src="http://www.tinycoolthings.com/screenshots/main1.png" /> <img src="http://www.tinycoolthings.com/screenshots/cat_display1.png" />
 
+<img src="http://www.tinycoolthings.com/screenshots/products_list1.png" /> <img src="http://www.tinycoolthings.com/screenshots/coke1.png" />
+
+<img src="http://www.tinycoolthings.com/screenshots/shopping_list1.png" />
