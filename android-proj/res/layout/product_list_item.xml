@@ -24,7 +24,7 @@
 		android:layout_marginBottom="5dp" >
       
         <TextView
-	        android:id="@+id/tv_item_prod_nome"
+	        android:id="@+id/tv_item_prod_name"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp"
 	        android:singleLine="true"
@@ -33,7 +33,7 @@
 	        android:layout_weight="1" />
 	
 	    <TextView
-	        android:id="@+id/tv_item_prod_marca"
+	        android:id="@+id/tv_item_prod_brand"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp"
 	        android:gravity="center_vertical"
@@ -45,7 +45,7 @@
 	        android:layout_weight="1" >
 	         
 		    <TextView
-		        android:id="@+id/tv_item_prod_peso"
+		        android:id="@+id/tv_item_prod_weight"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
 		        android:singleLine="true"
@@ -54,7 +54,7 @@
 		        android:layout_alignParentLeft="true" />
 	        
 		    <TextView
-		        android:id="@+id/tv_item_prod_preco"
+		        android:id="@+id/tv_item_prod_price"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
 		        android:gravity="center_vertical"

@@ -1,8 +1,8 @@
 #
-# generated on 2013/06/28 02:29:59
+# generated on 2013/07/25 11:03:27
 #
 # --table-start--
-dataClass=com.tinycoolthings.hiperprecos.models.Hyper
+dataClass=com.tinycoolthings.bestshopping.models.Hyper
 tableName=hypers
 # --table-fields-start--
 # --field-start--
@@ -22,7 +22,7 @@ columnName=latestUpdate
 # --table-end--
 #################################
 # --table-start--
-dataClass=com.tinycoolthings.hiperprecos.models.Category
+dataClass=com.tinycoolthings.bestshopping.models.Category
 tableName=categories
 # --table-fields-start--
 # --field-start--
@@ -52,7 +52,7 @@ fieldName=latestUpdate
 # --table-end--
 #################################
 # --table-start--
-dataClass=com.tinycoolthings.hiperprecos.models.Product
+dataClass=com.tinycoolthings.bestshopping.models.Product
 tableName=products
 # --table-fields-start--
 # --field-start--
