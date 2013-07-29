@@ -4,7 +4,7 @@
 
 ## Description
 
-BestShopping is a project that intends to allow its users to compare prices between two major Portuguese hipermarkets, [Jumbo](http://www.jumbo.pt/) and [Continente](http://www.continente.pt/). This project involves a backend API and a frontend Android application.
+BestShopping is a project that intends to allow its users to compare prices between two major Portuguese hypermarkets, [Jumbo](http://www.jumbo.pt/) and [Continente](http://www.continente.pt/). This project involves a backend API and a frontend Android application.
 
 ### Backend API
 To serve the Android application, two things were necessary:
